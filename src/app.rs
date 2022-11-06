@@ -92,7 +92,7 @@ pub fn app() -> Html {
     let mut it = 0..1600;
     while let Some(i) = it.next() {
         y_nums.push(i);
-        it.nth(24);
+        it.nth(23);
     }
 
     html! {
@@ -115,6 +115,10 @@ pub fn app() -> Html {
                                         html!{<line x1=0 y1={i.to_string()} x2=3200 y2={i.to_string()}/>}
                                     }).collect::<Html>()
                                 }
+                            </g>
+                            <g id="canvas">
+                                <rect x=0 y=0 width=100 height=100/>
+                                <rect x=3100 y=1500 width=100 height=100/>
                             </g>
                         </g>
                 </svg>
