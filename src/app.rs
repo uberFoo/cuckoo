@@ -13,97 +13,138 @@ extern "C" {
     fn log(s: &str);
 }
 
-#[derive(Serialize, Deserialize)]
-struct GreetArgs<'a> {
-    name: &'a str,
-}
+// #[derive(Serialize, Deserialize)]
+// struct GreetArgs<'a> {
+//     name: &'a str,
+// }
+
+// #[function_component(Paper)]
+// pub fn paper() -> Html {
+
+// }
 
 #[function_component(App)]
 pub fn app() -> Html {
-    let greet_input_ref = use_ref(|| NodeRef::default());
-    let button_ref = use_ref(|| NodeRef::default());
+    // let greet_input_ref = use_ref(|| NodeRef::default());
+    // let button_ref = use_ref(|| NodeRef::default());
 
-    let name = use_state(|| String::new());
+    // let name = use_state(|| String::new());
 
-    let greet_msg = use_state(|| String::new());
-    {
-        let greet_msg = greet_msg.clone();
-        let name = name.clone();
-        let name2 = name.clone();
-        use_effect_with_deps(
-            move |_| {
-                spawn_local(async move {
-                    if name.is_empty() {
-                        return;
-                    }
+    // let greet_msg = use_state(|| String::new());
+    // {
+    //     let greet_msg = greet_msg.clone();
+    //     let name = name.clone();
+    //     let name2 = name.clone();
+    //     use_effect_with_deps(
+    //         move |_| {
+    //             spawn_local(async move {
+    //                 if name.is_empty() {
+    //                     return;
+    //                 }
 
-                    // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-                    let new_msg =
-                        invoke("greet", to_value(&GreetArgs { name: &*name }).unwrap()).await;
-                    log(&new_msg.as_string().unwrap());
-                    greet_msg.set(new_msg.as_string().unwrap());
-                });
+    //                 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
+    //                 let new_msg =
+    //                     invoke("greet", to_value(&GreetArgs { name: &*name }).unwrap()).await;
+    //                 log(&new_msg.as_string().unwrap());
+    //                 greet_msg.set(new_msg.as_string().unwrap());
+    //             });
 
-                || {}
-            },
-            name2,
-        );
+    //             || {}
+    //         },
+    //         name2,
+    //     );
+    // }
+
+    // let greet = {
+    //     let name = name.clone();
+    //     let greet_input_ref = greet_input_ref.clone();
+    //     Callback::from(move |_| {
+    //         name.set(
+    //             greet_input_ref
+    //                 .cast::<web_sys::HtmlInputElement>()
+    //                 .unwrap()
+    //                 .value(),
+    //         );
+    //     })
+    // };
+
+    // let enter = {
+    //     let button_ref = button_ref.clone();
+
+    //     Callback::from(move |e: web_sys::KeyboardEvent| {
+    //         let key = e.key();
+    //         if key == "Enter" {
+    //             if let Some(input) = button_ref.cast::<web_sys::HtmlButtonElement>() {
+    //                 input.click();
+    //             }
+    //         }
+    //     })
+    // };
+
+    let mut x_nums = Vec::new();
+    let mut it = 0..3200;
+    while let Some(i) = it.next() {
+        x_nums.push(i);
+        it.nth(23); // why 23? I'd have expected 24.
     }
 
-    let greet = {
-        let name = name.clone();
-        let greet_input_ref = greet_input_ref.clone();
-        Callback::from(move |_| {
-            name.set(
-                greet_input_ref
-                    .cast::<web_sys::HtmlInputElement>()
-                    .unwrap()
-                    .value(),
-            );
-        })
-    };
-
-    let enter = {
-        let button_ref = button_ref.clone();
-
-        Callback::from(move |e: web_sys::KeyboardEvent| {
-            let key = e.key();
-            if key == "Enter" {
-                if let Some(input) = button_ref.cast::<web_sys::HtmlButtonElement>() {
-                    input.click();
-                }
-            }
-        })
-    };
+    let mut y_nums = Vec::new();
+    let mut it = 0..1600;
+    while let Some(i) = it.next() {
+        y_nums.push(i);
+        it.nth(24);
+    }
 
     html! {
         <main class="container">
-            <div class="row">
-                <a href="https://tauri.app" target="_blank">
-                    <img src="public/tauri.svg" class="logo tauri" alt="Tauri logo"/>
-                </a>
-                <a href="https://yew.rs" target="_blank">
-                    <img src="public/yew.png" class="logo yew" alt="Yew logo"/>
-                </a>
+            <div id="OIM">
+                <svg width="90%" height="80vh" xmlns="http://www.w3.org/2000/svg">
+                // <svg width=1425 height=937 viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
+                    <rect width=3200 height=1600 class="paper-base"/>
+                        <g transform="scale(1.5)">
+                            <g class="y axis">
+                                {
+                                    x_nums.into_iter().map(|i| {
+                                        html!{<line x1={i.to_string()} y1=0 x2={i.to_string()} y2=1600/>}
+                                    }).collect::<Html>()
+                                }
+                            </g>
+                            <g class="x axis">
+                                {
+                                    y_nums.into_iter().map(|i| {
+                                        html!{<line x1=0 y1={i.to_string()} x2=3200 y2={i.to_string()}/>}
+                                    }).collect::<Html>()
+                                }
+                            </g>
+                        </g>
+                </svg>
             </div>
+            // <div class="row">
+            //     <a href="https://tauri.app" target="_blank">
+            //         <img src="public/tauri.svg" class="logo tauri" alt="Tauri logo"/>
+            //     </a>
+            //     <a href="https://yew.rs" target="_blank">
+            //         <img src="public/yew.png" class="logo yew" alt="Yew logo"/>
+            //     </a>
+            // </div>
 
-            <p>{"Click on the Tauri and Yew logos to learn more."}</p>
+            // <p>{"Click on the Tauri and Yew logos to learn more."}</p>
 
-            <p>
-                {"Recommended IDE setup: "}
-                <a href="https://code.visualstudio.com/" target="_blank">{"VS Code"}</a>
-                {" + "}
-                <a href="https://github.com/tauri-apps/tauri-vscode" target="_blank">{"Tauri"}</a>
-                {" + "}
-                <a href="https://github.com/rust-lang/rust-analyzer" target="_blank">{"rust-analyzer"}</a>
-            </p>
+            // <p>
+            //     {"Recommended IDE setup: "}
+            //     <a href="https://code.visualstudio.com/" target="_blank">{"VS Code"}</a>
+            //     {" + "}
+            //     <a href="https://github.com/tauri-apps/tauri-vscode" target="_blank">{"Tauri"}</a>
+            //     {" + "}
+            //     <a href="https://github.com/rust-lang/rust-analyzer" target="_blank">{"rust-analyzer"}</a>
+            // </p>
 
-            <div class="row">
-                <input id="greet-input" ref={&*greet_input_ref} onkeypress={enter} placeholder="Enter a name..." />
-                <button type="button" onclick={greet} ref={&*button_ref}>{"Greet"}</button>
-            </div>
+            // <div class="row">
+            //     <input id="greet-input" ref={&*greet_input_ref} onkeypress={enter} placeholder="Enter a name..." />
+                // <button type="button" onclick={greet} ref={&*button_ref}>{"Greet"}</button>
+            // </div>
 
-            <p><b>{ &*greet_msg }</b></p>
+            // <p><b>{ &*greet_msg }</b></p>
         </main>
     }
 }

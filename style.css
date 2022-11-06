@@ -1,3 +1,39 @@
+/* Color Palette at:
+* http: //www.workwithcolor.com/hsl-color-picker-01.htm?cp=FFFDE0&ch=57-100-94&cb=FEFED7,FDF8EC,F5FBD5,9AC484,B2D2A1,DDDDDD,000000,FFFDE0,FFFFFF,FFFFFF
+* http: //www.workwithcolor.com/hsl-color-picker-01.htm?cp=EA9648&ch=29-79-60&cb=FEFED7,FDF8EC,F5FBD5,9AC484,B2D2A1,DDDDDD,000000,FFFDE0,4D8C2B,EA9648
+ */
+ .paper-base {
+   fill: #F5FBD5;
+   pointer-events: all;
+ }
+
+ /*
+ * In general geometricPrecision appears to be the way to go.  While crispEdges
+ * sounds like it should be fantastic, in reality I don't think it's any better,
+ * and it limits the minimum scale.
+ * shape-rendering: geometricPrecision is an interesting problem.  The paper
+ * looks cleaner with that option enabled.  However, it's more realistic
+ * looking, and the lines are certainly easier to see with it disabled; at both
+ * stroke-width/opacity options.
+ */
+ .axis line {
+   fill: none;
+   stroke: #ddd;
+   opacity: 0.25;
+   shape-rendering: geometricPrecision;
+   pointer-events: none;
+ }
+
+ .axis line:nth-child(4n+1) {
+   stroke: #B2D2A1;
+   opacity: 0.3;
+ }
+
+ .axis line:nth-child(16n+1) {
+   stroke: #9AC484;
+   opacity: 0.35;
+ }
+
 .logo.yew:hover {
   filter: drop-shadow(0 0 2em #20a88a);
 }
