@@ -82,14 +82,14 @@ pub fn app() -> Html {
     // };
 
     let mut x_nums = Vec::new();
-    let mut it = 0..3200;
+    let mut it = 0..3201;
     while let Some(i) = it.next() {
         x_nums.push(i);
         it.nth(23); // why 23? I'd have expected 24.
     }
 
     let mut y_nums = Vec::new();
-    let mut it = 0..1600;
+    let mut it = 0..1601;
     while let Some(i) = it.next() {
         y_nums.push(i);
         it.nth(23);
@@ -101,7 +101,7 @@ pub fn app() -> Html {
                 <svg width="90%" height="80vh" xmlns="http://www.w3.org/2000/svg">
                 // <svg width=1425 height=937 viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
                     <rect width=3200 height=1600 class="paper-base"/>
-                        <g transform="scale(1.5)">
+                        <g transform="translate(-3300, -1600) scale(1.5)">
                             <g class="y axis">
                                 {
                                     x_nums.into_iter().map(|i| {
