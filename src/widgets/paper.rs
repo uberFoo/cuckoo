@@ -66,48 +66,54 @@ impl Component for Paper {
                         }
 
                         if e.buttons() == 1 && svg.id() == "paper" {
-                            // svg is probably the `rect` that is the background. Maybe certainly.
-                            // In either case we need to modify the root `g` element that contains
-                            // the elements we are displaying.
-                            let root = paper_ref.cast::<web_sys::SvgElement>().expect("oh shit");
-                            let transforms = root.get_attribute("transform").expect("oh shit");
-                            let transforms = transforms
-                                .split(' ')
-                                .map(|transform| {
-                                    if transform.contains("translate") {
-                                        let x: i32 = transform
-                                            .split('(')
-                                            .nth(1)
-                                            .expect("oh shit")
-                                            .split(',')
-                                            .next()
-                                            .expect("oh shit")
-                                            .parse()
-                                            .expect("oh shit");
+                            // ⌘-click pans the paper
+                            if e.meta_key() {
+                                // svg is probably the `rect` that is the background. Maybe certainly.
+                                // In either case we need to modify the root `g` element that contains
+                                // the elements we are displaying.
+                                let root =
+                                    paper_ref.cast::<web_sys::SvgElement>().expect("oh shit");
+                                let transforms = root.get_attribute("transform").expect("oh shit");
+                                let transforms = transforms
+                                    .split(' ')
+                                    .map(|transform| {
+                                        if transform.contains("translate") {
+                                            let x: i32 = transform
+                                                .split('(')
+                                                .nth(1)
+                                                .expect("oh shit")
+                                                .split(',')
+                                                .next()
+                                                .expect("oh shit")
+                                                .parse()
+                                                .expect("oh shit");
 
-                                        let y: i32 = transform
-                                            .split('(')
-                                            .nth(1)
-                                            .expect("oh shit")
-                                            .split(',')
-                                            .nth(1)
-                                            .expect("oh shit")
-                                            .split(')')
-                                            .next()
-                                            .expect("oh shit")
-                                            .parse()
-                                            .expect("oh shit");
+                                            let y: i32 = transform
+                                                .split('(')
+                                                .nth(1)
+                                                .expect("oh shit")
+                                                .split(',')
+                                                .nth(1)
+                                                .expect("oh shit")
+                                                .split(')')
+                                                .next()
+                                                .expect("oh shit")
+                                                .parse()
+                                                .expect("oh shit");
 
-                                        format!("translate({},{})", x - dx, y - dy)
-                                    } else {
-                                        transform.to_owned()
-                                    }
-                                })
-                                .collect::<Vec<String>>()
-                                .join(" ");
+                                            format!("translate({},{})", x - dx, y - dy)
+                                        } else {
+                                            transform.to_owned()
+                                        }
+                                    })
+                                    .collect::<Vec<String>>()
+                                    .join(" ");
 
-                            root.set_attribute("transform", transforms.as_str())
-                                .expect("oh shit");
+                                root.set_attribute("transform", transforms.as_str())
+                                    .expect("oh shit");
+                            } else {
+                                // We are drawing something -- for now it's an object
+                            }
                         }
                         Some((x, y))
                     });
