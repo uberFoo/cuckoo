@@ -79,18 +79,25 @@ impl Component for Paper {
 
                 true
             }
-            PaperMessage::None => false,
+            PaperMessage::None => {
+                self.drawing = false;
+
+                false
+            }
             PaperMessage::Translate(c) => {
+                self.drawing = false;
                 self.translate = c;
 
                 true
             }
             PaperMessage::TranslateObject((id, c)) => {
+                self.drawing = false;
+
                 if let Some(object) = self.objects.get_mut(&id) {
-                    object.start.x += c.x;
-                    object.start.y += c.y;
-                    object.end.x += c.x;
-                    object.end.y += c.y;
+                    object.start.x += (c.x - self.translate.x);
+                    object.start.y += (c.y - self.translate.y);
+                    object.end.x += (c.x - self.translate.x);
+                    object.end.y += (c.y - self.translate.y);
 
                     true
                 } else {
@@ -102,7 +109,6 @@ impl Component for Paper {
 
     fn view(&self, ctx: &Context<Self>) -> Html {
         let move_handler = {
-            let paper_ref = self.paper_ref.clone();
             let link = ctx.link();
 
             let x = self.translate.x;
@@ -195,12 +201,12 @@ impl Component for Paper {
             it.nth(23);
         }
 
-        let translate = format!("translate({}, {})", self.translate.x, self.translate.y);
+        let transform = format!("translate({}, {})", self.translate.x, self.translate.y);
         html! {
             <div id="OIM">
                 // <svg id="svg-root" width="90%" height="80vh" xmlns="http://www.w3.org/2000/svg">
                 <svg id="svg-root" xmlns="http://www.w3.org/2000/svg">
-                    <g id="baz" onmousemove={move_handler} onmousedown={down_handler} onmouseup={up_handler} pointer-events="all" ref={self.paper_ref.clone()} transform={ translate }>
+                    <g id="baz" onmousemove={move_handler} onmousedown={down_handler} onmouseup={up_handler} pointer-events="all" ref={self.paper_ref.clone()} transform={ transform }>
                         <rect id="paper" pointer-events="all" width=3200 height=1600 class="paper-base"/>
                         <g class="y axis">
                             {
