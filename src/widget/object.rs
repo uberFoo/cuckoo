@@ -1,7 +1,7 @@
 use uuid::Uuid;
 use yew::{prelude::*, virtual_dom::AttrValue};
 
-use crate::widget::{log, Coord};
+use crate::widget::Coord;
 
 #[derive(PartialEq)]
 pub struct ObjectWidget {
@@ -12,6 +12,7 @@ pub struct ObjectWidget {
 
 #[derive(PartialEq, Properties)]
 pub struct ObjectProps {
+    pub id: AttrValue,
     pub x: AttrValue,
     pub y: AttrValue,
     pub width: AttrValue,
@@ -35,6 +36,7 @@ impl Component for ObjectWidget {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
+        let id = ctx.props().id.clone();
         let x = ctx.props().x.clone();
         let y = ctx.props().y.clone();
         let width = ctx.props().width.clone();
@@ -43,9 +45,8 @@ impl Component for ObjectWidget {
         let width_num: i32 = ctx.props().width.parse().expect("width");
 
         html! {
-            <g id={ self.id.to_string() } class="object" title={ self.name.clone() }
-                    transform={ translate } pointer-events="all">
-                <rect class="object-rect" width={ width.clone() } height={ height.clone() } />
+            <g class="object" title={ self.name.clone() } transform={ translate } pointer-events="all">
+                <rect id={ id } class="object-rect" width={ width.clone() } height={ height.clone() } />
                 <text class="object-name" x={ (width_num / 2).to_string() } y=20 >
                     { self.name.clone() }
                 </text>

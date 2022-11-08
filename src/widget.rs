@@ -4,11 +4,11 @@ pub mod app;
 mod object;
 mod paper;
 
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
-}
+// #[wasm_bindgen]
+// extern "C" {
+//     #[wasm_bindgen(js_namespace = console)]
+//     fn log(s: &str);
+// }
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Coord {

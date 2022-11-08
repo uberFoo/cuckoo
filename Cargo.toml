@@ -12,6 +12,7 @@ wasm-bindgen = { version = "0.2.82", features = ["serde-serialize"] }
 wasm-bindgen-futures = "0.4.32"
 yew = "0.19"
 uuid = { version = "1.2.1", features = ["v4", "js"] }
+gloo = "0.8.0"
 
 [dependencies.web-sys]
 version = "0.3.59"

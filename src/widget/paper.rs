@@ -1,7 +1,10 @@
+use gloo::console::log;
+use std::collections::HashMap;
+use uuid::Uuid;
 use wasm_bindgen::JsCast;
 use yew::prelude::*;
 
-use crate::widget::{log, object::ObjectWidget, Coord};
+use crate::widget::{object::ObjectWidget, Coord};
 
 #[derive(Debug, PartialEq)]
 struct Object {
@@ -18,6 +21,7 @@ pub struct MouseState {
 #[derive(Debug)]
 pub enum PaperMessage {
     Translate(Coord),
+    TranslateObject((String, Coord)),
     MouseDown(Coord),
     MouseUp(Coord),
     None,
@@ -30,7 +34,7 @@ pub struct Paper {
     // last_y: Option<i32>,
     down_at: Coord,
     drawing: bool,
-    objects: Vec<Object>,
+    objects: HashMap<String, Object>,
     translate: Coord,
 }
 
@@ -45,7 +49,7 @@ impl Component for Paper {
             // last_y: None,
             down_at: Coord { x: 0, y: 0 },
             drawing: false,
-            objects: Vec::new(),
+            objects: HashMap::new(),
             translate: Coord { x: 0, y: 0 },
         }
     }
@@ -59,7 +63,8 @@ impl Component for Paper {
                 true
             }
             PaperMessage::MouseUp(c) => {
-                log(format!("new: ({:#?},{:#?})", self.down_at, c).as_str());
+                // Create a new -- something. For now Object.
+                log!(format!("new: ({:#?},{:#?})", self.down_at, c).as_str());
                 let start = Coord {
                     x: self.down_at.x - self.translate.x,
                     y: self.down_at.y - self.translate.y,
@@ -68,7 +73,8 @@ impl Component for Paper {
                     x: c.x - self.translate.x,
                     y: c.y - self.translate.y,
                 };
-                self.objects.push(Object { start, end });
+                let id = Uuid::new_v4().to_string();
+                self.objects.insert(id, Object { start, end });
                 self.drawing = false;
 
                 true
@@ -78,6 +84,18 @@ impl Component for Paper {
                 self.translate = c;
 
                 true
+            }
+            PaperMessage::TranslateObject((id, c)) => {
+                if let Some(object) = self.objects.get_mut(&id) {
+                    object.start.x += c.x;
+                    object.start.y += c.y;
+                    object.end.x += c.x;
+                    object.end.y += c.y;
+
+                    true
+                } else {
+                    false
+                }
             }
         }
     }
@@ -91,77 +109,26 @@ impl Component for Paper {
             let y = self.translate.y;
 
             link.callback(move |e: web_sys::MouseEvent| {
-                let shift: Option<()> = e
+                let svg = e
                     .target()
-                    .and_then(|t| t.dyn_into::<web_sys::SvgElement>().ok())
-                    .and_then(|svg| {
-                        let mut shift = None;
+                    .expect("target")
+                    .dyn_into::<web_sys::SvgElement>()
+                    .expect("svg");
 
-                        if e.buttons() == 1 && svg.id() == "paper" {
-                            // ⌘-click pans the paper
-                            if e.meta_key() {
-                                // svg is probably the `rect` that is the background. Maybe certainly.
-                                // In either case we need to modify the root `g` element that contains
-                                // the elements we are displaying.
-                                // let root =
-                                //     paper_ref.cast::<web_sys::SvgElement>().expect("oh shit");
-                                // let transforms = root.get_attribute("transform").expect("oh shit");
-                                // let transforms = transforms
-                                //     .split(' ')
-                                //     .map(|transform| {
-                                //         if transform.contains("translate") {
-                                //             let x: i32 = transform
-                                //                 .split('(')
-                                //                 .nth(1)
-                                //                 .expect("oh shit")
-                                //                 .split(',')
-                                //                 .next()
-                                //                 .expect("oh shit")
-                                //                 .parse()
-                                //                 .expect("oh shit");
-
-                                //             let y: i32 = transform
-                                //                 .split('(')
-                                //                 .nth(1)
-                                //                 .expect("oh shit")
-                                //                 .split(',')
-                                //                 .nth(1)
-                                //                 .expect("oh shit")
-                                //                 .split(')')
-                                //                 .next()
-                                //                 .expect("oh shit")
-                                //                 .parse()
-                                //                 .expect("oh shit");
-
-                                //             format!(
-                                //                 "translate({},{})",
-                                //                 x + e.movement_x(),
-                                //                 y + e.movement_y()
-                                //             )
-                                //         } else {
-                                //             transform.to_owned()
-                                //         }
-                                //     })
-                                //     .collect::<Vec<String>>()
-                                //     .join(" ");
-
-                                // root.set_attribute("transform", transforms.as_str())
-                                //     .expect("oh shit");
-
-                                shift = Some(());
-                            } else {
-                                // We are drawing something -- for now it's an object
-                            }
-                        }
-
-                        shift
-                    });
-
-                if shift.is_some() {
+                // ⌘-click pans the paper
+                if e.buttons() == 1 && svg.id() == "paper" && e.meta_key() {
                     PaperMessage::Translate(Coord {
                         x: x + e.movement_x(),
                         y: y + e.movement_y(),
                     })
+                } else if e.buttons() == 1 {
+                    PaperMessage::TranslateObject((
+                        svg.id(),
+                        Coord {
+                            x: x + e.movement_x(),
+                            y: y + e.movement_y(),
+                        },
+                    ))
                 } else {
                     PaperMessage::None
                 }
@@ -171,8 +138,6 @@ impl Component for Paper {
         let down_handler = {
             let link = ctx.link();
 
-            // let enabled = self.down_at.0.is_some();
-
             link.callback(move |e: web_sys::MouseEvent| {
                 let svg = e
                     .target()
@@ -180,14 +145,8 @@ impl Component for Paper {
                     .dyn_into::<web_sys::SvgElement>()
                     .expect("svgelement");
                 if svg.id() == "paper" && !e.meta_key() {
-                    log(format!("down: ({}, {})", e.client_x(), e.client_y()).as_str());
-                    // PaperMessage::MouseEvent(MouseState {
-                    //     pos: Coord {
-                    //         x: e.client_x(),
-                    //         y: e.client_y(),
-                    //     },
-                    //     enabled: true,
-                    // })
+                    log!(format!("down: ({}, {})", e.client_x(), e.client_y()).as_str());
+
                     PaperMessage::MouseDown(Coord {
                         x: e.client_x(),
                         y: e.client_y(),
@@ -210,7 +169,7 @@ impl Component for Paper {
                     .expect("svgelement");
 
                 if drawing && svg.id() == "paper" && !e.meta_key() {
-                    log(format!("up: ({}, {})", e.client_x(), e.client_y()).as_str());
+                    log!(format!("up: ({}, {})", e.client_x(), e.client_y()).as_str());
                     PaperMessage::MouseUp(Coord {
                         x: e.client_x(),
                         y: e.client_y(),
@@ -221,68 +180,7 @@ impl Component for Paper {
             })
         };
 
-        let click = {
-            let link = ctx.link();
-
-            link.callback(move |e: web_sys::MouseEvent| {
-                let _: Option<()> = e
-                    .target()
-                    .and_then(|t| t.dyn_into::<web_sys::SvgElement>().ok())
-                    // Need the parent <g>, which can't receive mouse events.
-                    .and_then(|svg| {
-                        svg.parent_element()
-                            .expect("oh shit")
-                            .dyn_into::<web_sys::SvgElement>()
-                            .ok()
-                    })
-                    .and_then(|svg| {
-                        if e.buttons() == 1 {
-                            let transform = svg.get_attribute("transform").expect("oh shit");
-                            let x: i32 = transform
-                                .split('(')
-                                .nth(1)
-                                .expect("oh shit")
-                                .split(',')
-                                .next()
-                                .expect("oh shit")
-                                .parse()
-                                .expect("oh shit");
-
-                            let y: i32 = transform
-                                .split('(')
-                                .nth(1)
-                                .expect("oh shit")
-                                .split(',')
-                                .nth(1)
-                                .expect("oh shit")
-                                .split(')')
-                                .next()
-                                .expect("oh shit")
-                                .parse()
-                                .expect("oh shit");
-
-                            let transform =
-                                format!("translate({},{})", x + e.movement_x(), y + e.movement_y());
-                            svg.set_attribute("transform", transform.as_str())
-                                .expect("oh shit");
-                        }
-
-                        e.stop_propagation();
-                        None
-                    });
-
-                PaperMessage::None
-
-                // PaperMessage::MouseEvent(MouseState {
-                //     pos: Coord {
-                //         x: e.client_x(),
-                //         y: e.client_y(),
-                //     },
-                //     enabled: false,
-                // })
-            })
-        };
-
+        // This business is to draw the lines on the graph paper
         let mut x_nums = Vec::new();
         let mut it = 0..3201;
         while let Some(i) = it.next() {
@@ -319,13 +217,13 @@ impl Component for Paper {
                             }
                         </g>
                         <g id="canvas" pointer-events="all">
-                            { self.objects.iter().map(|c| {
+                            { self.objects.iter().map(|(i, c)| {
                                 let x = c.start.x.to_string();
                                 let y = c.start.y.to_string();
                                 let width = (c.end.x - c.start.x).to_string();
                                 let height = (c.end.y - c.start.y).to_string();
                                 html! {
-                                    <ObjectWidget x={ x } y={ y } width={ width } height={ height }/>
+                                    <ObjectWidget id= { i.clone() } x={ x } y={ y } width={ width } height={ height }/>
                                 }
                             }).collect::<Html>() }
                         </g>
