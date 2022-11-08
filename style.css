@@ -7,6 +7,19 @@
    pointer-events: all;
  }
 
+ html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+ }
+ svg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+ }
+
  /*
  * In general geometricPrecision appears to be the way to go.  While crispEdges
  * sounds like it should be fantastic, in reality I don't think it's any better,
@@ -32,6 +45,36 @@
  .axis line:nth-child(16n+1) {
    stroke: #9AC484;
    opacity: 0.35;
+ }
+
+ .object-rect {
+   fill: #FFFDE0;
+   stroke: black;
+   stroke-width: 1;
+   pointer-events: all;
+ }
+
+ .object-bisect-line {
+   stroke: black;
+   stroke-width: 1;
+   pointer-events: none;
+ }
+
+ .object-name {
+   text-anchor: middle;
+   cursor: pointer;
+   pointer-events: none;
+   font-size: 17px;
+ }
+
+ .object-attr {
+   cursor: pointer;
+   pointer-events: none;
+   font-size: 14px;
+ }
+
+ .object-attr-subscript {
+   font-size: 10px;
  }
 
 .logo.yew:hover {

@@ -4,7 +4,7 @@ use wasm_bindgen::prelude::*;
 // use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 
-use crate::widgets::paper::Paper;
+use crate::widget::paper::Paper;
 
 #[wasm_bindgen]
 extern "C" {
@@ -13,6 +13,11 @@ extern "C" {
 
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
+}
+
+#[derive(Default, PartialEq, Properties)]
+pub struct AppProps {
+    children: Children,
 }
 
 pub struct App;
@@ -24,7 +29,7 @@ pub struct App;
 
 impl Component for App {
     type Message = ();
-    type Properties = ();
+    type Properties = AppProps;
 
     fn create(_ctx: &Context<Self>) -> Self {
         Self
@@ -92,7 +97,7 @@ impl Component for App {
         // };
 
         html! {
-            <main class="container">
+            // <main class="container">
                 // { &props.children }
                 <Paper />
                 // <div class="row">
@@ -121,7 +126,7 @@ impl Component for App {
                 // </div>
 
                 // <p><b>{ &*greet_msg }</b></p>
-            </main>
+            // </main>
         }
     }
 }
