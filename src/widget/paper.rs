@@ -6,6 +6,9 @@ use yew::prelude::*;
 
 use crate::widget::{object::ObjectWidget, Coord};
 
+const PAPER_WIDTH: i32 = 6400;
+const PAPER_HEIGHT: i32 = 3200;
+
 #[derive(Debug, PartialEq)]
 struct Object {
     start: Coord,
@@ -24,15 +27,14 @@ pub enum PaperMessage {
     TranslateObject((String, Coord)),
     MouseDown(Coord),
     MouseUp(Coord),
+    MouseMove(Coord),
     None,
 }
 
 #[derive(PartialEq)]
 pub struct Paper {
     paper_ref: NodeRef,
-    // last_x: Option<i32>,
-    // last_y: Option<i32>,
-    down_at: Coord,
+    nascent_object_id: String,
     drawing: bool,
     objects: HashMap<String, Object>,
     translate: Coord,
@@ -45,9 +47,7 @@ impl Component for Paper {
     fn create(_ctx: &Context<Self>) -> Self {
         Self {
             paper_ref: NodeRef::default(),
-            // last_x: None,
-            // last_y: None,
-            down_at: Coord { x: 0, y: 0 },
+            nascent_object_id: String::new(),
             drawing: false,
             objects: HashMap::new(),
             translate: Coord { x: 0, y: 0 },
@@ -57,47 +57,72 @@ impl Component for Paper {
     fn update(&mut self, _: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             PaperMessage::MouseDown(c) => {
-                self.down_at = c;
                 self.drawing = true;
 
-                true
-            }
-            PaperMessage::MouseUp(c) => {
-                // Create a new -- something. For now Object.
-                log!(format!("new: ({:#?},{:#?})", self.down_at, c).as_str());
                 let start = Coord {
-                    x: self.down_at.x - self.translate.x,
-                    y: self.down_at.y - self.translate.y,
+                    x: c.x - self.translate.x,
+                    y: c.y - self.translate.y,
                 };
                 let end = Coord {
                     x: c.x - self.translate.x,
                     y: c.y - self.translate.y,
                 };
+
                 let id = Uuid::new_v4().to_string();
+                self.nascent_object_id = id.clone();
                 self.objects.insert(id, Object { start, end });
-                self.drawing = false;
 
                 true
             }
-            PaperMessage::None => {
+            PaperMessage::MouseUp(c) => {
                 self.drawing = false;
+                if let Some(object) = self.objects.get_mut(&self.nascent_object_id) {
+                    if object.end.x - object.start.x < 125 || object.end.y - object.start.y < 125 {
+                        log!(format!(
+                            "up {},{}",
+                            object.end.x - object.start.x,
+                            object.end.y - object.start.y
+                        )
+                        .as_str());
+                        self.objects.remove(&self.nascent_object_id);
+                    }
+                }
 
-                false
+                true
             }
+            PaperMessage::MouseMove(c) => {
+                if self.drawing {
+                    if let Some(object) = self.objects.get_mut(&self.nascent_object_id) {
+                        object.end.x += c.x - self.translate.x;
+                        object.end.y += c.y - self.translate.y;
+
+                        log!(format!(
+                            "{},{}",
+                            object.end.x - object.start.x,
+                            object.end.y - object.start.y
+                        )
+                        .as_str());
+
+                        true
+                    } else {
+                        panic!("bad stuff");
+                    }
+                } else {
+                    false
+                }
+            }
+            PaperMessage::None => false,
             PaperMessage::Translate(c) => {
-                self.drawing = false;
                 self.translate = c;
 
                 true
             }
             PaperMessage::TranslateObject((id, c)) => {
-                self.drawing = false;
-
                 if let Some(object) = self.objects.get_mut(&id) {
-                    object.start.x += (c.x - self.translate.x);
-                    object.start.y += (c.y - self.translate.y);
-                    object.end.x += (c.x - self.translate.x);
-                    object.end.y += (c.y - self.translate.y);
+                    object.start.x += c.x - self.translate.x;
+                    object.start.y += c.y - self.translate.y;
+                    object.end.x += c.x - self.translate.x;
+                    object.end.y += c.y - self.translate.y;
 
                     true
                 } else {
@@ -113,6 +138,7 @@ impl Component for Paper {
 
             let x = self.translate.x;
             let y = self.translate.y;
+            let drawing = self.drawing;
 
             link.callback(move |e: web_sys::MouseEvent| {
                 let svg = e
@@ -127,6 +153,13 @@ impl Component for Paper {
                         x: x + e.movement_x(),
                         y: y + e.movement_y(),
                     })
+                // Drawing an object
+                } else if e.buttons() == 1 && drawing {
+                    PaperMessage::MouseMove(Coord {
+                        x: e.movement_x(),
+                        y: e.movement_y(),
+                    })
+                // Move something
                 } else if e.buttons() == 1 {
                     PaperMessage::TranslateObject((
                         svg.id(),
@@ -151,8 +184,6 @@ impl Component for Paper {
                     .dyn_into::<web_sys::SvgElement>()
                     .expect("svgelement");
                 if svg.id() == "paper" && !e.meta_key() {
-                    log!(format!("down: ({}, {})", e.client_x(), e.client_y()).as_str());
-
                     PaperMessage::MouseDown(Coord {
                         x: e.client_x(),
                         y: e.client_y(),
@@ -174,8 +205,7 @@ impl Component for Paper {
                     .dyn_into::<web_sys::SvgElement>()
                     .expect("svgelement");
 
-                if drawing && svg.id() == "paper" && !e.meta_key() {
-                    log!(format!("up: ({}, {})", e.client_x(), e.client_y()).as_str());
+                if drawing && !e.meta_key() {
                     PaperMessage::MouseUp(Coord {
                         x: e.client_x(),
                         y: e.client_y(),
@@ -188,37 +218,41 @@ impl Component for Paper {
 
         // This business is to draw the lines on the graph paper
         let mut x_nums = Vec::new();
-        let mut it = 0..3201;
+        let mut it = 0..PAPER_WIDTH + 1;
         while let Some(i) = it.next() {
             x_nums.push(i);
             it.nth(23); // why 23? I'd have expected 24.
         }
 
         let mut y_nums = Vec::new();
-        let mut it = 0..1601;
+        let mut it = 0..PAPER_HEIGHT + 1;
         while let Some(i) = it.next() {
             y_nums.push(i);
             it.nth(23);
         }
 
+        let paper_width = PAPER_WIDTH.to_string();
+        let paper_height = PAPER_HEIGHT.to_string();
+
         let transform = format!("translate({}, {})", self.translate.x, self.translate.y);
         html! {
             <div id="OIM">
+
                 // <svg id="svg-root" width="90%" height="80vh" xmlns="http://www.w3.org/2000/svg">
                 <svg id="svg-root" xmlns="http://www.w3.org/2000/svg">
                     <g id="baz" onmousemove={move_handler} onmousedown={down_handler} onmouseup={up_handler} pointer-events="all" ref={self.paper_ref.clone()} transform={ transform }>
-                        <rect id="paper" pointer-events="all" width=3200 height=1600 class="paper-base"/>
+                        <rect id="paper" pointer-events="all" width={ paper_width.clone() } height={ paper_height.clone() } class="paper-base"/>
                         <g class="y axis">
                             {
                                 x_nums.into_iter().map(|i| {
-                                    html!{<line x1={i.to_string()} y1=0 x2={i.to_string()} y2=1600/>}
+                                    html!{<line x1={i.to_string()} y1=0 x2={i.to_string()} y2={ paper_height.clone() }/>}
                                 }).collect::<Html>()
                             }
                         </g>
                         <g class="x axis">
                             {
                                 y_nums.into_iter().map(|i| {
-                                    html!{<line x1=0 y1={i.to_string()} x2=3200 y2={i.to_string()}/>}
+                                    html!{<line x1=0 y1={i.to_string()} x2={ paper_width.clone() } y2={i.to_string()}/>}
                                 }).collect::<Html>()
                             }
                         </g>

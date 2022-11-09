@@ -43,6 +43,7 @@ impl Component for ObjectWidget {
         let height = ctx.props().height.clone();
         let translate = format!("translate({},{})", ctx.props().x, ctx.props().y);
         let width_num: i32 = ctx.props().width.parse().expect("width");
+        let height_num: i32 = ctx.props().height.parse().expect("height");
 
         html! {
             <g class="object" title={ self.name.clone() } transform={ translate } pointer-events="all">
@@ -51,6 +52,7 @@ impl Component for ObjectWidget {
                     { self.name.clone() }
                 </text>
                 <line class="object-bisect-line" x1=0 y1=30 x2={ width.clone() } y2=30 />
+                <line class="W resize rel-attach" cursor="ew-resize" x1={ width.clone() } y1=14 x2={ width } y2={ (height_num - 14).to_string() }/>
                 <g class="attr-group" transform="translate(10, 50)">
                 </g>
             </g>

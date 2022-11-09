@@ -20,6 +20,25 @@
   width: 100%;
  }
 
+ .edit.rel-attach {
+   cursor: move;
+ }
+
+ .resize.rel-attach {
+   stroke: transparent;
+   fill: transparent;
+   stroke-width: 7;
+   pointer-events: all;
+ }
+
+ .resize,
+ .edit {
+   stroke: transparent;
+   fill: transparent;
+   stroke-width: 7;
+   pointer-events: all;
+ }
+
  /*
  * In general geometricPrecision appears to be the way to go.  While crispEdges
  * sounds like it should be fantastic, in reality I don't think it's any better,
