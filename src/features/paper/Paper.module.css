@@ -1,0 +1,22 @@
+.paperBase {
+    fill: #F5FBD5;
+    pointer-events: all;
+}
+
+.axis line {
+    fill: none;
+    stroke: #ddd;
+    opacity: 0.25;
+    shape-rendering: geometricPrecision;
+    pointer-events: none;
+}
+
+.axis line:nth-child(4n+1) {
+    stroke: #B2D2A1;
+    opacity: 0.3;
+}
+
+.axis line:nth-child(16n+1) {
+    stroke: #9AC484;
+    opacity: 0.35;
+}
