@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { v5 as uuid } from 'uuid';
 
 import { Object } from '../object/Object';
@@ -81,6 +81,31 @@ export function Paper(props: PaperProps) {
     // this.ref!.onmouseDown = this.onMouseDownHandler;
     // }
 
+    let [move, setMove] = useState({ mouseDown: false, x: defaultPosition[0], y: defaultPosition[1] });
+
+    let onMouseDownHandler = (event: React.MouseEvent) => {
+        // console.log(`down: ${this}`);
+        setMove({ ...move, mouseDown: true });
+        // styles.paperBase.cursor = "grabbing";
+    }
+
+    let onMouseUpHandler = (event: React.MouseEvent) => {
+        setMove({ ...move, mouseDown: false });
+    }
+
+    let onMouseMoveHandler = (event: React.MouseEvent) => {
+        let { mouseDown, x, y } = move;
+        // If mouseDown we are panning. This is wrong, and actually needs to start drawing.
+        if (mouseDown) {
+            x += event.movementX;
+            y += event.movementY;
+
+            setMove({ mouseDown, x, y });
+
+            // forceUpdate();
+        }
+    }
+
     // render(): React.ReactNode {
     let paperIds: Array<string> = useAppSelector((state) => getPaperIds);
     let paper: PaperStore | undefined = useAppSelector((state) => selectPaperById(state, paperIds[0]));
@@ -89,9 +114,11 @@ export function Paper(props: PaperProps) {
         return <Object key={o.id} id={o.id} />
     });
 
+    let { mouseDown, x, y } = move;
+
     return (
-        <g id="paper" pointerEvents="all" transform={"translate(" + defaultPosition[0] + "," + defaultPosition[1] + ") scale(" + defaultScale + ")"}>
-            {/* onMouseDown={this.onMouseDownHandler} onMouseUp={this.onMouseUpHandler} onMouseMove={this.onMouseMoveHandler} onMouseLeave={this.onMouseUpHandler} > */}
+        <g id="paper" pointerEvents="all" transform={"translate(" + x + "," + y + ") scale(" + defaultScale + ")"}
+            onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler} onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler}>
             < rect id="background" width={width} height={height} className={styles.paperBase} />
             <g className={styles.axis}>
                 {x_lines}
