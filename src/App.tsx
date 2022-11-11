@@ -2,7 +2,6 @@ import { invoke } from '@tauri-apps/api';
 import React, { useEffect } from 'react';
 import logo from './logo.svg';
 import { Paper } from './features/paper/Paper';
-import { Counter } from './features/counter/Counter';
 
 import './App.css';
 

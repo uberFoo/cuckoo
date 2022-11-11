@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { v5 as uuid } from 'uuid';
 
-import { ObjectStore } from '../object/Object';
+import { PaperStore } from '../../app/store';
 import styles from './Paper.module.css';
 
 const width = 3200;
@@ -11,14 +11,6 @@ const defaultScale = 1.25;
 const minScale = 0.4;
 const maxScale = 4.5;
 const defaultPosition = [0, 0];
-
-interface PaperStore {
-    width: number,
-    height: number,
-    domain_name: string,
-    domain_ns: string,
-    Objects: Array<ObjectStore>
-}
 
 interface PaperProps {
     domain: string,
@@ -63,7 +55,9 @@ export class Paper extends Component<PaperProps, {}> {
             height: height,
             domain_name: props.domain,
             domain_ns: props.domain_ns,
-            Objects: []
+            // objects: [],
+            // attributes: [],
+            // relationships: []
         };
 
         console.log(this.state);
@@ -92,7 +86,6 @@ export class Paper extends Component<PaperProps, {}> {
                     {this.y_lines}
                 </g>
                 <g id="canvas">
-                    <rect x={300} y={300} width={300} height={300}></rect>
                 </g>
             </g >
         )
