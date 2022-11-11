@@ -3,26 +3,29 @@ import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import paperReducer from '../features/paper/paperSlice';
 import objectReducer from '../features/object/objectSlice';
 
+import model from '../with_obj.json'
+
+
 export interface PaperStore {
+    id: string,
     width: number,
     height: number,
     domain_name: string,
     domain_ns: string,
-    // objects: Array<ObjectStore>,
-    // attributes: Array<AttributeStore>,
-    // relationships: Array<RelationshipStore>
 }
 
 export interface ObjectStore {
     id: string,
     name: string,
     key_letter: string,
-    extent: {
-        x: number,
-        y: number,
-        width: number,
-        height: number
-    }
+    extent: Extent
+}
+
+export interface Extent {
+    x: number,
+    y: number,
+    width: number,
+    height: number
 }
 
 export interface AttributeStore {
@@ -83,6 +86,7 @@ export const store = configureStore({
         paper: paperReducer,
         objects: objectReducer,
     },
+    preloadedState: model
 });
 
 export type AppDispatch = typeof store.dispatch;
