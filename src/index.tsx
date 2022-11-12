@@ -5,16 +5,16 @@ import { store } from './app/store';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-import './index.css';
+// import './index.css';
 
-import model from './schema.json'
+import model from './with_obj.json'
 
 const container = document.getElementById('root')!;
 const root = createRoot(container);
 
 root.render(
   <React.StrictMode>
-    <Provider store={store} >
+    <Provider store={store}>
       {/* serverState={model}> */}
       <App />
     </Provider>

@@ -1,0 +1,9 @@
+.objectAttr {
+    cursor: pointer;
+    pointer-events: none;
+    font-size: 14px;
+}
+
+.objectAttrSubscript {
+    font-size: 10px;
+}
