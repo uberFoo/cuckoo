@@ -24,6 +24,36 @@
     font-size: 14px;
 }
 
-.object-attr-subscript {
+.objectAttrSubscript {
     font-size: 10px;
+}
+
+.resize.relAttach {
+    stroke: transparent;
+    fill: transparent;
+    stroke-width: 7;
+    pointer-events: all;
+}
+
+.resize,
+.edit {
+    stroke: transparent;
+    fill: transparent;
+    stroke-width: 7;
+    pointer-events: all;
+}
+
+.ewResize {
+    cursor: ew-resize
+}
+
+.nsResize {
+    cursor: ns-resize
+}
+
+#attrList {
+    height: 170px;
+    max-height: 170px;
+    overflow-y: auto;
+    overflow-x: hidden;
 }

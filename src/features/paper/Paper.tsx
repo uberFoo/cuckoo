@@ -12,10 +12,13 @@ import styles from './Paper.module.css';
 const defaultWidth = 3200;
 const defaultHeight = 1600;
 const defaultGridSize = 25;
-const defaultScale = 1.25;
+const defaultScale = 1.0;
 const minScale = 0.4;
 const maxScale = 4.5;
-const defaultPosition = [0, 0];
+const defaultPosition = [
+    window.innerWidth / 2 - defaultWidth / 2,
+    window.innerHeight / 2 - defaultHeight / 2
+];
 
 interface PaperProps {
     domain: string,
@@ -23,7 +26,14 @@ interface PaperProps {
 }
 
 export function Paper(props: PaperProps) {
-    let [move, setMove] = useState({ mouseDown: false, x: defaultPosition[0], y: defaultPosition[1] });
+    let paperIds: Array<string> = useAppSelector((state) => getPaperIds(state));
+    let paper: PaperStore | undefined = useAppSelector((state) => selectPaperById(state, paperIds[0]));
+
+    let [move, setMove] = useState({
+        mouseDown: false,
+        x: window.innerWidth / 2 - paper!.width / 2,
+        y: window.innerHeight / 2 - paper!.height / 2
+    });
 
     let onMouseDownHandler = (event: React.MouseEvent) => {
         // This forces an update -- bad here.
@@ -47,15 +57,13 @@ export function Paper(props: PaperProps) {
         }
     }
 
-    let paperIds: Array<string> = useAppSelector((state) => getPaperIds(state));
-    let paper: PaperStore | undefined = useAppSelector((state) => selectPaperById(state, paperIds[0]));
-
-
     let objects: Array<ObjectStore> = useAppSelector((state) => selectObjects(state));
     let objectInstances: Array<JSX.Element> = objects.map((o) => {
         return <Object key={o.id} id={o.id} />
     });
 
+    // This is for the background. There's an SVG thing that can do a fill given a swatch that I
+    // should look into.
     let x_lines = [];
     for (let i = 0; i < paper!.height + 1; i += defaultGridSize) {
         x_lines.push(<line x1={0} y1={i} x2={paper!.width} y2={i} />);
