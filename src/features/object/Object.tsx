@@ -132,6 +132,7 @@ export function Object(props: ObjectProps) {
             <text className={styles.objectName} x={width / 2} y={textHeight}>{object!.name}</text>
             <line className={styles.objectBisectLine} x1={0} y1={textHeight * 1.5} x2={width} y2={textHeight * 1.5} />
             <g className={"attrGroup"} transform={"translate(10," + textHeight * 2.5 + ")"}>
+                <text className={styles.objectAttr} x={0} y={textHeight} fill={"#EA9648"} font-style={"normal"}>id</text>
                 {/* attributes go here */}
             </g>
             {/* These are for resizing */}

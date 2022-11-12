@@ -18,16 +18,6 @@
     font-size: 17px;
 }
 
-.objectAttr {
-    cursor: pointer;
-    pointer-events: none;
-    font-size: 14px;
-}
-
-.objectAttrSubscript {
-    font-size: 10px;
-}
-
 .resize.relAttach {
     stroke: transparent;
     fill: transparent;
