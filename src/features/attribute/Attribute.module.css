@@ -2,6 +2,7 @@
     cursor: pointer;
     pointer-events: none;
     font-size: 14px;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
 .objectAttrSubscript {

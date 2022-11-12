@@ -16,6 +16,7 @@
     cursor: pointer;
     pointer-events: none;
     font-size: 17px;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
 .resize.relAttach {

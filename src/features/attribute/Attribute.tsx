@@ -10,6 +10,6 @@ interface AttributeProps {
 
 export function Attribute(props: AttributeProps) {
     return (
-        <text className={styles.objectAttr} x={0} y={13} fill={"#EA9648"} font-style={"normal"}>id</text>
+        <text className={styles.objectAttr} x={0} y={13} fill={"#EA9648"} >id</text>
     )
 }
