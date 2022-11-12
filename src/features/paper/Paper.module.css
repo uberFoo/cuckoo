@@ -1,7 +1,6 @@
 .paperBase {
     fill: #F5FBD5;
     pointer-events: all;
-    cursor: move;
 }
 
 .axis line {
