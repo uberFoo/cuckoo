@@ -50,6 +50,15 @@ export function Object(props: ObjectProps) {
 
         let target = event.target as SVGElement;
         let dir = target.id as Direction;
+
+        // Below we have to move the target element to the _bottom_ of the list of elements.
+        let root = target.parentNode;
+        let canvas = root?.parentNode;
+
+        canvas?.removeChild(root!);
+        canvas?.appendChild(root!);
+        console.log(canvas?.childNodes);
+
         setMove({ ...move, mouseDown: true, resizeDir: dir });
     }
 

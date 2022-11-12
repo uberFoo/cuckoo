@@ -3,7 +3,7 @@ import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import paperReducer from '../features/paper/paperSlice';
 import objectReducer from '../features/object/objectSlice';
 
-import model from '../with_obj.json'
+import model from '../test.json'
 
 
 export interface PaperStore {
