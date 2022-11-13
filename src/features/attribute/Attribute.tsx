@@ -22,6 +22,7 @@ export function Attribute(props: AttributeProps) {
     let name = attribute!.name;
     let { type, is_ref } = getAttributeType(attribute!);
     let style = is_ref ? styles.referentialAttributeType : styles.attributeType;
+    let bullet = is_ref ? '\u2023 ' : '\u2043 ';
     // if (typeof type === 'object') {
     //     let obj_id = type.foreign_key;
     //     let obj: ObjectStore | undefined = useAppSelector((state) => selectObjectById(state, obj_id));
@@ -30,7 +31,7 @@ export function Attribute(props: AttributeProps) {
     return (
         <text className={styles.attribute} x={0} y={y} >
             {/* fill={"#EA9648"} > */}
-            {name + ':\t'}
+            {bullet + name + ':\t'}
             <tspan className={style}>{type}</tspan>
         </text>
     )
