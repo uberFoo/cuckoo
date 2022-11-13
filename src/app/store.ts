@@ -2,6 +2,7 @@ import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 
 import paperReducer from '../features/paper/paperSlice';
 import objectReducer from '../features/object/objectSlice';
+import attributeReducer from '../features/attribute/attributeSlice';
 
 import model from '../test.json'
 
@@ -31,7 +32,7 @@ export interface Extent {
 export interface AttributeStore {
     id: string,
     name: string,
-    type: Type,
+    type: any,
     obj_id: string
 }
 
@@ -76,15 +77,16 @@ export interface Associative {
 type Cardinality = 'One' | 'Many';
 type Conditionality = 'Conditional' | 'Unconditional';
 interface ForeignKey {
-    ForeignKey: string
+    foreign_key: string
 }
 
-type Type = 'Uuid' | 'Integer' | 'Float' | 'String' | ForeignKey
+type Type = 'Uuid' | 'Integer' | 'Float' | 'String'
 
 export const store = configureStore({
     reducer: {
         paper: paperReducer,
         objects: objectReducer,
+        attributes: attributeReducer,
     },
     preloadedState: model
 });

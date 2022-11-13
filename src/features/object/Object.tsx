@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 
-import { ObjectStore } from '../../app/store';
+import { ObjectStore, AttributeStore } from '../../app/store';
 import { selectObjectById, moveTo, resizeBy } from './objectSlice';
+import { Attribute } from '../attribute/Attribute';
+import { selectAttributes } from '../attribute/attributeSlice';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
 
 import styles from './Object.module.css';
@@ -57,7 +59,6 @@ export function Object(props: ObjectProps) {
 
         canvas?.removeChild(root!);
         canvas?.appendChild(root!);
-        console.log(canvas?.childNodes);
 
         setMove({ ...move, mouseDown: true, resizeDir: dir });
     }
@@ -122,6 +123,21 @@ export function Object(props: ObjectProps) {
         }
     }
 
+    let attributes: Array<AttributeStore> = useAppSelector((state) => selectAttributes(state));
+    let attributeInstances: Array<JSX.Element> = attributes.filter((a) => a.obj_id === object!.id)
+        .sort((a, b) => {
+            if (a.id < b.id) {
+                return -1;
+            } else if (a.id > b.id) {
+                return 1;
+            } else {
+                return 0;
+            }
+        })
+        .map((a, i) => {
+            return <Attribute key={a.id} id={a.id} index={i} />
+        });
+
     let { mouseDown, x, y, width, height } = move;
 
     return (
@@ -132,7 +148,7 @@ export function Object(props: ObjectProps) {
             <text className={styles.objectName} x={width / 2} y={textHeight}>{object!.name}</text>
             <line className={styles.objectBisectLine} x1={0} y1={textHeight * 1.5} x2={width} y2={textHeight * 1.5} />
             <g className={"attrGroup"} transform={"translate(10," + textHeight * 2.5 + ")"}>
-                {/* attributes go here */}
+                {attributeInstances}
             </g>
             {/* These are for resizing */}
             {/* East */}
