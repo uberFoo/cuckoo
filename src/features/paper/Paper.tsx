@@ -3,9 +3,10 @@ import { v5 as uuid } from 'uuid';
 
 import { Object } from '../object/Object';
 import { PaperStore, ObjectStore } from '../../app/store';
-import { useAppSelector } from '../../app/hooks';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectObjects } from '../object/objectSlice';
 import { selectPaperById, selectPapers, getPaperIds } from './paperSlice';
+import { addObject } from '../object/objectSlice';
 
 import styles from './Paper.module.css';
 
@@ -25,35 +26,102 @@ interface PaperProps {
     domain_ns: string
 }
 
+interface MoveStruct {
+    mouseDown: boolean,
+    x: number,
+    y: number,
+    new_object: NewObject
+};
+interface Point {
+    start_x: number,
+    start_y: number,
+    end_x: number,
+    end_y: number,
+}
+
+type NewObject = Point | null;
+
 export function Paper(props: PaperProps) {
+    let dispatch = useAppDispatch();
+
     let paperIds: Array<string> = useAppSelector((state) => getPaperIds(state));
     let paper: PaperStore | undefined = useAppSelector((state) => selectPaperById(state, paperIds[0]));
 
     let [move, setMove] = useState({
         mouseDown: false,
         x: window.innerWidth / 2 - paper!.width / 2,
-        y: window.innerHeight / 2 - paper!.height / 2
-    });
+        y: window.innerHeight / 2 - paper!.height / 2,
+        new_object: null
+    } as MoveStruct);
 
     let onMouseDownHandler = (event: React.MouseEvent) => {
-        // This forces an update -- bad here.
-        setMove({ ...move, mouseDown: true });
+        if (event.altKey) {
+            let { x, y } = move;
+
+            setMove({
+                ...move, mouseDown: true, new_object: {
+                    start_x: event.clientX - x, start_y: event.clientY - y,
+                    end_x: event.clientX - x, end_y: event.clientY - y
+                }
+            });
+        } else {
+            // This forces an update -- bad here.
+            setMove({ ...move, mouseDown: true });
+        }
     }
 
     let onMouseUpHandler = (event: React.MouseEvent) => {
+        if (event.altKey) {
+            let { start_x, start_y, end_x, end_y } = move.new_object!;
+            let width = end_x - start_x;
+            let height = end_y - start_y;
+
+            let new_obj = {
+                id: "foo",
+                name: "foo",
+                key_letter: 'F',
+                extent: {
+                    x: start_x,
+                    y: start_y,
+                    width,
+                    height
+                }
+            };
+            dispatch(addObject(new_obj));
+        }
         // This forces an update -- bad here.
-        setMove({ ...move, mouseDown: false });
+        setMove({ ...move, mouseDown: false, new_object: null });
     }
 
     let onMouseMoveHandler = (event: React.MouseEvent) => {
-        let { mouseDown, x, y } = move;
-        // If mouseDown we are panning. This is wrong, and actually needs to start drawing.
-        if (mouseDown) {
-            x += event.movementX;
-            y += event.movementY;
+        let { mouseDown } = move;
 
-            // This forces an update -- good here.
-            setMove({ mouseDown, x, y });
+        if (mouseDown) {
+            if (event.altKey) {
+                let last = move.new_object;
+                let { end_x, end_y } = last!;
+
+                // New Object
+                end_x += event.movementX;
+                end_y += event.movementY;
+
+                setMove({
+                    ...move, mouseDown, new_object: {
+                        ...last!,
+                        end_x, end_y
+                    }
+                });
+            } else {
+                // Panning
+                let { x, y } = move;
+
+                x += event.movementX;
+                y += event.movementY;
+
+                // This forces an update -- good here.
+                setMove({ ...move, mouseDown, x, y });
+            }
+
         }
     }
 
@@ -61,6 +129,15 @@ export function Paper(props: PaperProps) {
     let objectInstances: Array<JSX.Element> = objects.map((o) => {
         return <Object key={o.id} id={o.id} />
     });
+
+    let newObject = null;
+    if (move.new_object !== null) {
+        let { x, y } = move;
+        let { start_x, start_y, end_x, end_y } = move.new_object;
+        let width = end_x - start_x;
+        let height = end_y - start_y;
+        newObject = <rect className={styles.antLine} x={start_x} y={start_y} width={width} height={height} />;
+    }
 
     // This is for the background. There's an SVG thing that can do a fill given a swatch that I
     // should look into.
@@ -87,6 +164,7 @@ export function Paper(props: PaperProps) {
                 {y_lines}
             </g>
             <g id="canvas">
+                {move.new_object !== null && newObject}
                 {objectInstances}
             </g>
         </g >
