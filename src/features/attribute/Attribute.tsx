@@ -1,9 +1,8 @@
 import React from 'react';
 
 import { selectAttributeById } from './attributeSlice';
-import { selectObjectById } from '../object/objectSlice';
 import { getAttributeType, useAppSelector } from '../../app/hooks';
-import { AttributeStore, ObjectStore } from '../../app/store';
+import { AttributeStore } from '../../app/store';
 
 import styles from './Attribute.module.css';
 
@@ -22,6 +21,10 @@ export function Attribute(props: AttributeProps) {
     let name = attribute!.name;
     let { type, is_ref } = getAttributeType(attribute!);
     let style = is_ref ? styles.referentialAttributeType : styles.attributeType;
+    // Keep these in our back pocket:
+    //      •: \u2022
+    //      ⦿: \u29bf
+    //      ◦: \u25e6
     let bullet = is_ref ? '\u2023 ' : '\u2043 ';
     // if (typeof type === 'object') {
     //     let obj_id = type.foreign_key;
