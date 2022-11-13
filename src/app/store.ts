@@ -7,6 +7,7 @@ import undoable, { StateWithHistory } from 'redux-undo';
 import paperReducer from '../features/paper/paperSlice';
 import objectReducer from '../features/object/objectSlice';
 import attributeReducer from '../features/attribute/attributeSlice';
+import relationshipReducer from '../features/relationship/relationshipSlice';
 
 import model from '../js_schema.json'
 
@@ -46,7 +47,7 @@ export interface AttributeStore {
     obj_id: string
 }
 
-export type RelationshipStore = Binary | Isa | Associative;
+export type RelationshipStore = Binary | Isa | Associative | ForeignKey;
 
 export interface Binary {
     id: string,

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch, AttributeStore, ObjectStore } from './store';
 import { selectObjectById } from '../features/object/objectSlice';
