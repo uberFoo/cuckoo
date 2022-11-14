@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, FC } from 'react';
+import ReactDOM from 'react-dom';
 
 import { ObjectStore, AttributeStore } from '../../app/store';
 import { selectObjectById, moveTo, resizeBy } from './objectSlice';
 import { Attribute } from '../attribute/Attribute';
 import { selectAttributes } from '../attribute/attributeSlice';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
+import Basic from './ObjectDialog';
 
 import styles from './Object.module.css';
 
@@ -36,6 +38,7 @@ interface ObjectProps {
 export function Object(props: ObjectProps) {
     // Why the undefined? I'd die happy knowing.
     let object: ObjectStore | undefined = useAppSelector((state) => selectObjectById(state, props.id));
+
     let dispatch = useAppDispatch();
     let [move, setMove] = useState({
         mouseDown: false,
@@ -140,32 +143,41 @@ export function Object(props: ObjectProps) {
 
     let { mouseDown, x, y, width, height } = move;
 
-    return (
-        <g key={object!.id} id={object!.id} className={"object"} transform={buildTransform(x, y)}
-            onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler}
-            onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler} >
-            <rect className={styles.objectRect} width={width} height={height} />
-            <text className={styles.objectName} x={width / 2} y={textHeight}>{object!.name}</text>
-            <line className={styles.objectBisectLine} x1={0} y1={textHeight * 1.5} x2={width} y2={textHeight * 1.5} />
-            <g className={"attrGroup"} transform={"translate(10," + textHeight * 2.5 + ")"}>
-                {attributeInstances}
-            </g>
-            {/* These are for resizing */}
-            {/* East */}
-            <line id={"east"} className={`${styles.resize} ${styles.relAttach} ${styles.ewResize}`}
-                x1={width} y1={cornerSize} x2={width} y2={height - cornerSize} />
-            {/* North */}
-            <line id={"north"} className={`${styles.resize} ${styles.relAttach} ${styles.nsResize}`}
-                x1={cornerSize} y1={"0"} x2={width - cornerSize} y2={0} />
-            {/* West */}
-            <line id={"west"} className={`${styles.resize} ${styles.relAttach} ${styles.ewResize}`}
-                x1={0} y1={cornerSize} x2={0} y2={height - cornerSize} />
-            {/* South */}
-            <line id={"south"} className={`${styles.resize} ${styles.relAttach} ${styles.nsResize}`}
-                x1={cornerSize} y1={height} x2={width - cornerSize} y2={height} />
-        </g >
-    );
+
+    // if this is new, we need to get data. We determine it's newness in a very lame manner.
+    if (object!.id === "fubar") {
+        return (
+            <Basic enabled={true} object={object!} />
+        );
+    } else {
+        return (
+            <g key={object!.id} id={object!.id} className={"object"} transform={buildTransform(x, y)}
+                onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler}
+                onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler} >
+                <rect className={styles.objectRect} width={width} height={height} />
+                <text className={styles.objectName} x={width / 2} y={textHeight}>{`${object!.name}\t\t[${object!.key_letter}]`}</text>
+                <line className={styles.objectBisectLine} x1={0} y1={textHeight * 1.5} x2={width} y2={textHeight * 1.5} />
+                <g className={"attrGroup"} transform={"translate(10," + textHeight * 2.5 + ")"}>
+                    {attributeInstances}
+                </g>
+                {/* These are for resizing */}
+                {/* East */}
+                <line id={"east"} className={`${styles.resize} ${styles.relAttach} ${styles.ewResize}`}
+                    x1={width} y1={cornerSize} x2={width} y2={height - cornerSize} />
+                {/* North */}
+                <line id={"north"} className={`${styles.resize} ${styles.relAttach} ${styles.nsResize}`}
+                    x1={cornerSize} y1={"0"} x2={width - cornerSize} y2={0} />
+                {/* West */}
+                <line id={"west"} className={`${styles.resize} ${styles.relAttach} ${styles.ewResize}`}
+                    x1={0} y1={cornerSize} x2={0} y2={height - cornerSize} />
+                {/* South */}
+                <line id={"south"} className={`${styles.resize} ${styles.relAttach} ${styles.nsResize}`}
+                    x1={cornerSize} y1={height} x2={width - cornerSize} y2={height} />
+            </g >
+        );
+    }
 }
+
 
 function buildTransform(x: number, y: number) {
     return 'translate(' + x + ',' + y + ')'

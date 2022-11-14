@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { v5 as uuid } from 'uuid';
 
 import { Object } from '../object/Object';
 import { PaperStore, ObjectStore } from '../../app/store';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectObjects } from '../object/objectSlice';
-import { selectPaperById, selectPapers, getPaperIds } from './paperSlice';
+import { selectPaperById, getPaperIds } from './paperSlice';
 import { addObject } from '../object/objectSlice';
 
 import styles from './Paper.module.css';
@@ -77,9 +76,9 @@ export function Paper(props: PaperProps) {
             let height = end_y - start_y;
 
             let new_obj = {
-                id: "foo",
-                name: "foo",
-                key_letter: 'F',
+                id: "fubar",
+                name: "New Object",
+                key_letter: 'NO',
                 extent: {
                     x: start_x,
                     y: start_y,
@@ -139,6 +138,7 @@ export function Paper(props: PaperProps) {
         newObject = <rect className={styles.antLine} x={start_x} y={start_y} width={width} height={height} />;
     }
 
+
     // This is for the background. There's an SVG thing that can do a fill given a swatch that I
     // should look into.
     let x_lines = [];
@@ -154,8 +154,8 @@ export function Paper(props: PaperProps) {
     let { mouseDown, x, y } = move;
 
     return (
-        <g id="paper" pointerEvents="all" transform={"translate(" + x + "," + y + ") scale(" + defaultScale + ")"}
-            onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler} onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler}>
+        < g id="paper" pointerEvents="all" transform={"translate(" + x + "," + y + ") scale(" + defaultScale + ")"}
+            onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler} onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler} >
             < rect id="background" width={paper!.width} height={paper!.height} className={styles.paperBase} />
             <g className={styles.axis}>
                 {x_lines}
