@@ -78,7 +78,6 @@ export function Paper(props: PaperProps) {
             let new_obj = {
                 id: "fubar",
                 name: "New Object",
-                key_letter: 'NO',
                 extent: {
                     x: start_x,
                     y: start_y,
@@ -126,7 +125,7 @@ export function Paper(props: PaperProps) {
 
     let objects: Array<ObjectStore> = useAppSelector((state) => selectObjects(state));
     let objectInstances: Array<JSX.Element> = objects.map((o) => {
-        return <Object key={o.id} id={o.id} />
+        return <Object key={o.id} id={o.id} ns={props.domain_ns} />
     });
 
     let newObject = null;

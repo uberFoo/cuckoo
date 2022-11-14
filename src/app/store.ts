@@ -18,7 +18,6 @@ export interface PaperStore {
 export interface ObjectStore {
     id: string,
     name: string,
-    key_letter: string,
     extent: Extent
 }
 
