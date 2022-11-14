@@ -1,20 +1,11 @@
 import { dialog, invoke } from '@tauri-apps/api';
 import { open } from '@tauri-apps/api/dialog';
 import React, { useEffect } from 'react';
-import logo from './logo.svg';
 import { Paper } from './features/paper/Paper';
 
 import './App.css';
 
 function App() {
-    let foo = () => {
-        dialog.open({ defaultPath: ".", directory: false, filters: [{ extensions: ['json'], name: '*' }] }).then((bar) => {
-            console.log(bar);
-        })
-    };
-
-    // foo();
-
     useEffect(() => {
         invoke('greet', { name: 'uberFoo' })
             .then((result) => {

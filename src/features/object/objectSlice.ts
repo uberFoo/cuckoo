@@ -1,4 +1,5 @@
 import { createSlice, createEntityAdapter } from '@reduxjs/toolkit';
+import { v5 as uuid } from 'uuid';
 
 import { RootState, ObjectStore } from '../../app/store';
 
@@ -11,6 +12,14 @@ export let objectSlice = createSlice({
     reducers: {
         addObject: objectAdapter.addOne,
         removeObject: objectAdapter.removeOne,
+        replaceObject: (state, action) => {
+            let object = action.payload;
+            objectAdapter.removeOne(state, object.id);
+            // I just died a little doing this.
+            let id = uuid(object.name, "b49d6fe1-e5e9-5896-bd42-b72012429e52");
+            object.id = id;
+            objectAdapter.addOne(state, object);
+        },
         moveTo: (state, action) => {
             let { id, x, y } = action.payload;
             let object = state.entities[id];
@@ -29,7 +38,7 @@ export let objectSlice = createSlice({
     }
 });
 
-export let { addObject, removeObject, moveTo, resizeBy, rename } = objectSlice.actions;
+export let { addObject, removeObject, replaceObject, moveTo, resizeBy, rename } = objectSlice.actions;
 
 // export const selectName = (state: RootState) => state.objects.name;
 export let {
