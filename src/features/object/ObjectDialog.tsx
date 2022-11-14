@@ -5,7 +5,6 @@ import {
     List, ListItemButton, ListItemText, ListItemSecondaryAction, ListItemIcon
 } from '@mui/material';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
-import { Draggable, Container, OnDropCallback, DropResult } from 'react-smooth-dnd';
 import { v5 as uuid } from 'uuid';
 
 import { ObjectStore } from '../../app/store';
@@ -67,12 +66,6 @@ const ObjectEditor = (props: Props) => {
         return { id: a.id, name: a.name };
     });
 
-    let onDrop = (p: OnDropCallback) => {
-        // @ts-ignore
-        let { removedIndex, addedIndex } = p;
-        console.log(removedIndex, addedIndex);
-    }
-
     return (
         <div>
             <Dialog open={true}>
@@ -84,26 +77,23 @@ const ObjectEditor = (props: Props) => {
                             variant="outlined" />
                     </FormGroup>
                     <FormGroup>
+                        <List>
+                            {listItems.map(({ id, name }) =>
+                                <ListItemButton divider>
+                                    <ListItemText primary={name} />
+                                    <ListItemSecondaryAction>
+                                        <ListItemIcon >
+                                            <DragHandleIcon />
+                                        </ListItemIcon>
+                                    </ListItemSecondaryAction>
+                                </ListItemButton>
+                                // </Draggable>
+                            )}
+                        </List>
+                        <DialogActions>
+                            <Button>Add</Button>
+                        </DialogActions>
                         <FormLabel>Attributes</FormLabel>
-                        {/* @ts-ignore */}
-                        <Container dragHandleSelector='.drag-handle' lockAxis='y' onDrop={onDrop}>
-                            <List>
-                                {listItems.map(({ id, name }) =>
-                                    // @ts-ignore
-                                    <Draggable key={id}>
-                                        <ListItemButton divider>
-                                            <ListItemText primary={name} />
-                                            <ListItemSecondaryAction>
-                                                <ListItemIcon className="drag-handle">
-                                                    <DragHandleIcon />
-                                                </ListItemIcon>
-                                            </ListItemSecondaryAction>
-                                        </ListItemButton>
-                                    </Draggable>
-                                )}
-                            </List>
-                        </Container>
-                        <Button>Add Attribute</Button>
                     </FormGroup>
                 </DialogContent >
                 <DialogActions>
