@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectObjects } from '../object/objectSlice';
 import { selectPaperById, getPaperIds } from './paperSlice';
 import { addObject } from '../object/objectSlice';
+import { addUI } from '../object/objectUISlice';
 
 import styles from './Paper.module.css';
 
@@ -78,13 +79,19 @@ export function Paper(props: PaperProps) {
             let new_obj = {
                 id: "fubar",
                 name: "New Object",
-                extent: {
-                    x: start_x,
-                    y: start_y,
-                    width,
-                    height
-                }
             };
+            let obj_ui = {
+                id: "fubar",
+                x: start_x,
+                y: start_y,
+                width,
+                height
+            };
+
+            // It's probably pretty important to do this in this order. I tried to sublimate
+            // the ui bit into the addObject, but you can't dispatch from there. May have been
+            // another direct way, but whatever.
+            dispatch(addUI(obj_ui));
             dispatch(addObject(new_obj));
         }
         // This forces an update -- bad here.

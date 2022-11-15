@@ -1,6 +1,7 @@
 import { createSlice, createEntityAdapter } from '@reduxjs/toolkit';
 
 import { RootState, ObjectStore } from '../../app/store';
+import { addUI } from './objectUISlice';
 
 let objectAdapter = createEntityAdapter<ObjectStore>();
 let initialState = objectAdapter.getInitialState();
@@ -10,21 +11,17 @@ export let objectSlice = createSlice({
     initialState,
     reducers: {
         addObject: objectAdapter.addOne,
+        // addObject: (state, action) => {
+        //     let { id, name, extent } = action.payload;
+        //     objectAdapter.addOne(state, { id, name });
+        //     //@ts-ignore
+        //     action.asyncDispatch(addUI(extent));
+        // },
         removeObject: objectAdapter.removeOne,
         replaceObject: (state, action) => {
             let { object, old_id } = action.payload;
             objectAdapter.removeOne(state, old_id);
             objectAdapter.addOne(state, object);
-        },
-        moveTo: (state, action) => {
-            let { id, x, y } = action.payload;
-            let object = state.entities[id];
-            object!.extent = { ...object!.extent, x, y };
-        },
-        resizeBy: (state, action) => {
-            let { id, width, height } = action.payload;
-            let object = state.entities[id];
-            object!.extent = { ...object!.extent, width, height }
         },
         rename: (state, action) => {
             let { id, name } = action.payload;
@@ -34,7 +31,7 @@ export let objectSlice = createSlice({
     }
 });
 
-export let { addObject, removeObject, replaceObject, moveTo, resizeBy, rename } = objectSlice.actions;
+export let { addObject, removeObject, replaceObject, rename } = objectSlice.actions;
 
 // export const selectName = (state: RootState) => state.objects.name;
 export let {

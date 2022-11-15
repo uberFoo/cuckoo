@@ -2,6 +2,7 @@ import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 
 import paperReducer from '../features/paper/paperSlice';
 import objectReducer from '../features/object/objectSlice';
+import objectUIReducer from '../features/object/objectUISlice';
 import attributeReducer from '../features/attribute/attributeSlice';
 
 import model from '../test.json'
@@ -18,10 +19,10 @@ export interface PaperStore {
 export interface ObjectStore {
     id: string,
     name: string,
-    extent: Extent
 }
 
-export interface Extent {
+export interface ObjectUI {
+    id: string,
     x: number,
     y: number,
     width: number,
@@ -81,14 +82,48 @@ interface ForeignKey {
 
 export type Type = 'Uuid' | 'Integer' | 'Float' | 'String' | ForeignKey
 
+
+//@ts-ignore
+const asyncDispatchMiddleware = store => next => action => {
+    let syncActivityFinished = false;
+    //@ts-ignore
+    let actionQueue = [];
+
+    function flushQueue() {
+        //@ts-ignore
+        actionQueue.forEach(a => store.dispatch(a)); // flush queue
+        actionQueue = [];
+    }
+
+    //@ts-ignore
+    function asyncDispatch(asyncAction) {
+        // debugger
+        //@ts-ignore
+        actionQueue = actionQueue.concat([asyncAction]);
+
+        if (syncActivityFinished) {
+            flushQueue();
+        }
+    }
+
+    const actionWithAsyncDispatch =
+        Object.assign({}, action, { asyncDispatch });
+
+    next(actionWithAsyncDispatch);
+    syncActivityFinished = true;
+    flushQueue();
+};
+
 export const store = configureStore({
     reducer: {
         paper: paperReducer,
         objects: objectReducer,
         attributes: attributeReducer,
+        object_ui: objectUIReducer,
     },
     //@ts-ignore
-    preloadedState: model
+    preloadedState: model,
+    // middleware: [asyncDispatchMiddleware]
 });
 
 export type AppDispatch = typeof store.dispatch;

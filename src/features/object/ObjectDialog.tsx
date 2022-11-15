@@ -12,6 +12,7 @@ import { ObjectStore, AttributeStore, Type } from '../../app/store';
 import { selectAttributes } from '../attribute/attributeSlice';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { replaceObject } from './objectSlice';
+import { changeUIId } from './objectUISlice';
 import { updateObjectReference, updateReferentialAttribute, addAttribute, removeAttribute } from '../attribute/attributeSlice'
 
 interface Props {
@@ -30,7 +31,6 @@ const ObjectEditor = (props: Props) => {
     let attributes: Array<AttributeStore> = useAppSelector((state) => selectAttributes(state));
 
     let save = (values: { objectName: string }) => {
-        console.log(values);
         if (values.objectName !== props.object.name) {
             let new_id = uuid(values.objectName, props.ns);
             // If the name changed then so will the id, which is how our attributes refer to us. We
@@ -43,6 +43,9 @@ const ObjectEditor = (props: Props) => {
                 .map((a) => dispatch(updateReferentialAttribute({ id: a.id, obj_id: new_id })));
 
             let new_obj = { ...props.object, id: new_id, name: values.objectName };
+
+            // Order is probably importannt
+            dispatch(changeUIId({ id: new_id, old_id: props.object.id }));
             dispatch(replaceObject({ object: new_obj, old_id: props.object.id }));
         }
 

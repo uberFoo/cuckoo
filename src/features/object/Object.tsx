@@ -1,8 +1,9 @@
 import React, { useState, FC } from 'react';
 import ReactDOM from 'react-dom';
 
-import { ObjectStore, AttributeStore } from '../../app/store';
-import { selectObjectById, moveTo, resizeBy } from './objectSlice';
+import { ObjectStore, AttributeStore, ObjectUI } from '../../app/store';
+import { selectObjectById } from './objectSlice';
+import { selectObjectUIById, moveTo, resizeBy } from './objectUISlice';
 import { Attribute } from '../attribute/Attribute';
 import { selectAttributes } from '../attribute/attributeSlice';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
@@ -40,14 +41,15 @@ interface ObjectProps {
 export function Object(props: ObjectProps) {
     // Why the undefined? I'd die happy knowing.
     let object: ObjectStore | undefined = useAppSelector((state) => selectObjectById(state, props.id));
+    let oui: ObjectUI | undefined = useAppSelector((state) => selectObjectUIById(state, props.id));
 
     let dispatch = useAppDispatch();
     let [move, setMove] = useState({
         mouseDown: false,
-        x: object!.extent.x,
-        y: object!.extent.y,
-        width: object!.extent.width,
-        height: object!.extent.height,
+        x: oui!.x,
+        y: oui!.y,
+        width: oui!.width,
+        height: oui!.height,
         resizeDir: null,
         altClick: false
     } as State);
