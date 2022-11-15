@@ -1,0 +1,26 @@
+.attribute {
+    cursor: pointer;
+    pointer-events: none;
+    font-size: 14px;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+.attributeType {
+    cursor: pointer;
+    pointer-events: none;
+    font-size: 14px;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    font-style: italic;
+}
+
+.referentialAttributeType {
+    cursor: pointer;
+    pointer-events: none;
+    font-size: 14px;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    font-weight: bold;
+}
+
+.attributeSubscript {
+    font-size: 10px;
+}

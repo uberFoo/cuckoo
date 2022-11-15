@@ -1,0 +1,50 @@
+.objectRect {
+    fill: #FFFDE0;
+    stroke: black;
+    stroke-width: 1;
+    pointer-events: all;
+}
+
+.objectBisectLine {
+    stroke: black;
+    stroke-width: 1;
+    pointer-events: none;
+}
+
+.objectName {
+    text-anchor: middle;
+    cursor: pointer;
+    pointer-events: none;
+    font-size: 17px;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+.resize.relAttach {
+    stroke: transparent;
+    fill: transparent;
+    stroke-width: 7;
+    pointer-events: all;
+}
+
+.resize,
+.edit {
+    stroke: transparent;
+    fill: transparent;
+    stroke-width: 7;
+    pointer-events: all;
+}
+
+.ewResize {
+    cursor: ew-resize
+}
+
+.nsResize {
+    cursor: ns-resize
+}
+
+#attrList {
+    height: 170px;
+    max-height: 170px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
