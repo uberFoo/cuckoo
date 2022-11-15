@@ -78,7 +78,6 @@ export function Paper(props: PaperProps) {
             let new_obj = {
                 id: "fubar",
                 name: "New Object",
-                key_letter: 'NO',
                 extent: {
                     x: start_x,
                     y: start_y,
@@ -126,7 +125,7 @@ export function Paper(props: PaperProps) {
 
     let objects: Array<ObjectStore> = useAppSelector((state) => selectObjects(state));
     let objectInstances: Array<JSX.Element> = objects.map((o) => {
-        return <Object key={o.id} id={o.id} />
+        return <Object key={o.id} id={o.id} ns={props.domain_ns} />
     });
 
     let newObject = null;
@@ -150,12 +149,12 @@ export function Paper(props: PaperProps) {
     for (let i = 0; i < paper!.width + 1; i += defaultGridSize) {
         y_lines.push(<line x1={i} y1={0} x2={i} y2={paper!.height} />);
     }
-
+    //
     let { mouseDown, x, y } = move;
 
     return (
-        < g id="paper" pointerEvents="all" transform={"translate(" + x + "," + y + ") scale(" + defaultScale + ")"}
-            onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler} onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler} >
+        < g id="paper" pointerEvents="all" transform={"translate(" + x + "," + y + ") scale(" + defaultScale + ")"}>
+            {/* onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler} onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler} > */}
             < rect id="background" width={paper!.width} height={paper!.height} className={styles.paperBase} />
             <g className={styles.axis}>
                 {x_lines}

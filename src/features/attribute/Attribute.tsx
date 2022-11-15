@@ -33,7 +33,6 @@ export function Attribute(props: AttributeProps) {
     // }
     return (
         <text className={styles.attribute} x={0} y={y} >
-            {/* fill={"#EA9648"} > */}
             {bullet + name + ':\t'}
             <tspan className={style}>{type}</tspan>
         </text>

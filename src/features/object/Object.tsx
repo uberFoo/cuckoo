@@ -6,7 +6,7 @@ import { selectObjectById, moveTo, resizeBy } from './objectSlice';
 import { Attribute } from '../attribute/Attribute';
 import { selectAttributes } from '../attribute/attributeSlice';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import Basic from './ObjectDialog';
+import ObjectEditor from './ObjectDialog';
 
 import styles from './Object.module.css';
 
@@ -28,11 +28,13 @@ interface State {
     y: number,
     width: number,
     height: number,
-    resizeDir: Direction
+    resizeDir: Direction,
+    altClick: boolean
 };
 
 interface ObjectProps {
     id: string,
+    ns: string
 };
 
 export function Object(props: ObjectProps) {
@@ -46,7 +48,8 @@ export function Object(props: ObjectProps) {
         y: object!.extent.y,
         width: object!.extent.width,
         height: object!.extent.height,
-        resizeDir: null
+        resizeDir: null,
+        altClick: false
     } as State);
 
     let onMouseDownHandler = (event: React.MouseEvent) => {
@@ -63,19 +66,22 @@ export function Object(props: ObjectProps) {
         canvas?.removeChild(root!);
         canvas?.appendChild(root!);
 
-        setMove({ ...move, mouseDown: true, resizeDir: dir });
+        setMove({ ...move, mouseDown: true, resizeDir: dir, altClick: false });
     }
 
     let onMouseUpHandler = (event: React.MouseEvent) => {
         // This forces an update -- bad here.
         event.stopPropagation();
 
-        if (move.resizeDir) {
-            dispatch(resizeBy({ id: object!.id, width: move.width, height: move.height }));
-        } else if (move.mouseDown) {
-            dispatch(moveTo({ id: object!.id, x: move.x, y: move.y }))
+        let { mouseDown, resizeDir, altClick, width, height, x, y } = move;
+        if (resizeDir) {
+            dispatch(resizeBy({ id: object!.id, width: width, height: height }));
+        } else if (mouseDown && event.altKey) {
+            altClick = true;
+        } else if (mouseDown) {
+            dispatch(moveTo({ id: object!.id, x: x, y: y }))
         }
-        setMove({ ...move, mouseDown: false, resizeDir: null });
+        setMove({ ...move, mouseDown: false, resizeDir: null, altClick });
     }
 
     let onMouseMoveHandler = (event: React.MouseEvent) => {
@@ -84,7 +90,7 @@ export function Object(props: ObjectProps) {
         let { mouseDown, x, y, width, height, resizeDir } = move;
 
         // If mouseDown we are panning. This is wrong, and actually needs to start drawing.
-        if (mouseDown) {
+        if (mouseDown && !event.altKey) {
             if (resizeDir) {
                 let dx = event.movementX;
                 let dy = event.movementY;
@@ -127,38 +133,44 @@ export function Object(props: ObjectProps) {
     }
 
     let attributes: Array<AttributeStore> = useAppSelector((state) => selectAttributes(state));
-    let attributeInstances: Array<JSX.Element> = attributes.filter((a) => a.obj_id === object!.id)
+    let attributeInstances: Array<AttributeStore> = attributes
+        .filter((a) => a.obj_id === object!.id)
         .sort((a, b) => {
             if (a.id < b.id) {
-                return -1;
+                return -1
             } else if (a.id > b.id) {
                 return 1;
             } else {
-                return 0;
+                return 0
             }
-        })
+        });
+
+    let attributeElements: Array<JSX.Element> = attributeInstances
         .map((a, i) => {
             return <Attribute key={a.id} id={a.id} index={i} />
         });
 
-    let { mouseDown, x, y, width, height } = move;
+    let { x, y, width, height } = move;
 
+    let doneEditing = () => {
+        if (move.altClick) setMove({ ...move, altClick: false });
+    }
 
     // if this is new, we need to get data. We determine it's newness in a very lame manner.
-    if (object!.id === "fubar") {
+    if (object!.id === "fubar" || move.altClick) {
         return (
-            <Basic enabled={true} object={object!} />
+            <ObjectEditor enabled={true} object={object!} attrs={attributeInstances} ns={props.ns} done={doneEditing} />
         );
     } else {
         return (
             <g key={object!.id} id={object!.id} className={"object"} transform={buildTransform(x, y)}
                 onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler}
-                onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler} >
+                onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler}>
                 <rect className={styles.objectRect} width={width} height={height} />
-                <text className={styles.objectName} x={width / 2} y={textHeight}>{`${object!.name}\t\t[${object!.key_letter}]`}</text>
+                <text className={styles.objectName} x={width / 2} y={textHeight}>{object!.name}</text>
                 <line className={styles.objectBisectLine} x1={0} y1={textHeight * 1.5} x2={width} y2={textHeight * 1.5} />
                 <g className={"attrGroup"} transform={"translate(10," + textHeight * 2.5 + ")"}>
-                    {attributeInstances}
+                    {attributeElements}
                 </g>
                 {/* These are for resizing */}
                 {/* East */}

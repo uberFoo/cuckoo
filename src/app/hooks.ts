@@ -9,6 +9,7 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 /* eslint react-hooks/rules-of-hooks:  "off" */
 export const getAttributeType = (attr: AttributeStore) => {
     if (typeof attr.type === 'object') {
+        // i.e., { foreign_key: string } It's really the only way to get ahold of it.
         let obj_id = attr.type.foreign_key;
         let obj: ObjectStore | undefined = useAppSelector((state) => selectObjectById(state, obj_id));
         return {
