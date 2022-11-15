@@ -50,9 +50,11 @@ pub fn menu_handler(event: WindowMenuEvent<Wry>) {
     match event.menu_item_id() {
         "export_schema" => {
             println!("export schema");
+            let _ = event.window().emit("menu-event", "export-schema-event");
         }
         "export_model" => {
             println!("export model");
+            let _ = event.window().emit("menu-event", "export-model-event");
         }
         _ => {}
     }
