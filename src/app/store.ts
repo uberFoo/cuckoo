@@ -31,7 +31,7 @@ export interface Extent {
 export interface AttributeStore {
     id: string,
     name: string,
-    type: any,
+    type: Type,
     obj_id: string
 }
 
@@ -79,7 +79,7 @@ interface ForeignKey {
     foreign_key: string
 }
 
-type Type = 'Uuid' | 'Integer' | 'Float' | 'String'
+export type Type = 'Uuid' | 'Integer' | 'Float' | 'String' | ForeignKey
 
 export const store = configureStore({
     reducer: {
@@ -87,6 +87,7 @@ export const store = configureStore({
         objects: objectReducer,
         attributes: attributeReducer,
     },
+    //@ts-ignore
     preloadedState: model
 });
 

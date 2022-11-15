@@ -19,6 +19,7 @@ export let attributeSlice = createSlice({
         updateReferentialAttribute: (state, action) => {
             let { id, obj_id } = action.payload;
             let attr = state.entities[id];
+            // @ts-ignore
             attr!.type.foreign_key = obj_id;
         }
     }

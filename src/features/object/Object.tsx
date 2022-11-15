@@ -133,13 +133,24 @@ export function Object(props: ObjectProps) {
     }
 
     let attributes: Array<AttributeStore> = useAppSelector((state) => selectAttributes(state));
-    let attributeInstances: Array<AttributeStore> = attributes.filter((a) => a.obj_id === object!.id);
+    let attributeInstances: Array<AttributeStore> = attributes
+        .filter((a) => a.obj_id === object!.id)
+        .sort((a, b) => {
+            if (a.id < b.id) {
+                return -1
+            } else if (a.id > b.id) {
+                return 1;
+            } else {
+                return 0
+            }
+        });
+
     let attributeElements: Array<JSX.Element> = attributeInstances
         .map((a, i) => {
             return <Attribute key={a.id} id={a.id} index={i} />
         });
 
-    let { mouseDown, x, y, width, height } = move;
+    let { x, y, width, height } = move;
 
     let doneEditing = () => {
         if (move.altClick) setMove({ ...move, altClick: false });

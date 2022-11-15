@@ -1,18 +1,18 @@
-import React, { FormEvent } from 'react';
+import React, { FormEvent, MouseEventHandler } from 'react';
 import { useFormik } from 'formik';
 import {
     Dialog, DialogTitle, TextField, DialogContent, DialogActions, Button, FormGroup, FormLabel,
-    List, ListItemButton, ListItemText, ListItemSecondaryAction, ListItemIcon
+    List, ListItemButton, ListItemText, ListItemSecondaryAction, IconButton, FormControl,
+    InputLabel, Select, MenuItem, SelectChangeEvent
 } from '@mui/material';
-import DragHandleIcon from '@mui/icons-material/DragHandle';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { v5 as uuid } from 'uuid';
 
-import { ObjectStore } from '../../app/store';
-import { AttributeStore } from '../../app/store';
+import { ObjectStore, AttributeStore, Type } from '../../app/store';
 import { selectAttributes } from '../attribute/attributeSlice';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { replaceObject } from './objectSlice';
-import { updateObjectReference, updateReferentialAttribute } from '../attribute/attributeSlice'
+import { updateObjectReference, updateReferentialAttribute, addAttribute, removeAttribute } from '../attribute/attributeSlice'
 
 interface Props {
     enabled: boolean,
@@ -22,12 +22,15 @@ interface Props {
     done: () => void
 }
 
+let TYPES = ['Uuid', 'String', 'Integer', 'Float', 'Boolean'];
+
 // Modal.setAppElement('#modal-root');
 const ObjectEditor = (props: Props) => {
     let dispatch = useAppDispatch();
     let attributes: Array<AttributeStore> = useAppSelector((state) => selectAttributes(state));
 
     let save = (values: { objectName: string }) => {
+        console.log(values);
         if (values.objectName !== props.object.name) {
             let new_id = uuid(values.objectName, props.ns);
             // If the name changed then so will the id, which is how our attributes refer to us. We
@@ -52,7 +55,7 @@ const ObjectEditor = (props: Props) => {
 
     const formik = useFormik({
         initialValues: {
-            objectName: props.object.name
+            objectName: props.object.name,
         },
         onSubmit: (values) => save(values)
     });
@@ -62,8 +65,32 @@ const ObjectEditor = (props: Props) => {
         formik.handleSubmit(e as any);
     }
 
+    let [attrType, setAttrType] = React.useState('');
+
+    let handleAttrTypeChange = (event: SelectChangeEvent) => {
+        setAttrType(event.target.value);
+    }
+
+    let handleAddAttr = () => {
+        let element = document.getElementById('attributeName') as HTMLInputElement;
+        let name = element!.value;
+        let id = uuid(`${props.object.id}::${name}`, props.ns);
+        let attr: AttributeStore = {
+            id,
+            name,
+            type: attrType as Type,
+            obj_id: props.object.id
+        };
+
+        dispatch(addAttribute(attr));
+    }
+
+    let handleDeleteAttribute = (e: React.MouseEvent<HTMLDivElement>) => {
+        dispatch(removeAttribute(e.currentTarget.id));
+    }
+
     let listItems = props.attrs.map((a) => {
-        return { id: a.id, name: a.name };
+        return { id: a.id, name: a.name, type: a.type };
     });
 
     return (
@@ -77,23 +104,36 @@ const ObjectEditor = (props: Props) => {
                             variant="outlined" />
                     </FormGroup>
                     <FormGroup>
+                        <FormLabel>Attributes</FormLabel>
                         <List>
-                            {listItems.map(({ id, name }) =>
+                            {listItems.map(({ id, name, type }) =>
                                 <ListItemButton divider>
-                                    <ListItemText primary={name} />
+                                    {/* @ts-ignore */}
+                                    <ListItemText primary={name} secondary={type} />
                                     <ListItemSecondaryAction>
-                                        <ListItemIcon >
-                                            <DragHandleIcon />
-                                        </ListItemIcon>
+                                        <div id={id} onClick={handleDeleteAttribute}>
+                                            <IconButton edge='end' >
+                                                <DeleteForeverIcon />
+                                            </IconButton>
+                                        </div>
                                     </ListItemSecondaryAction>
                                 </ListItemButton>
-                                // </Draggable>
                             )}
                         </List>
                         <DialogActions>
-                            <Button>Add</Button>
+                            <TextField id="attributeName" variant='outlined' helperText='Attribute Name' />
+                            <FormControl>
+                                <InputLabel id="attr-type">Type</InputLabel>
+                                {/* @ts-ignore */}
+                                <Select sx={{ m: 1, minWidth: 120 }} labelId='attr-type' value={attrType}
+                                    id='attr-select' label='Type' onChange={handleAttrTypeChange}>
+                                    {TYPES.map(t =>
+                                        <MenuItem value={t}>{t}</MenuItem>
+                                    )}
+                                </Select>
+                            </FormControl>
+                            <Button onClick={handleAddAttr}>Add</Button>
                         </DialogActions>
-                        <FormLabel>Attributes</FormLabel>
                     </FormGroup>
                 </DialogContent >
                 <DialogActions>
