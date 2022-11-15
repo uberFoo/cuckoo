@@ -1,4 +1,4 @@
-import React, { FormEvent, MouseEventHandler } from 'react';
+import React, { FormEvent } from 'react';
 import { useFormik } from 'formik';
 import {
     Dialog, DialogTitle, TextField, DialogContent, DialogActions, Button, FormGroup, FormLabel,

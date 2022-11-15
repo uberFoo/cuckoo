@@ -153,8 +153,8 @@ export function Paper(props: PaperProps) {
     let { mouseDown, x, y } = move;
 
     return (
-        < g id="paper" pointerEvents="all" transform={"translate(" + x + "," + y + ") scale(" + defaultScale + ")"}>
-            {/* onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler} onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler} > */}
+        < g id="paper" pointerEvents="all" transform={"translate(" + x + "," + y + ") scale(" + defaultScale + ")"}
+            onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler} onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler} >
             < rect id="background" width={paper!.width} height={paper!.height} className={styles.paperBase} />
             <g className={styles.axis}>
                 {x_lines}
