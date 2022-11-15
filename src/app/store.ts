@@ -1,4 +1,6 @@
-import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
+import { configureStore, ThunkAction, Action, getDefaultMiddleware, combineReducers } from '@reduxjs/toolkit';
+import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 
 import paperReducer from '../features/paper/paperSlice';
 import objectReducer from '../features/object/objectSlice';
@@ -6,7 +8,7 @@ import objectUIReducer from '../features/object/objectUISlice';
 import attributeReducer from '../features/attribute/attributeSlice';
 
 import model from '../test.json'
-
+import { getDefaultLibFileName } from 'typescript';
 
 export interface PaperStore {
     id: string,
@@ -82,49 +84,37 @@ interface ForeignKey {
 
 export type Type = 'Uuid' | 'Integer' | 'Float' | 'String' | ForeignKey
 
+const rootReducer = combineReducers({
+    paper: paperReducer,
+    objects: objectReducer,
+    attributes: attributeReducer,
+    object_ui: objectUIReducer,
+});
 
-//@ts-ignore
-const asyncDispatchMiddleware = store => next => action => {
-    let syncActivityFinished = false;
-    //@ts-ignore
-    let actionQueue = [];
+let persistConfig = {
+    key: 'root',
+    version: 1,
+    storage
+}
 
-    function flushQueue() {
-        //@ts-ignore
-        actionQueue.forEach(a => store.dispatch(a)); // flush queue
-        actionQueue = [];
-    }
-
-    //@ts-ignore
-    function asyncDispatch(asyncAction) {
-        // debugger
-        //@ts-ignore
-        actionQueue = actionQueue.concat([asyncAction]);
-
-        if (syncActivityFinished) {
-            flushQueue();
-        }
-    }
-
-    const actionWithAsyncDispatch =
-        Object.assign({}, action, { asyncDispatch });
-
-    next(actionWithAsyncDispatch);
-    syncActivityFinished = true;
-    flushQueue();
-};
+// @ts-ignore
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-    reducer: {
-        paper: paperReducer,
-        objects: objectReducer,
-        attributes: attributeReducer,
-        object_ui: objectUIReducer,
-    },
+    reducer: persistedReducer,
     //@ts-ignore
     preloadedState: model,
-    // middleware: [asyncDispatchMiddleware]
+    // @ts-ignore
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: {
+                // @ts-ignore
+                ignoreActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
+            }
+        })
 });
+
+export const persistor = persistStore(store);
 
 export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof store.getState>;
