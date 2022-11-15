@@ -2,6 +2,9 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { PersistGate } from 'redux-persist/integration/react';
+
+import { persistor } from './app/store';
 
 // import reportWebVitals from './reportWebVitals';
 
@@ -12,20 +15,21 @@ import './index.css';
 
 import model from './with_obj.json'
 
-const container = document.getElementById('root')!;
-const root = createRoot(container);
-
-const theme = createTheme({});
+let container = document.getElementById('root')!;
+let root = createRoot(container);
+let theme = createTheme({});
 
 root.render(
   <React.StrictMode>
     <Provider store={store}>
       {/* serverState={model}> */}
-      <ThemeProvider theme={theme}>
-        <App />
-      </ThemeProvider>
+      <PersistGate loading={null} persistor={persistor}>
+        <ThemeProvider theme={theme}>
+          <App />
+        </ThemeProvider>
+      </PersistGate>
     </Provider>
-  </React.StrictMode>
+  </React.StrictMode >
 );
 
 // If you want to start measuring performance in your app, pass a function
