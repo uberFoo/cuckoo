@@ -1,7 +1,7 @@
 import { dialog, invoke } from '@tauri-apps/api';
 import { listen } from '@tauri-apps/api/event';
 import { open, save } from '@tauri-apps/api/dialog';
-import { writeFile } from '@tauri-apps/api/fs';
+import { readTextFile, writeFile } from '@tauri-apps/api/fs';
 import React, { useEffect, useState } from 'react';
 import { Paper } from './features/paper/Paper';
 
@@ -23,7 +23,6 @@ function App() {
 
     useEffect(() => {
         listen("menu-event", (e) => {
-            console.log(e);
             // @ts-ignore
             setMenuPayload(e.payload);
             setMenuOpen(true);
@@ -39,6 +38,9 @@ function App() {
                 case "export-model-event":
                     ExportModel();
                     break;
+                case "import-model-event":
+                    ImportModel();
+                    break;
 
                 default:
                     break;
@@ -46,6 +48,20 @@ function App() {
             setMenuOpen(false)
         }
     }, [menuOpen]);
+
+    const ImportModel = async () => {
+        try {
+            let path = await open();
+            // @ts-ignore
+            let content = await readTextFile(path);
+            let state = store.getState();
+            // @ts-ignore
+            state = [...state, content];
+            // console.log(content);
+        } catch (e) {
+            console.error(e);
+        }
+    };
 
     const ExportSchema = () => {
     };

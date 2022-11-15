@@ -24,18 +24,24 @@ fn main() {
         ))
         .add_submenu(Submenu::new(
             "File",
-            Menu::new().add_submenu(Submenu::new(
-                "Export",
-                Menu::new()
-                    .add_item(CustomMenuItem::new(
-                        "export_schema".to_owned(),
-                        "Export Schema",
-                    ))
-                    .add_item(CustomMenuItem::new(
-                        "export_model".to_owned(),
-                        "Export Model",
-                    )),
-            )),
+            Menu::new()
+                .add_item(CustomMenuItem::new(
+                    "import_model".to_owned(),
+                    "Import Model",
+                ))
+                .add_native_item(MenuItem::Separator)
+                .add_submenu(Submenu::new(
+                    "Export",
+                    Menu::new()
+                        .add_item(CustomMenuItem::new(
+                            "export_schema".to_owned(),
+                            "Export Schema",
+                        ))
+                        .add_item(CustomMenuItem::new(
+                            "export_model".to_owned(),
+                            "Export Model",
+                        )),
+                )),
         ));
 
     tauri::Builder::default()
@@ -48,6 +54,10 @@ fn main() {
 
 pub fn menu_handler(event: WindowMenuEvent<Wry>) {
     match event.menu_item_id() {
+        "import_model" => {
+            println!("import model");
+            let _ = event.window().emit("menu-event", "import-model-event");
+        }
         "export_schema" => {
             println!("export schema");
             let _ = event.window().emit("menu-event", "export-schema-event");

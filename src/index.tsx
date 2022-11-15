@@ -22,8 +22,8 @@ let theme = createTheme({});
 root.render(
   <React.StrictMode>
     <Provider store={store}>
+      {/* serverState={model}> */}
       <PersistGate loading={null} persistor={persistor}>
-        {/* serverState={model}> */}
         <ThemeProvider theme={theme}>
           <App />
         </ThemeProvider>
