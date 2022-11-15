@@ -149,12 +149,12 @@ export function Paper(props: PaperProps) {
     for (let i = 0; i < paper!.width + 1; i += defaultGridSize) {
         y_lines.push(<line x1={i} y1={0} x2={i} y2={paper!.height} />);
     }
-
+    //
     let { mouseDown, x, y } = move;
 
     return (
-        < g id="paper" pointerEvents="all" transform={"translate(" + x + "," + y + ") scale(" + defaultScale + ")"}
-            onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler} onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler} >
+        < g id="paper" pointerEvents="all" transform={"translate(" + x + "," + y + ") scale(" + defaultScale + ")"}>
+            {/* onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler} onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler} > */}
             < rect id="background" width={paper!.width} height={paper!.height} className={styles.paperBase} />
             <g className={styles.axis}>
                 {x_lines}
