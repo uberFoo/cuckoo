@@ -1,12 +1,13 @@
 import { configureStore, ThunkAction, Action, getDefaultMiddleware, combineReducers } from '@reduxjs/toolkit';
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
+import logger from 'redux-logger';
 
 import paperReducer from '../features/paper/paperSlice';
 import objectReducer from '../features/object/objectSlice';
 import attributeReducer from '../features/attribute/attributeSlice';
 
-// import model from '../test.json'
+import model from '../js_schema.json'
 
 export interface PaperStore {
     id: string,
@@ -31,7 +32,6 @@ export interface ObjectStore {
 }
 
 export interface ObjectUI {
-    id: string,
     x: number,
     y: number,
     width: number,
@@ -104,39 +104,12 @@ let persistConfig = {
 }
 
 // @ts-ignore
-// const persistedReducer = persistReducer(persistConfig, rootReducer);
-
-let _model =
-{
-    paper: {
-        ids: [
-            "7b5c998f-f8f3-59e8-9882-1840c7c6a484"
-        ],
-        entities: {
-            "7b5c998f-f8f3-59e8-9882-1840c7c6a484": {
-                id: "7b5c998f-f8f3-59e8-9882-1840c7c6a484",
-                width: 3200,
-                height: 1600,
-                domain_name: "sarzak_ooa_0",
-                domain_ns: "b49d6fe1-e5e9-5896-bd42-b72012429e52",
-                objects: {}
-            }
-        }
-    },
-    objects: {
-        ids: [],
-        entities: {}
-    },
-    attributes: {
-        ids: [],
-        entities: {}
-    }
-};
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-    reducer: rootReducer,
-    // reducer: persistedReducer,
-    preloadedState: _model,
+    reducer: persistedReducer,
+    // @ts-ignore
+    preloadedState: model,
     // @ts-ignore
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
@@ -144,7 +117,7 @@ export const store = configureStore({
                 // @ts-ignore
                 ignoreActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
             }
-        })
+        }).concat(logger)
 });
 
 export const persistor = persistStore(store);

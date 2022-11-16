@@ -2,7 +2,7 @@ import React, { useState, FC } from 'react';
 import ReactDOM from 'react-dom';
 
 import { ObjectStore, AttributeStore, ObjectUI } from '../../app/store';
-import { selectObjectById } from './objectSlice';
+import { selectObjectById, addObject } from './objectSlice';
 import { objectMoveTo, objectResizeBy } from '../paper/paperSlice';
 import { Attribute } from '../attribute/Attribute';
 import { selectAttributes } from '../attribute/attributeSlice';
@@ -43,11 +43,14 @@ interface ObjectProps {
 };
 
 export function Object(props: ObjectProps) {
-    // Why the undefined? I'd die happy knowing.
-    let object: ObjectStore | undefined = useAppSelector((state) => selectObjectById(state, props.id));
-    // let oui: ObjectUI | undefined = useAppSelector((state) => selectObjectUIById(state, props.id));
-
     let dispatch = useAppDispatch();
+
+    let object: ObjectStore | undefined = useAppSelector((state) => selectObjectById(state, props.id));
+
+    if (object === undefined) {
+        dispatch(addObject({ id: props.id, name: "New Object" }));
+    }
+
     let [move, setMove] = useState({
         mouseDown: false,
         x: props.x,
@@ -140,7 +143,7 @@ export function Object(props: ObjectProps) {
 
     let attributes: Array<AttributeStore> = useAppSelector((state) => selectAttributes(state));
     let attributeInstances: Array<AttributeStore> = attributes
-        .filter((a) => a.obj_id === object!.id)
+        .filter((a) => a.obj_id === props.id)
         .sort((a, b) => {
             if (a.id < b.id) {
                 return -1
@@ -163,13 +166,13 @@ export function Object(props: ObjectProps) {
     }
 
     // if this is new, we need to get data. We determine it's newness in a very lame manner.
-    if (object!.id === "fubar" || move.altClick) {
+    if (props.id === "fubar" || move.altClick) {
         return (
             <ObjectEditor enabled={true} object={object!} attrs={attributeInstances} ns={props.ns} done={doneEditing} />
         );
     } else {
         return (
-            <g key={object!.id} id={object!.id} className={"object"} transform={buildTransform(x, y)}
+            <g key={props.id} id={props.id} className={"object"} transform={buildTransform(x, y)}
                 onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler}
                 onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler}>
                 <rect className={styles.objectRect} width={width} height={height} />

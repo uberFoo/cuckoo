@@ -45,12 +45,7 @@ type NewObject = Point | null;
 export function Paper(props: PaperProps) {
     let dispatch = useAppDispatch();
 
-    // let paperIds: Array<string> = useAppSelector((state) => selectPaperIds(state));
-    // let paper: PaperStore | undefined = useAppSelector((state) => selectPaperById(state, paperIds[0]));
-    let paperIds = useAppSelector((state) => selectPaperIds(state));
-    console.log('sigh', paperIds);
     let paper = useAppSelector((state) => selectPaperSingleton(state));
-    console.log('uber', paper);
 
     let [move, setMove] = useState({
         mouseDown: false,
@@ -84,23 +79,19 @@ export function Paper(props: PaperProps) {
             let width = end_x - start_x;
             let height = end_y - start_y;
 
-            let new_obj = {
-                id: "fubar",
-                name: "New Object",
-            };
+
             let obj_ui = {
                 id: "fubar",
-                x: start_x,
-                y: start_y,
-                width,
-                height
+                payload: {
+                    x: start_x,
+                    y: start_y,
+                    width,
+                    height
+                }
             };
 
-            // It's probably pretty important to do this in this order. I tried to sublimate
-            // the ui bit into the addObject, but you can't dispatch from there. May have been
-            // another direct way, but whatever.
+
             dispatch(addObjectToPaper(obj_ui));
-            // dispatch(addObject(new_obj));
         }
         // This forces an update -- bad here.
         setMove({ ...move, mouseDown: false, new_object: null });
@@ -138,12 +129,13 @@ export function Paper(props: PaperProps) {
         }
     }
 
-    let objects: Array<ObjectStore> = useAppSelector((state) => selectObjects(state));
-    let objectInstances: Array<JSX.Element> = objects.map((o) => {
-        // @ts-ignore
-        let { x, y, width, height } = paper!.objects[o.id];
-        return <Object key={o.id} id={o.id} x={x} y={y} width={width} height={height} ns={props.domain_ns} />
-    });
+    // let objects: Array<ObjectStore> = useAppSelector((state) => selectObjects(state));
+
+    let objectInstances: Array<JSX.Element> = [];
+    for (let key in paper!.objects) {
+        let { x, y, width, height } = paper!.objects[key] as ObjectUI;
+        objectInstances.push(<Object key={key} id={key} x={x} y={y} width={width} height={height} ns={props.domain_ns} />);
+    }
 
     let newObject = null;
     if (move.new_object !== null) {
