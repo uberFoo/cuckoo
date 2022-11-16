@@ -1,5 +1,4 @@
 import { createEntityAdapter, createSlice, createSelector } from '@reduxjs/toolkit';
-import undoable from 'redux-undo';
 
 import { RootState, PaperStore } from '../../app/store';
 
@@ -51,7 +50,7 @@ export let {
     selectById: selectPaperById,
     selectIds: selectPaperIds,
     selectEntities: selectPaperContainer
-} = paperAdapter.getSelectors<RootState>((state) => state.paper);
+} = paperAdapter.getSelectors<RootState>((state) => state.present.paper);
 
 export let selectPaperSingleton = createSelector(
     selectPaperIds,

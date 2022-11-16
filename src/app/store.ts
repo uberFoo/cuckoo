@@ -2,6 +2,7 @@ import { configureStore, ThunkAction, Action, getDefaultMiddleware, combineReduc
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import logger from 'redux-logger';
+import undoable, { StateWithHistory } from 'redux-undo';
 
 import paperReducer from '../features/paper/paperSlice';
 import objectReducer from '../features/object/objectSlice';
@@ -91,10 +92,32 @@ interface ForeignKey {
 
 export type Type = 'Uuid' | 'Integer' | 'Float' | 'String' | ForeignKey
 
-const rootReducer = combineReducers({
+const rootReducer = undoable(combineReducers({
     paper: paperReducer,
     objects: objectReducer,
     attributes: attributeReducer,
+}), {
+    groupBy: ((action, current, previous) => {
+        // This is slick. All we have to to is look for actions that are changing a reference.
+        // Write a function to return the current id, could have been previous. The undo thing
+        // uses the ids to group undo operations.
+        switch (action.type) {
+            case "attributes/updateObjectReference":
+                return action.payload.id;
+            case "paper/objectChangeId":
+                return action.payload.id;
+            case "objects/replaceObject":
+                return action.payload.object.id;
+            case "paper/addObjectToPaper":
+                return action.payload.id;
+            case "objects/addObject":
+                return action.payload.id;
+
+            default:
+                break;
+        }
+        return null;
+    })
 });
 
 let persistConfig = {
@@ -109,7 +132,7 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 export const store = configureStore({
     reducer: persistedReducer,
     // @ts-ignore
-    preloadedState: model,
+    preloadedState: (model as any) as StateWithHistory<typeof model>,
     // @ts-ignore
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({

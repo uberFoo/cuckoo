@@ -29,6 +29,7 @@ interface PaperProps {
 
 interface MoveStruct {
     mouseDown: boolean,
+    undo: boolean,
     x: number,
     y: number,
     new_object: NewObject
@@ -49,6 +50,7 @@ export function Paper(props: PaperProps) {
 
     let [move, setMove] = useState({
         mouseDown: false,
+        undo: false,
         x: window.innerWidth / 2 - paper!.width / 2,
         y: window.innerHeight / 2 - paper!.height / 2,
         new_object: null
@@ -56,8 +58,7 @@ export function Paper(props: PaperProps) {
 
     let onMouseDownHandler = (event: React.MouseEvent) => {
         if (event.metaKey) {
-            console.log('hello');
-            dispatch(UndoActionCreators.undo());
+            setMove({ ...move, undo: true });
         } else if (event.altKey) {
             let { x, y } = move;
 
@@ -74,7 +75,10 @@ export function Paper(props: PaperProps) {
     }
 
     let onMouseUpHandler = (event: React.MouseEvent) => {
-        if (event.altKey) {
+        let { undo } = move;
+        if (undo) {
+            dispatch(UndoActionCreators.undo());
+        } else if (event.altKey) {
             let { start_x, start_y, end_x, end_y } = move.new_object!;
             let width = end_x - start_x;
             let height = end_y - start_y;
@@ -94,7 +98,7 @@ export function Paper(props: PaperProps) {
             dispatch(addObjectToPaper(obj_ui));
         }
         // This forces an update -- bad here.
-        setMove({ ...move, mouseDown: false, new_object: null });
+        setMove({ ...move, mouseDown: false, undo: false, new_object: null });
     }
 
     let onMouseMoveHandler = (event: React.MouseEvent) => {
@@ -129,12 +133,12 @@ export function Paper(props: PaperProps) {
         }
     }
 
-    // let objects: Array<ObjectStore> = useAppSelector((state) => selectObjects(state));
-
     let objectInstances: Array<JSX.Element> = [];
     for (let key in paper!.objects) {
         let { x, y, width, height } = paper!.objects[key] as ObjectUI;
-        objectInstances.push(<Object key={key} id={key} x={x} y={y} width={width} height={height} ns={props.domain_ns} />);
+        // This crazy key thing is what makes React redraw the entire Component. We need this to
+        // happen when we undo.
+        objectInstances.push(<Object key={`${key}${x}${y}${width}${height}`} id={key} x={x} y={y} width={width} height={height} ns={props.domain_ns} />);
     }
 
     let newObject = null;

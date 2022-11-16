@@ -1,5 +1,4 @@
 import { createSlice, createEntityAdapter } from '@reduxjs/toolkit';
-import undoable from 'redux-undo';
 
 import { RootState, ObjectStore } from '../../app/store';
 
@@ -37,6 +36,6 @@ export let { addObject, removeObject, replaceObject, rename } = objectSlice.acti
 export let {
     selectAll: selectObjects,
     selectById: selectObjectById
-} = objectAdapter.getSelectors<RootState>((state) => state.objects);
+} = objectAdapter.getSelectors<RootState>((state) => state.present.objects);
 
 export default objectSlice.reducer;
