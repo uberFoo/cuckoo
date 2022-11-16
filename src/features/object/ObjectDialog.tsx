@@ -9,10 +9,10 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { v5 as uuid } from 'uuid';
 
 import { ObjectStore, AttributeStore, Type } from '../../app/store';
-import { selectAttributes } from '../attribute/attributeSlice';
-import { useAppSelector, useAppDispatch } from '../../app/hooks';
+import { selectAttributes, selectAttributeById } from '../attribute/attributeSlice';
+import { useAppSelector, useAppDispatch, getAttributeType } from '../../app/hooks';
 import { replaceObject } from './objectSlice';
-import { changeUIId } from './objectUISlice';
+import { objectChangeId } from '../paper/paperSlice';
 import { updateObjectReference, updateReferentialAttribute, addAttribute, removeAttribute } from '../attribute/attributeSlice'
 
 interface Props {
@@ -45,7 +45,7 @@ const ObjectEditor = (props: Props) => {
             let new_obj = { ...props.object, id: new_id, name: values.objectName };
 
             // Order is probably importannt
-            dispatch(changeUIId({ id: new_id, old_id: props.object.id }));
+            dispatch(objectChangeId({ id: new_id, old_id: props.object.id }));
             dispatch(replaceObject({ object: new_obj, old_id: props.object.id }));
         }
 
@@ -93,7 +93,13 @@ const ObjectEditor = (props: Props) => {
     }
 
     let listItems = props.attrs.map((a) => {
-        return { id: a.id, name: a.name, type: a.type };
+        let attr = attributes.filter((b) => b.id === a.id);
+        let type = getAttributeType(attr[0]);
+        if (type.is_ref) {
+            return { id: a.id, name: a.name, type: `&${type.type}` };
+        } else {
+            return { id: a.id, name: a.name, type: type.type };
+        }
     });
 
     return (
@@ -111,8 +117,8 @@ const ObjectEditor = (props: Props) => {
                         <List>
                             {listItems.map(({ id, name, type }) =>
                                 <ListItemButton divider>
-                                    {/* @ts-ignore */}
-                                    <ListItemText primary={name} secondary={type} />
+                                    {/* <ListItemText primary={name} secondary={type} /> */}
+                                    <ListItemText primary={`${name}: ${type}`} />
                                     <ListItemSecondaryAction>
                                         <div id={id} onClick={handleDeleteAttribute}>
                                             <IconButton edge='end' >

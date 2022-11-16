@@ -2,8 +2,8 @@ import React, { useState, FC } from 'react';
 import ReactDOM from 'react-dom';
 
 import { ObjectStore, AttributeStore, ObjectUI } from '../../app/store';
-import { selectObjectById } from './objectSlice';
-import { selectObjectUIById, moveTo, resizeBy } from './objectUISlice';
+import { selectObjectById, addObject } from './objectSlice';
+import { objectMoveTo, objectResizeBy } from '../paper/paperSlice';
 import { Attribute } from '../attribute/Attribute';
 import { selectAttributes } from '../attribute/attributeSlice';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
@@ -35,21 +35,28 @@ interface State {
 
 interface ObjectProps {
     id: string,
-    ns: string
+    ns: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number
 };
 
 export function Object(props: ObjectProps) {
-    // Why the undefined? I'd die happy knowing.
-    let object: ObjectStore | undefined = useAppSelector((state) => selectObjectById(state, props.id));
-    let oui: ObjectUI | undefined = useAppSelector((state) => selectObjectUIById(state, props.id));
-
     let dispatch = useAppDispatch();
+
+    let object: ObjectStore | undefined = useAppSelector((state) => selectObjectById(state, props.id));
+
+    if (object === undefined) {
+        dispatch(addObject({ id: props.id, name: "New Object" }));
+    }
+
     let [move, setMove] = useState({
         mouseDown: false,
-        x: oui!.x,
-        y: oui!.y,
-        width: oui!.width,
-        height: oui!.height,
+        x: props.x,
+        y: props.y,
+        width: props.width,
+        height: props.height,
         resizeDir: null,
         altClick: false
     } as State);
@@ -77,11 +84,11 @@ export function Object(props: ObjectProps) {
 
         let { mouseDown, resizeDir, altClick, width, height, x, y } = move;
         if (resizeDir) {
-            dispatch(resizeBy({ id: object!.id, width: width, height: height }));
+            dispatch(objectResizeBy({ id: object!.id, width: width, height: height }));
         } else if (mouseDown && event.altKey) {
             altClick = true;
         } else if (mouseDown) {
-            dispatch(moveTo({ id: object!.id, x: x, y: y }))
+            dispatch(objectMoveTo({ id: object!.id, x: x, y: y }))
         }
         setMove({ ...move, mouseDown: false, resizeDir: null, altClick });
     }
@@ -136,7 +143,7 @@ export function Object(props: ObjectProps) {
 
     let attributes: Array<AttributeStore> = useAppSelector((state) => selectAttributes(state));
     let attributeInstances: Array<AttributeStore> = attributes
-        .filter((a) => a.obj_id === object!.id)
+        .filter((a) => a.obj_id === props.id)
         .sort((a, b) => {
             if (a.id < b.id) {
                 return -1
@@ -159,13 +166,13 @@ export function Object(props: ObjectProps) {
     }
 
     // if this is new, we need to get data. We determine it's newness in a very lame manner.
-    if (object!.id === "fubar" || move.altClick) {
+    if (props.id === "fubar" || move.altClick) {
         return (
             <ObjectEditor enabled={true} object={object!} attrs={attributeInstances} ns={props.ns} done={doneEditing} />
         );
     } else {
         return (
-            <g key={object!.id} id={object!.id} className={"object"} transform={buildTransform(x, y)}
+            <g key={props.id} id={props.id} className={"object"} transform={buildTransform(x, y)}
                 onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler}
                 onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler}>
                 <rect className={styles.objectRect} width={width} height={height} />

@@ -30,6 +30,6 @@ export let { addAttribute, removeAttribute, updateObjectReference, updateReferen
 export let {
     selectAll: selectAttributes,
     selectById: selectAttributeById
-} = attributeAdapter.getSelectors<RootState>((state) => state.attributes);
+} = attributeAdapter.getSelectors<RootState>((state) => state.present.attributes);
 
 export default attributeSlice.reducer;

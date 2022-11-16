@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
+import { ActionCreators as UndoActionCreators } from 'redux-undo';
 
 import { Object } from '../object/Object';
-import { PaperStore, ObjectStore } from '../../app/store';
+import { PaperStore, ObjectStore, ObjectUI, store } from '../../app/store';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectObjects } from '../object/objectSlice';
-import { selectPaperById, getPaperIds } from './paperSlice';
+import { addPaper, addObjectToPaper, selectPaperSingleton, selectPaperIds } from './paperSlice';
 import { addObject } from '../object/objectSlice';
-import { addUI } from '../object/objectUISlice';
+// import { addUI } from '../object/objectUISlice';
 
 import styles from './Paper.module.css';
 
@@ -28,6 +29,7 @@ interface PaperProps {
 
 interface MoveStruct {
     mouseDown: boolean,
+    undo: boolean,
     x: number,
     y: number,
     new_object: NewObject
@@ -44,18 +46,20 @@ type NewObject = Point | null;
 export function Paper(props: PaperProps) {
     let dispatch = useAppDispatch();
 
-    let paperIds: Array<string> = useAppSelector((state) => getPaperIds(state));
-    let paper: PaperStore | undefined = useAppSelector((state) => selectPaperById(state, paperIds[0]));
+    let paper = useAppSelector((state) => selectPaperSingleton(state));
 
     let [move, setMove] = useState({
         mouseDown: false,
+        undo: false,
         x: window.innerWidth / 2 - paper!.width / 2,
         y: window.innerHeight / 2 - paper!.height / 2,
         new_object: null
     } as MoveStruct);
 
     let onMouseDownHandler = (event: React.MouseEvent) => {
-        if (event.altKey) {
+        if (event.metaKey) {
+            setMove({ ...move, undo: true });
+        } else if (event.altKey) {
             let { x, y } = move;
 
             setMove({
@@ -71,31 +75,30 @@ export function Paper(props: PaperProps) {
     }
 
     let onMouseUpHandler = (event: React.MouseEvent) => {
-        if (event.altKey) {
+        let { undo } = move;
+        if (undo) {
+            dispatch(UndoActionCreators.undo());
+        } else if (event.altKey) {
             let { start_x, start_y, end_x, end_y } = move.new_object!;
             let width = end_x - start_x;
             let height = end_y - start_y;
 
-            let new_obj = {
-                id: "fubar",
-                name: "New Object",
-            };
+
             let obj_ui = {
                 id: "fubar",
-                x: start_x,
-                y: start_y,
-                width,
-                height
+                payload: {
+                    x: start_x,
+                    y: start_y,
+                    width,
+                    height
+                }
             };
 
-            // It's probably pretty important to do this in this order. I tried to sublimate
-            // the ui bit into the addObject, but you can't dispatch from there. May have been
-            // another direct way, but whatever.
-            dispatch(addUI(obj_ui));
-            dispatch(addObject(new_obj));
+
+            dispatch(addObjectToPaper(obj_ui));
         }
         // This forces an update -- bad here.
-        setMove({ ...move, mouseDown: false, new_object: null });
+        setMove({ ...move, mouseDown: false, undo: false, new_object: null });
     }
 
     let onMouseMoveHandler = (event: React.MouseEvent) => {
@@ -130,10 +133,13 @@ export function Paper(props: PaperProps) {
         }
     }
 
-    let objects: Array<ObjectStore> = useAppSelector((state) => selectObjects(state));
-    let objectInstances: Array<JSX.Element> = objects.map((o) => {
-        return <Object key={o.id} id={o.id} ns={props.domain_ns} />
-    });
+    let objectInstances: Array<JSX.Element> = [];
+    for (let key in paper!.objects) {
+        let { x, y, width, height } = paper!.objects[key] as ObjectUI;
+        // This crazy key thing is what makes React redraw the entire Component. We need this to
+        // happen when we undo.
+        objectInstances.push(<Object key={`${key}${x}${y}${width}${height}`} id={key} x={x} y={y} width={width} height={height} ns={props.domain_ns} />);
+    }
 
     let newObject = null;
     if (move.new_object !== null) {
@@ -160,19 +166,21 @@ export function Paper(props: PaperProps) {
     let { mouseDown, x, y } = move;
 
     return (
-        < g id="paper" pointerEvents="all" transform={"translate(" + x + "," + y + ") scale(" + defaultScale + ")"}
-            onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler} onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler} >
-            < rect id="background" width={paper!.width} height={paper!.height} className={styles.paperBase} />
-            <g className={styles.axis}>
-                {x_lines}
-            </g>
-            <g className={styles.axis}>
-                {y_lines}
-            </g>
-            <g id="canvas">
-                {move.new_object !== null && newObject}
-                {objectInstances}
-            </g>
-        </g >
+        <svg id="svg-root" width={paper!.width} height={paper!.height} xmlns='http://www.w3.org/2000/svg'>
+            < g id="paper" pointerEvents="all" transform={"translate(" + x + "," + y + ") scale(" + defaultScale + ")"}
+                onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler} onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler} >
+                < rect id="background" width={paper!.width} height={paper!.height} className={styles.paperBase} />
+                <g className={styles.axis}>
+                    {x_lines}
+                </g>
+                <g className={styles.axis}>
+                    {y_lines}
+                </g>
+                <g id="canvas">
+                    {move.new_object !== null && newObject}
+                    {objectInstances}
+                </g>
+            </g >
+        </svg>
     )
 }

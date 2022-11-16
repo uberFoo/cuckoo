@@ -1,14 +1,14 @@
 import { configureStore, ThunkAction, Action, getDefaultMiddleware, combineReducers } from '@reduxjs/toolkit';
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
+import logger from 'redux-logger';
+import undoable, { StateWithHistory } from 'redux-undo';
 
 import paperReducer from '../features/paper/paperSlice';
 import objectReducer from '../features/object/objectSlice';
-import objectUIReducer from '../features/object/objectUISlice';
 import attributeReducer from '../features/attribute/attributeSlice';
 
-import model from '../test.json'
-import { getDefaultLibFileName } from 'typescript';
+import model from '../js_schema.json'
 
 export interface PaperStore {
     id: string,
@@ -16,6 +16,15 @@ export interface PaperStore {
     height: number,
     domain_name: string,
     domain_ns: string,
+    objects: Dictionary<ObjectUI>
+}
+
+export interface DictionaryNum<T> {
+    [id: number]: T | undefined
+}
+
+export interface Dictionary<T> extends DictionaryNum<T> {
+    [id: string]: T | undefined
 }
 
 export interface ObjectStore {
@@ -24,7 +33,6 @@ export interface ObjectStore {
 }
 
 export interface ObjectUI {
-    id: string,
     x: number,
     y: number,
     width: number,
@@ -84,11 +92,32 @@ interface ForeignKey {
 
 export type Type = 'Uuid' | 'Integer' | 'Float' | 'String' | ForeignKey
 
-const rootReducer = combineReducers({
+const rootReducer = undoable(combineReducers({
     paper: paperReducer,
     objects: objectReducer,
     attributes: attributeReducer,
-    object_ui: objectUIReducer,
+}), {
+    groupBy: ((action, current, previous) => {
+        // This is slick. All we have to to is look for actions that are changing a reference.
+        // Write a function to return the current id, could have been previous. The undo thing
+        // uses the ids to group undo operations.
+        switch (action.type) {
+            case "attributes/updateObjectReference":
+                return action.payload.id;
+            case "paper/objectChangeId":
+                return action.payload.id;
+            case "objects/replaceObject":
+                return action.payload.object.id;
+            case "paper/addObjectToPaper":
+                return action.payload.id;
+            case "objects/addObject":
+                return action.payload.id;
+
+            default:
+                break;
+        }
+        return null;
+    })
 });
 
 let persistConfig = {
@@ -102,8 +131,8 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
     reducer: persistedReducer,
-    //@ts-ignore
-    preloadedState: model,
+    // @ts-ignore
+    preloadedState: (model as any) as StateWithHistory<typeof model>,
     // @ts-ignore
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
@@ -111,7 +140,7 @@ export const store = configureStore({
                 // @ts-ignore
                 ignoreActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
             }
-        })
+        }).concat(logger)
 });
 
 export const persistor = persistStore(store);

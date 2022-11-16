@@ -3,31 +3,59 @@ import { createEntityAdapter, createSlice, createSelector } from '@reduxjs/toolk
 import { RootState, PaperStore } from '../../app/store';
 
 let paperAdapter = createEntityAdapter<PaperStore>();
-let initialState = paperAdapter.getInitialState();
+let initialState = paperAdapter.getInitialState;
 
 export const paperSlice = createSlice({
     name: 'paper',
     initialState,
     reducers: {
-        rename(state, action) {
-            let { id, name } = action.payload;
-            let paper = state.entities[id];
-            paper!.domain_name = name;
+        addPaper: paperAdapter.addOne,
+        addObjectToPaper: (state, action) => {
+            let { id, payload } = action.payload;
+
+            let paper = state.entities[state.ids[0]];
+            paper!.objects[id] = payload;
+        },
+        objectMoveTo: (state, action) => {
+            let { id, x, y } = action.payload;
+
+            let paper = state.entities[state.ids[0]];
+            let orig = paper!.objects[id];
+            paper!.objects[id] = { ...orig!, x, y };
+        },
+        objectResizeBy: (state, action) => {
+            let { id, width, height } = action.payload;
+
+            let paper = state.entities[state.ids[0]];
+            let orig = paper!.objects[id];
+            paper!.objects[id] = { ...orig!, width, height };
+        },
+        // Needed to rename an object
+        objectChangeId: (state, action) => {
+            let { id, old_id } = action.payload;
+
+            let paper = state.entities[state.ids[0]];
+            let orig = paper!.objects[old_id];
+            // @ts-ignore
+            paper!.objects[id] = { ...orig!, id };
+            delete paper!.objects[old_id];
         }
     }
 });
 
-export const { rename } = paperSlice.actions;
+export const { addPaper, addObjectToPaper, objectMoveTo, objectResizeBy, objectChangeId } = paperSlice.actions;
 
-// export const selectName = (state: RootState) => state.paper.domain_name;
 export let {
     selectAll: selectPapers,
-    selectById: selectPaperById
-} = paperAdapter.getSelectors<RootState>((state) => state.paper);
+    selectById: selectPaperById,
+    selectIds: selectPaperIds,
+    selectEntities: selectPaperContainer
+} = paperAdapter.getSelectors<RootState>((state) => state.present.paper);
 
-export let getPaperIds = createSelector(
-    selectPapers,
-    (papers) => papers.map((paper) => paper.id)
+export let selectPaperSingleton = createSelector(
+    selectPaperIds,
+    selectPaperContainer,
+    (ids, papers) => papers[ids[0]]
 );
 
 export default paperSlice.reducer;

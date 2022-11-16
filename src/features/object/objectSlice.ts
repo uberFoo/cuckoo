@@ -1,7 +1,6 @@
 import { createSlice, createEntityAdapter } from '@reduxjs/toolkit';
 
 import { RootState, ObjectStore } from '../../app/store';
-import { addUI } from './objectUISlice';
 
 let objectAdapter = createEntityAdapter<ObjectStore>();
 let initialState = objectAdapter.getInitialState();
@@ -37,6 +36,6 @@ export let { addObject, removeObject, replaceObject, rename } = objectSlice.acti
 export let {
     selectAll: selectObjects,
     selectById: selectObjectById
-} = objectAdapter.getSelectors<RootState>((state) => state.objects);
+} = objectAdapter.getSelectors<RootState>((state) => state.present.objects);
 
 export default objectSlice.reducer;
