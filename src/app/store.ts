@@ -4,11 +4,9 @@ import storage from 'redux-persist/lib/storage';
 
 import paperReducer from '../features/paper/paperSlice';
 import objectReducer from '../features/object/objectSlice';
-import objectUIReducer from '../features/object/objectUISlice';
 import attributeReducer from '../features/attribute/attributeSlice';
 
-import model from '../test.json'
-import { getDefaultLibFileName } from 'typescript';
+// import model from '../test.json'
 
 export interface PaperStore {
     id: string,
@@ -16,6 +14,15 @@ export interface PaperStore {
     height: number,
     domain_name: string,
     domain_ns: string,
+    objects: Dictionary<ObjectUI>
+}
+
+export interface DictionaryNum<T> {
+    [id: number]: T | undefined
+}
+
+export interface Dictionary<T> extends DictionaryNum<T> {
+    [id: string]: T | undefined
 }
 
 export interface ObjectStore {
@@ -88,7 +95,6 @@ const rootReducer = combineReducers({
     paper: paperReducer,
     objects: objectReducer,
     attributes: attributeReducer,
-    object_ui: objectUIReducer,
 });
 
 let persistConfig = {
@@ -98,12 +104,39 @@ let persistConfig = {
 }
 
 // @ts-ignore
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+// const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+let _model =
+{
+    paper: {
+        ids: [
+            "7b5c998f-f8f3-59e8-9882-1840c7c6a484"
+        ],
+        entities: {
+            "7b5c998f-f8f3-59e8-9882-1840c7c6a484": {
+                id: "7b5c998f-f8f3-59e8-9882-1840c7c6a484",
+                width: 3200,
+                height: 1600,
+                domain_name: "sarzak_ooa_0",
+                domain_ns: "b49d6fe1-e5e9-5896-bd42-b72012429e52",
+                objects: {}
+            }
+        }
+    },
+    objects: {
+        ids: [],
+        entities: {}
+    },
+    attributes: {
+        ids: [],
+        entities: {}
+    }
+};
 
 export const store = configureStore({
-    reducer: persistedReducer,
-    //@ts-ignore
-    preloadedState: model,
+    reducer: rootReducer,
+    // reducer: persistedReducer,
+    preloadedState: _model,
     // @ts-ignore
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({

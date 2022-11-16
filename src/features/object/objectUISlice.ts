@@ -36,9 +36,9 @@ export let objectUISlice = createSlice({
 
 export let { addUI, removeUI, moveTo, resizeBy, changeUIId } = objectUISlice.actions;
 
-export let {
-    selectAll: selectObjectsUI,
-    selectById: selectObjectUIById
-} = objectUIAdapter.getSelectors<RootState>((state) => state.object_ui);
+// export let {
+// selectAll: selectObjectsUI,
+// selectById: selectObjectUIById
+// } = objectUIAdapter.getSelectors<RootState>((state) => state.object_ui);
 
 export default objectUISlice.reducer;

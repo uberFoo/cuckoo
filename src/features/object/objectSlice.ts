@@ -1,4 +1,5 @@
 import { createSlice, createEntityAdapter } from '@reduxjs/toolkit';
+import undoable from 'redux-undo';
 
 import { RootState, ObjectStore } from '../../app/store';
 import { addUI } from './objectUISlice';

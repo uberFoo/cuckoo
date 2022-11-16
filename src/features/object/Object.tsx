@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 
 import { ObjectStore, AttributeStore, ObjectUI } from '../../app/store';
 import { selectObjectById } from './objectSlice';
-import { selectObjectUIById, moveTo, resizeBy } from './objectUISlice';
+import { objectMoveTo, objectResizeBy } from '../paper/paperSlice';
 import { Attribute } from '../attribute/Attribute';
 import { selectAttributes } from '../attribute/attributeSlice';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
@@ -35,21 +35,25 @@ interface State {
 
 interface ObjectProps {
     id: string,
-    ns: string
+    ns: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number
 };
 
 export function Object(props: ObjectProps) {
     // Why the undefined? I'd die happy knowing.
     let object: ObjectStore | undefined = useAppSelector((state) => selectObjectById(state, props.id));
-    let oui: ObjectUI | undefined = useAppSelector((state) => selectObjectUIById(state, props.id));
+    // let oui: ObjectUI | undefined = useAppSelector((state) => selectObjectUIById(state, props.id));
 
     let dispatch = useAppDispatch();
     let [move, setMove] = useState({
         mouseDown: false,
-        x: oui!.x,
-        y: oui!.y,
-        width: oui!.width,
-        height: oui!.height,
+        x: props.x,
+        y: props.y,
+        width: props.width,
+        height: props.height,
         resizeDir: null,
         altClick: false
     } as State);
@@ -77,11 +81,11 @@ export function Object(props: ObjectProps) {
 
         let { mouseDown, resizeDir, altClick, width, height, x, y } = move;
         if (resizeDir) {
-            dispatch(resizeBy({ id: object!.id, width: width, height: height }));
+            dispatch(objectResizeBy({ id: object!.id, width: width, height: height }));
         } else if (mouseDown && event.altKey) {
             altClick = true;
         } else if (mouseDown) {
-            dispatch(moveTo({ id: object!.id, x: x, y: y }))
+            dispatch(objectMoveTo({ id: object!.id, x: x, y: y }))
         }
         setMove({ ...move, mouseDown: false, resizeDir: null, altClick });
     }

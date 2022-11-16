@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
+import { ActionCreators as UndoActionCreators } from 'redux-undo';
 
 import { Object } from '../object/Object';
-import { PaperStore, ObjectStore } from '../../app/store';
+import { PaperStore, ObjectStore, ObjectUI, store } from '../../app/store';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectObjects } from '../object/objectSlice';
-import { selectPaperById, getPaperIds } from './paperSlice';
+import { addPaper, addObjectToPaper, selectPaperSingleton, selectPaperIds } from './paperSlice';
 import { addObject } from '../object/objectSlice';
-import { addUI } from '../object/objectUISlice';
+// import { addUI } from '../object/objectUISlice';
 
 import styles from './Paper.module.css';
 
@@ -44,8 +45,12 @@ type NewObject = Point | null;
 export function Paper(props: PaperProps) {
     let dispatch = useAppDispatch();
 
-    let paperIds: Array<string> = useAppSelector((state) => getPaperIds(state));
-    let paper: PaperStore | undefined = useAppSelector((state) => selectPaperById(state, paperIds[0]));
+    // let paperIds: Array<string> = useAppSelector((state) => selectPaperIds(state));
+    // let paper: PaperStore | undefined = useAppSelector((state) => selectPaperById(state, paperIds[0]));
+    let paperIds = useAppSelector((state) => selectPaperIds(state));
+    console.log('sigh', paperIds);
+    let paper = useAppSelector((state) => selectPaperSingleton(state));
+    console.log('uber', paper);
 
     let [move, setMove] = useState({
         mouseDown: false,
@@ -55,7 +60,10 @@ export function Paper(props: PaperProps) {
     } as MoveStruct);
 
     let onMouseDownHandler = (event: React.MouseEvent) => {
-        if (event.altKey) {
+        if (event.metaKey) {
+            console.log('hello');
+            dispatch(UndoActionCreators.undo());
+        } else if (event.altKey) {
             let { x, y } = move;
 
             setMove({
@@ -91,8 +99,8 @@ export function Paper(props: PaperProps) {
             // It's probably pretty important to do this in this order. I tried to sublimate
             // the ui bit into the addObject, but you can't dispatch from there. May have been
             // another direct way, but whatever.
-            dispatch(addUI(obj_ui));
-            dispatch(addObject(new_obj));
+            dispatch(addObjectToPaper(obj_ui));
+            // dispatch(addObject(new_obj));
         }
         // This forces an update -- bad here.
         setMove({ ...move, mouseDown: false, new_object: null });
@@ -132,7 +140,9 @@ export function Paper(props: PaperProps) {
 
     let objects: Array<ObjectStore> = useAppSelector((state) => selectObjects(state));
     let objectInstances: Array<JSX.Element> = objects.map((o) => {
-        return <Object key={o.id} id={o.id} ns={props.domain_ns} />
+        // @ts-ignore
+        let { x, y, width, height } = paper!.objects[o.id];
+        return <Object key={o.id} id={o.id} x={x} y={y} width={width} height={height} ns={props.domain_ns} />
     });
 
     let newObject = null;
@@ -160,19 +170,21 @@ export function Paper(props: PaperProps) {
     let { mouseDown, x, y } = move;
 
     return (
-        < g id="paper" pointerEvents="all" transform={"translate(" + x + "," + y + ") scale(" + defaultScale + ")"}
-            onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler} onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler} >
-            < rect id="background" width={paper!.width} height={paper!.height} className={styles.paperBase} />
-            <g className={styles.axis}>
-                {x_lines}
-            </g>
-            <g className={styles.axis}>
-                {y_lines}
-            </g>
-            <g id="canvas">
-                {move.new_object !== null && newObject}
-                {objectInstances}
-            </g>
-        </g >
+        <svg id="svg-root" width={paper!.width} height={paper!.height} xmlns='http://www.w3.org/2000/svg'>
+            < g id="paper" pointerEvents="all" transform={"translate(" + x + "," + y + ") scale(" + defaultScale + ")"}
+                onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler} onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler} >
+                < rect id="background" width={paper!.width} height={paper!.height} className={styles.paperBase} />
+                <g className={styles.axis}>
+                    {x_lines}
+                </g>
+                <g className={styles.axis}>
+                    {y_lines}
+                </g>
+                <g id="canvas">
+                    {move.new_object !== null && newObject}
+                    {objectInstances}
+                </g>
+            </g >
+        </svg>
     )
 }

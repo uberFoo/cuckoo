@@ -13,8 +13,6 @@ import App from './App';
 
 import './index.css';
 
-import model from './with_obj.json'
-
 let container = document.getElementById('root')!;
 let root = createRoot(container);
 let theme = createTheme({});
@@ -22,7 +20,6 @@ let theme = createTheme({});
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      {/* serverState={model}> */}
       <PersistGate loading={null} persistor={persistor}>
         <ThemeProvider theme={theme}>
           <App />
