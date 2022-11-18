@@ -17,7 +17,13 @@ export interface PaperStore {
     height: number,
     domain_name: string,
     domain_ns: string,
-    objects: Dictionary<ObjectUI>
+    objects: Dictionary<ObjectUI>,
+    relationships: Dictionary<RelationshipUI>
+}
+
+export interface Point {
+    x: number,
+    y: number
 }
 
 export interface DictionaryNum<T> {
@@ -40,6 +46,11 @@ export interface ObjectUI {
     height: number
 }
 
+export interface RelationshipUI {
+    from: Point
+    to: Point
+}
+
 export interface AttributeStore {
     id: string,
     name: string,
@@ -47,7 +58,7 @@ export interface AttributeStore {
     obj_id: string
 }
 
-export type RelationshipStore = Binary | Isa | Associative | ForeignKey;
+export type RelationshipStore = Binary | Isa | Associative;
 
 export interface Binary {
     id: string,
@@ -97,6 +108,7 @@ const rootReducer = undoable(combineReducers({
     paper: paperReducer,
     objects: objectReducer,
     attributes: attributeReducer,
+    relationships: relationshipReducer
 }), {
     groupBy: ((action, current, previous) => {
         // This is slick. All we have to to is look for actions that are changing a reference.
@@ -115,6 +127,7 @@ const rootReducer = undoable(combineReducers({
                 return action.payload.id;
 
             default:
+                console.error(`bad action type ${action.type}`);
                 break;
         }
         return null;

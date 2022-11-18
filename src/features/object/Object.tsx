@@ -1,7 +1,8 @@
-import React, { useState, FC } from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
+import { Menu, MenuItem } from '@mui/material';
 
-import { ObjectStore, AttributeStore, ObjectUI } from '../../app/store';
+import { ObjectStore, AttributeStore } from '../../app/store';
 import { selectObjectById, addObject } from './objectSlice';
 import { objectMoveTo, objectResizeBy } from '../paper/paperSlice';
 import { Attribute } from '../attribute/Attribute';
@@ -39,7 +40,8 @@ interface ObjectProps {
     x: number,
     y: number,
     width: number,
-    height: number
+    height: number,
+    // uberFoo: any
 };
 
 export function Object(props: ObjectProps) {
@@ -60,11 +62,12 @@ export function Object(props: ObjectProps) {
         resizeDir: null,
         altClick: false
     } as State);
+    let [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
 
     let onMouseDownHandler = (event: React.MouseEvent) => {
-        // This forces an update -- bad here.
-        event.stopPropagation()
+        event.stopPropagation();
 
+        // Give the target focus by moving it above the other elements.
         let target = event.target as SVGElement;
         let dir = target.id as Direction;
 
@@ -75,22 +78,9 @@ export function Object(props: ObjectProps) {
         canvas?.removeChild(root!);
         canvas?.appendChild(root!);
 
-        setMove({ ...move, mouseDown: true, resizeDir: dir, altClick: false });
-    }
-
-    let onMouseUpHandler = (event: React.MouseEvent) => {
-        // This forces an update -- bad here.
-        event.stopPropagation();
-
-        let { mouseDown, resizeDir, altClick, width, height, x, y } = move;
-        if (resizeDir) {
-            dispatch(objectResizeBy({ id: object!.id, width: width, height: height }));
-        } else if (mouseDown && event.altKey) {
-            altClick = true;
-        } else if (mouseDown) {
-            dispatch(objectMoveTo({ id: object!.id, x: x, y: y }))
+        if (!event.ctrlKey) {
+            setMove({ ...move, mouseDown: true, resizeDir: dir, altClick: false });
         }
-        setMove({ ...move, mouseDown: false, resizeDir: null, altClick });
     }
 
     let onMouseMoveHandler = (event: React.MouseEvent) => {
@@ -139,7 +129,37 @@ export function Object(props: ObjectProps) {
             // This forces an update -- good here.
             setMove({ ...move, mouseDown, x, y, width, height, resizeDir });
         }
-    }
+    };
+
+    let onMouseUpHandler = (event: React.MouseEvent) => {
+        event.stopPropagation();
+
+        let { mouseDown, resizeDir, altClick, width, height, x, y } = move;
+        if (mouseDown) {
+            if (resizeDir) {
+                if (width !== props.width && height !== props.height) {
+                    dispatch(objectResizeBy({ id: object!.id, width: width, height: height }));
+                }
+            } else if (mouseDown && event.altKey) {
+                altClick = true;
+            } else {
+                if (x !== props.x && y !== props.y) {
+                    dispatch(objectMoveTo({ id: object!.id, x: x, y: y }))
+                }
+            }
+            setMove({ ...move, mouseDown: false, resizeDir: null, altClick });
+        }
+    };
+
+    // @ts-ignore
+    // props.uberFoo([onMouseMoveHandler, onMouseUpHandler]);
+
+    let contextMenuHandler = (event: React.MouseEvent) => {
+        event.preventDefault();
+        setContextMenu(
+            contextMenu == null ? { x: event.clientX + 2, y: event.clientY - 6 } : null
+        );
+    };
 
     let attributes: Array<AttributeStore> = useAppSelector((state) => selectAttributes(state));
     let attributeInstances: Array<AttributeStore> = attributes
@@ -165,16 +185,36 @@ export function Object(props: ObjectProps) {
         if (move.altClick) setMove({ ...move, altClick: false });
     }
 
+    let handleCtxClose = () => { setContextMenu(null) };
+
+    let contextMenuContent =
+        <Menu
+            open={contextMenu !== null}
+            onClose={handleCtxClose}
+            anchorReference="anchorPosition"
+            anchorPosition={
+                contextMenu !== null ? { top: contextMenu.x, left: contextMenu.y } : undefined
+            }
+        >
+            <MenuItem>Undo</MenuItem>
+            <MenuItem>Delete</MenuItem>
+        </Menu>;
+
     // if this is new, we need to get data. We determine it's newness in a very lame manner.
     if (props.id === "fubar" || move.altClick) {
         return (
             <ObjectEditor enabled={true} object={object!} attrs={attributeInstances} ns={props.ns} done={doneEditing} />
         );
+    } else if (contextMenu) {
+        // @ts-ignore
+        return ReactDOM.createPortal(contextMenuContent, document.getElementById('root'));
     } else {
         return (
             <g key={props.id} id={props.id} className={"object"} transform={buildTransform(x, y)}
                 onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler}
-                onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler}>
+                onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler}
+            // onContextMenu={contextMenuHandler}
+            >
                 <rect className={styles.objectRect} width={width} height={height} />
                 <text className={styles.objectName} x={width / 2} y={textHeight}>{object!.name}</text>
                 <line className={styles.objectBisectLine} x1={0} y1={textHeight * 1.5} x2={width} y2={textHeight * 1.5} />

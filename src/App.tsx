@@ -1,4 +1,5 @@
 import { dialog, invoke } from '@tauri-apps/api';
+import { CssBaseline } from '@mui/material';
 import { listen } from '@tauri-apps/api/event';
 import { open, save } from '@tauri-apps/api/dialog';
 import { readTextFile, writeFile } from '@tauri-apps/api/fs';
@@ -75,9 +76,12 @@ function App() {
     };
 
     return (
-        <div className="OIM">
-            <Paper domain="sarzak_ooa_0" domain_ns="b49d6fe1-e5e9-5896-bd42-b72012429e52" />
-        </div>
+        <>
+            <CssBaseline />
+            <div className="OIM">
+                <Paper domain="sarzak_ooa_0" domain_ns="b49d6fe1-e5e9-5896-bd42-b72012429e52" />
+            </div>
+        </>
     );
 }
 

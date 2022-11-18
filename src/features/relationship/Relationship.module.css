@@ -1,0 +1,35 @@
+.relationship {
+    stroke: black;
+    stroke-width: 1;
+    pointer-events: all;
+}
+
+.relAnchor {
+    cursor: move;
+}
+
+.relPhrase {
+    stroke: none;
+}
+
+.relName {
+    stroke: none;
+    cursor: move;
+}
+
+.relLine {
+    fill: none;
+    stroke: black;
+    stroke-width: 1.0;
+}
+
+.edit.relAttach {
+    cursor: move;
+}
+
+.resize.relAttach {
+    stroke: transparent;
+    fill: transparent;
+    stroke-width: 7;
+    pointer-events: all;
+}

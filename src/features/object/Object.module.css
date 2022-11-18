@@ -3,6 +3,7 @@
     stroke: black;
     stroke-width: 1;
     pointer-events: all;
+    cursor: move;
 }
 
 .objectBisectLine {

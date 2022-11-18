@@ -39,11 +39,18 @@ export const paperSlice = createSlice({
             // @ts-ignore
             paper!.objects[id] = { ...orig!, id };
             delete paper!.objects[old_id];
+        },
+        relationshipUpdate: (state, action) => {
+            let { id, ui } = action.payload;
+
+            let paper = state.entities[state.ids[0]];
+            paper!.relationships[id] = ui;
         }
     }
 });
 
-export const { addPaper, addObjectToPaper, objectMoveTo, objectResizeBy, objectChangeId } = paperSlice.actions;
+export const { addPaper, addObjectToPaper, objectMoveTo, objectResizeBy, objectChangeId,
+    relationshipUpdate } = paperSlice.actions;
 
 export let {
     selectAll: selectPapers,
@@ -56,6 +63,13 @@ export let selectPaperSingleton = createSelector(
     selectPaperIds,
     selectPaperContainer,
     (ids, papers) => papers[ids[0]]
+);
+
+// @ts-ignore
+export let selectObjectUIById = createSelector(
+    selectPaperSingleton,
+    (state: RootState, id: string) => id,
+    (state: PaperStore, id: string) => state.objects[id]
 );
 
 export default paperSlice.reducer;
