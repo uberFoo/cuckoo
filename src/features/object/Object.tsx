@@ -23,7 +23,7 @@ import styles from './Object.module.css';
 const textHeight = 20;
 const cornerSize = 14;
 
-type Direction = "north" | "south" | "east" | "west" | null;
+export type Direction = "north" | "south" | "east" | "west" | null;
 interface State {
     mouseDown: boolean,
     x: number,
@@ -31,7 +31,11 @@ interface State {
     width: number,
     height: number,
     resizeDir: Direction,
-    altClick: boolean
+    altClick: boolean,
+    line: {
+        from: { x: number, y: number },
+        to: { x: number, y: number }
+    } | null
 };
 
 interface ObjectProps {
@@ -41,6 +45,7 @@ interface ObjectProps {
     y: number,
     width: number,
     height: number,
+    origin: { x: number, y: number }
     // uberFoo: any
 };
 
@@ -60,7 +65,8 @@ export function Object(props: ObjectProps) {
         width: props.width,
         height: props.height,
         resizeDir: null,
-        altClick: false
+        altClick: false,
+        line: null
     } as State);
     let [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
 
@@ -72,16 +78,50 @@ export function Object(props: ObjectProps) {
         let dir = target.id as Direction;
 
         // Below we have to move the target element to the _bottom_ of the list of elements.
-        let root = target.parentNode;
+        let root = target.parentNode as SVGGElement;
         let canvas = root?.parentNode;
 
         canvas?.removeChild(root!);
         canvas?.appendChild(root!);
 
-        if (!event.ctrlKey) {
+        if (event.metaKey) {
+            let x = event.clientX - props.origin.x;
+            let y = event.clientY - props.origin.y;
+
+            console.log(props.origin);
+
+            setMove({
+                ...move, mouseDown: true,
+                line: { from: { x, y }, to: { x, y } }
+            });
+        } else {
             setMove({ ...move, mouseDown: true, resizeDir: dir, altClick: false });
         }
     }
+
+    let onMouseUpHandler = (event: React.MouseEvent) => {
+        event.stopPropagation();
+
+        let { mouseDown, resizeDir, altClick, width, height, x, y } = move;
+        if (mouseDown) {
+            if (resizeDir) {
+                if (width !== props.width && height !== props.height) {
+                    dispatch(objectResizeBy({ id: object!.id, width: width, height: height }));
+                }
+            } else if (event.altKey) {
+                altClick = true;
+            } else if (event.metaKey) {
+                let { line } = move;
+                console.log('up', line);
+            } else {
+                if (x !== props.x && y !== props.y) {
+                    dispatch(objectMoveTo({ id: object!.id, x: x, y: y }))
+                }
+            }
+
+            setMove({ ...move, mouseDown: false, resizeDir: null, altClick });
+        }
+    };
 
     let onMouseMoveHandler = (event: React.MouseEvent) => {
         event.stopPropagation()
@@ -90,7 +130,15 @@ export function Object(props: ObjectProps) {
 
         // If mouseDown we are panning. This is wrong, and actually needs to start drawing.
         if (mouseDown && !event.altKey) {
-            if (resizeDir) {
+            if (event.metaKey) {
+                let { line } = move;
+
+                line!.to.x += event.movementX;
+                line!.to.y += event.movementY;
+
+                setMove({ ...move, line });
+
+            } else if (resizeDir) {
                 let dx = event.movementX;
                 let dy = event.movementY;
                 switch (resizeDir) {
@@ -121,33 +169,16 @@ export function Object(props: ObjectProps) {
                         console.log('WTF');
                         break;
                 }
+
+                setMove({ ...move, x, y, width, height });
             } else {
                 x += event.movementX;
                 y += event.movementY;
+
+                setMove({ ...move, x, y });
             }
 
             // This forces an update -- good here.
-            setMove({ ...move, mouseDown, x, y, width, height, resizeDir });
-        }
-    };
-
-    let onMouseUpHandler = (event: React.MouseEvent) => {
-        event.stopPropagation();
-
-        let { mouseDown, resizeDir, altClick, width, height, x, y } = move;
-        if (mouseDown) {
-            if (resizeDir) {
-                if (width !== props.width && height !== props.height) {
-                    dispatch(objectResizeBy({ id: object!.id, width: width, height: height }));
-                }
-            } else if (mouseDown && event.altKey) {
-                altClick = true;
-            } else {
-                if (x !== props.x && y !== props.y) {
-                    dispatch(objectMoveTo({ id: object!.id, x: x, y: y }))
-                }
-            }
-            setMove({ ...move, mouseDown: false, resizeDir: null, altClick });
         }
     };
 
@@ -179,7 +210,6 @@ export function Object(props: ObjectProps) {
             return <Attribute key={a.id} id={a.id} index={i} />
         });
 
-    let { x, y, width, height } = move;
 
     let doneEditing = () => {
         if (move.altClick) setMove({ ...move, altClick: false });
@@ -200,19 +230,30 @@ export function Object(props: ObjectProps) {
             <MenuItem>Delete</MenuItem>
         </Menu>;
 
+
+    let { x, y, width, height, line } = move;
+
     // if this is new, we need to get data. We determine it's newness in a very lame manner.
-    if (props.id === "fubar" || move.altClick) {
-        return (
-            <ObjectEditor enabled={true} object={object!} attrs={attributeInstances} ns={props.ns} done={doneEditing} />
-        );
-    } else if (contextMenu) {
-        // @ts-ignore
-        return ReactDOM.createPortal(contextMenuContent, document.getElementById('root'));
-    } else {
-        return (
+    // if (props.id === "fubar" || move.altClick) {
+    //     return (
+    //         <ObjectEditor enabled={true} object={object!} attrs={attributeInstances} ns={props.ns} done={doneEditing} />
+    //     );
+    // } else if (contextMenu) {
+    //     // @ts-ignore
+    //     return ReactDOM.createPortal(contextMenuContent, document.getElementById('root'));
+    // } else {
+    return (
+        <>
+            {contextMenu && ReactDOM.createPortal(contextMenuContent,
+                document.getElementById('root') as Element)}
+            {(props.id === "fubar" || move.altClick) &&
+                <ObjectEditor enabled={true} object={object!} attrs={attributeInstances}
+                    ns={props.ns} done={doneEditing} />
+            }
             <g key={props.id} id={props.id} className={"object"} transform={buildTransform(x, y)}
-                onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler}
-                onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler}
+            // onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler}
+            // onMouseMove={onMouseMoveHandler}
+            // onMouseLeave={onMouseUpHandler}
             // onContextMenu={contextMenuHandler}
             >
                 <rect className={styles.objectRect} width={width} height={height} />
@@ -235,8 +276,13 @@ export function Object(props: ObjectProps) {
                 <line id={"south"} className={`${styles.resize} ${styles.relAttach} ${styles.nsResize}`}
                     x1={cornerSize} y1={height} x2={width - cornerSize} y2={height} />
             </g >
-        );
-    }
+            {line &&
+                <line className={styles.antLine} x1={line.from.x} y1={line.from.y} x2={line.to.x}
+                    y2={line.to.y} />
+            }
+        </>
+    );
+    // }
 }
 
 

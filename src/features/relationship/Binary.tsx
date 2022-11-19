@@ -11,6 +11,10 @@ import { x } from '@tauri-apps/api/path-e12e0e34';
 
 interface Move {
     mouseDown: boolean,
+    at: {
+        x: number,
+        y: number
+    }
     target: SVGGElement | null,
     x: number,
     y: number,
@@ -42,13 +46,17 @@ export function Binary(props: BinaryProps) {
     let id_to = `${binary.id}:${toObj!.id}`;
     let line_id = `${id_from}:${id_to}`
 
-
+    // // Some sensible defaults for when we don't have a layout.
+    // let from_origin = { x: fromUI?.x, y: fromUI?.y };
+    // let to_origin = { x: toUI?.x, y: toUI?.y };
 
     let [move, setMove] = useState<Move>({
         mouseDown: false,
+        at: { x: 0, y: 0 },
         target: null,
         x: 0,
         y: 0,
+        // d: "M " + from_origin.x + " " + from_origin.y + " L " + to_origin.x + " " + to_origin.y
         d: "M " + props.from.x + " " + props.from.y + " L " + props.to.x + " " + props.to.y
     });
 
@@ -59,26 +67,40 @@ export function Binary(props: BinaryProps) {
 
         let target = event.target as SVGElement;
         let parent: SVGGElement | null = target!.parentNode as SVGGElement;
-        if (parent.id == id_from || parent.id == id_to) {
+        if (parent.id === id_from || parent.id === id_to) {
             let xform = parent!.transform.baseVal.getItem(0);
             console.assert(xform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
             let matrix = xform.matrix;
 
-            setMove({ ...move, mouseDown: true, target: parent, x: matrix.e, y: matrix.f });
+            // Matrix:
+            // a c e
+            // b d f
+            // 0 0 1
+            // e: x, f: y, a: scale_x, d: scale_y
+            // rotate:
+            // a: cos(θ), c: -sin(θ), b: sin(θ), d: cos(θ)
+
+            setMove({
+                ...move, mouseDown: true, target: parent, x: matrix.e, y: matrix.f,
+                at: { x: event.clientX, y: event.clientY }
+            });
         } else {
-            if (parent.id === fromObj!.id) {
-                target = (document.getElementById(id_from) as unknown) as SVGElement;
-                parent = target!.parentNode as SVGGElement;
 
-                setMove({ ...move, mouseDown: true, target: parent, x: props.from.x, y: props.from.y });
-            } else if (parent.id === toObj!.id) {
-                target = (document.getElementById(id_to) as unknown) as SVGElement;
-                parent = target!.parentNode as SVGGElement;
+            console.error("I don't think I should get here.");
 
-                setMove({ ...move, mouseDown: true, target: parent, x: props.to.x, y: props.to.y });
-            } else {
-                console.log("I don't know to whom I'm attached.", parent);
-            }
+            // if (parent.id === fromObj!.id) {
+            //     target = (document.getElementById(id_from) as unknown) as SVGElement;
+            //     parent = target!.parentNode as SVGGElement;
+
+            //     setMove({ ...move, mouseDown: true, target: parent, x: props.from.x, y: props.from.y });
+            // } else if (parent.id === toObj!.id) {
+            //     target = (document.getElementById(id_to) as unknown) as SVGElement;
+            //     parent = target!.parentNode as SVGGElement;
+
+            //     setMove({ ...move, mouseDown: true, target: parent, x: props.to.x, y: props.to.y });
+            // } else {
+            //     console.log("I don't know to whom I'm attached.", parent);
+            // }
         }
     };
 
@@ -90,22 +112,39 @@ export function Binary(props: BinaryProps) {
         let dx = event.movementX;
         let dy = event.movementY;
 
-        let { mouseDown, target, x, y, d } = move;
+        let { mouseDown, target, x, y, d, at } = move;
 
         x += dx;
         y += dy;
 
         if (mouseDown) {
             if (target?.id === id_from) {
+                let top = fromUI!.y;
+                let bottom = fromUI!.y + fromUI!.height;
+                let left = fromUI!.x;
+                let right = fromUI!.x + fromUI!.width;
+
+                let dx = at.x - event.clientX;
+                let dy = at.y - event.clientY;
+
                 if (x < fromUI!.x) {
+                    // Too far to the left? Snap it to the LHS.
                     x = fromUI!.x;
                 } else if (x > fromUI!.x + fromUI!.width) {
+                    // Too far to the right. Snap it to the RHS.
                     x = fromUI!.x + fromUI!.width;
+                } else {
+                    // x = fromUI!.x + fromUI!.width;
+                    // console.log(x, y, fromUI!.x, fromUI!.width + fromUI!.x);
+                    // let offset = Math.min(x - fromUI!.x, x - fromUI!.x + fromUI!.width);
+                    // console.log(x, offset, x - offset);
                 }
 
                 if (y < fromUI!.y) {
+                    // Snap it to the top.
                     y = fromUI!.y;
                 } else if (y > fromUI!.y + fromUI!.height) {
+                    // Snap it to the bottom.
                     y = fromUI!.y + fromUI!.height;
                 }
 
@@ -165,7 +204,7 @@ export function Binary(props: BinaryProps) {
             >
                 {/* This makes the arrows easier to drag. */}
                 <rect x={0} y={-25} width={50} height={50} fillOpacity={0} strokeOpacity={0} />
-                <path d={"M 20 -10 L 0 0 L 20 10 M 35 -10 L 15 0 L 35 10 M 0 0 L 40 0"} />
+                <path d={"M 20 -10 L 0 0 L 20 10 M 35 -10 L 15 0 L 35 10 M 0 0"} />
             </g>
             <g id={id_to} key={id_to} className={styles.relAnchor}
                 transform={"translate(" + props.to.x + "," + props.to.y + ") rotate(90)"}
@@ -173,11 +212,14 @@ export function Binary(props: BinaryProps) {
                 onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler}
             >
                 <rect x={0} y={-25} width={50} height={50} fillOpacity={0} strokeOpacity={0} />
-                <path d={"M 20 -10 L 0 0 L 20 10 M 0 0 L 40 0"} />
+                <path d={"M 20 -10 L 0 0 L 20 10 M 0 0"} />
             </g>
-            <path id={line_id} className={styles.relLine} d={move.d} />
             <text className={styles.relName} x={(props.to.x + props.from.x) / 2}
                 y={(props.to.y + props.from.y) / 2}>{"R" + binary.number}</text>
+            {/* Notice how we are relying on the output of our moving here, but above location
+              * comes from props. Seems messy.
+             */}
+            <path id={line_id} className={styles.relLine} d={move.d} />
         </>
     );
 };
