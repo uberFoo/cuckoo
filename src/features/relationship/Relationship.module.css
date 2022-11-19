@@ -8,6 +8,8 @@
     cursor: move;
 }
 
+.relGlyph {}
+
 .relPhrase {
     stroke: none;
 }

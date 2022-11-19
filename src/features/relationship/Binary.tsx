@@ -62,11 +62,12 @@ export function Binary(props: BinaryProps) {
 
     let onMouseDownHandler = (event: React.MouseEvent) => {
         event.stopPropagation();
-
         // props.uberFoo([onMouseMoveHandler, onMouseUpHandler]);
 
         let target = event.target as SVGElement;
         let parent: SVGGElement | null = target!.parentNode as SVGGElement;
+        console.log(parent);
+
         if (parent.id === id_from || parent.id === id_to) {
             let xform = parent!.transform.baseVal.getItem(0);
             console.assert(xform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
@@ -199,20 +200,20 @@ export function Binary(props: BinaryProps) {
         <>
             <g id={id_from} key={id_from} className={styles.relAnchor}
                 transform={"translate(" + props.from.x + "," + props.from.y + ") rotate(270)"}
-                onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler}
-                onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler}
+            //     onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler}
+            //     onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler}
             >
                 {/* This makes the arrows easier to drag. */}
                 <rect x={0} y={-25} width={50} height={50} fillOpacity={0} strokeOpacity={0} />
-                <path d={"M 20 -10 L 0 0 L 20 10 M 35 -10 L 15 0 L 35 10 M 0 0"} />
+                <path className={styles.relGlyph} d={"M 20 -10 L 0 0 L 20 10 M 35 -10 L 15 0 L 35 10 M 0 0"} />
             </g>
             <g id={id_to} key={id_to} className={styles.relAnchor}
                 transform={"translate(" + props.to.x + "," + props.to.y + ") rotate(90)"}
-                onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler}
-                onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler}
+            //     onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler}
+            //     onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler}
             >
                 <rect x={0} y={-25} width={50} height={50} fillOpacity={0} strokeOpacity={0} />
-                <path d={"M 20 -10 L 0 0 L 20 10 M 0 0"} />
+                <path className={styles.relGlyph} d={"M 20 -10 L 0 0 L 20 10 M 0 0"} />
             </g>
             <text className={styles.relName} x={(props.to.x + props.from.x) / 2}
                 y={(props.to.y + props.from.y) / 2}>{"R" + binary.number}</text>

@@ -198,8 +198,13 @@ export function Paper(props: PaperProps) {
             }
                 break;
 
+            case 'Relationship': {
+                console.log('mouse down on rel', target);
+            }
+                break;
+
             default:
-                console.error('MouseDown on unknown type, ', type);
+                console.error('MouseDown on unknown type, ', type, target);
                 break;
         }
     }
@@ -285,8 +290,13 @@ export function Paper(props: PaperProps) {
             }
                 break;
 
+            case 'Relationship': {
+                console.log('mouse up on rel', target);
+            }
+                break;
+
             default:
-                console.error('MouseUp on unknown type, ', target.type);
+                console.error('MouseUp on unknown type, ', target.type, target);
                 break;
         }
 
@@ -406,8 +416,13 @@ export function Paper(props: PaperProps) {
 
                 break;
 
+            case 'Relationship': {
+                console.log('mouse move on rel', target);
+            }
+                break;
+
             default:
-                console.error('MouseMove on unknown type, ', target.type);
+                console.error('MouseMove on unknown type, ', target.type, target);
                 break;
         }
 
