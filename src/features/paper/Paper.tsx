@@ -49,7 +49,8 @@ interface MoveStruct {
         height: number,
         resizeDir: Direction,
         altClick: boolean,
-        line: Line | null
+        line: Line | null,
+        dirty: boolean
     }
 };
 interface Rect {
@@ -94,7 +95,8 @@ export function Paper(props: PaperProps) {
             height: 0,
             resizeDir: null,
             altClick: false,
-            line: null
+            line: null,
+            dirty: false
         }
     });
 
@@ -188,7 +190,8 @@ export function Paper(props: PaperProps) {
                             ...object,
                             x, y, width, height,
                             resizeDir: dir,
-                            altClick: false
+                            altClick: false,
+                            dirty: false
                         }
                     });
                 }
@@ -243,18 +246,19 @@ export function Paper(props: PaperProps) {
 
             case 'Object': {
                 let { mouseDown, object } = move;
-                let { resizeDir, altClick, width, height, x, y } = object;
+                let { resizeDir, altClick, width, height, x, y, dirty } = object;
 
                 let parent = target.node!.parentNode as SVGGElement;
                 let id = parent.id;
                 // if (id == null) {
                 //     console.error("can't access id via parentNode", target.node);
                 // }
-                let props = paper_obj!.objects[id] as ObjectUI;
+                // let props = paper_obj!.objects[id] as ObjectUI;
 
                 if (mouseDown) {
                     if (resizeDir) {
-                        if (width !== props.width && height !== props.height) {
+                        if (dirty) {
+                            // console.log('dispatch resize');
                             dispatch(objectResizeBy({ id, width: width, height: height }));
                         }
                     } else if (event.altKey) {
@@ -263,7 +267,9 @@ export function Paper(props: PaperProps) {
                         let { line } = object;
                         console.log('up', line);
                     } else {
-                        if (x !== props.x && y !== props.y) {
+                        // if (x !== props.x && y !== props.y) {
+                        if (dirty) {
+                            // console.log('dispatch moveto');
                             dispatch(objectMoveTo({ id, x, y }))
                         }
                     }
@@ -272,8 +278,7 @@ export function Paper(props: PaperProps) {
                         ...move,
                         mouseDown: false,
                         object: {
-                            ...object,
-                            resizeDir: null, altClick
+                            ...object, resizeDir: null, altClick, dirty: false
                         }
                     });
                 }
@@ -336,6 +341,8 @@ export function Paper(props: PaperProps) {
                 let { mouseDown, object, target } = move;
                 let { x, y, width, height, resizeDir } = object;
 
+                let parent = target!.node!.parentNode as SVGGElement;
+
                 // If mouseDown we are panning. This is wrong, and actually needs to start drawing.
                 if (mouseDown && !event.altKey) {
                     if (event.metaKey) {
@@ -379,19 +386,20 @@ export function Paper(props: PaperProps) {
                                 break;
                         }
 
-                        setMove({ ...move, object: { ...object, x, y, width, height } });
+                        // TODO: Preview!
+                        setMove({
+                            ...move,
+                            object: { ...object, width, height, x, y, dirty: true }
+                        });
                     } else {
                         x += event.movementX;
                         y += event.movementY;
 
-                        // Update local props to get the thing to animate.
-                        let parent = target!.node!.parentNode as SVGGElement;
-                        let props = paper_obj!.objects[parent.id] as ObjectUI;
+                        let xform = parent!.transform.baseVal.getItem(0);
+                        console.assert(xform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
+                        xform.setTranslate(x, y);
 
-                        props.x = x;
-                        props.y = y;
-
-                        setMove({ ...move, object: { ...object, x, y } });
+                        setMove({ ...move, object: { ...object, x, y, dirty: true } });
                     }
                 }
             }
