@@ -49,8 +49,7 @@ interface MoveStruct {
         height: number,
         resizeDir: Direction,
         altClick: boolean,
-        line: Line | null,
-        dirty: boolean
+        line: Line | null
     }
 };
 interface Rect {
@@ -69,11 +68,10 @@ export function Paper(props: PaperProps) {
     // let uberFoo = (bar: []) => {
     //     mouseMoveCallbacks.push(bar);
     // };
-    let yuk: any = null;
+
     let dispatch = useAppDispatch();
 
     let paper_obj = useAppSelector((state) => selectPaperSingleton(state));
-    let objects_local = structuredClone(paper_obj!.objects);
 
     let origin = {
         x: window.innerWidth / 2 - paper_obj!.width / 2,
@@ -96,14 +94,13 @@ export function Paper(props: PaperProps) {
             height: 0,
             resizeDir: null,
             altClick: false,
-            line: null,
-            dirty: false
+            line: null
         }
     });
 
     let [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
 
-    let onMouseDownHandler = React.useCallback((event: React.MouseEvent) => {
+    let onMouseDownHandler = (event: React.MouseEvent) => {
         let target = event.target as SVGElement;
         if (typeof target.className !== 'object') {
             // Not an SVGElement
@@ -162,7 +159,7 @@ export function Paper(props: PaperProps) {
                 canvas?.appendChild(root!);
 
                 let id = root.id;
-                let props = objects_local[id] as ObjectUI;
+                let props = paper_obj!.objects[id] as ObjectUI;
                 let x = props.x;
                 let y = props.y;
                 let width = props.width;
@@ -202,9 +199,9 @@ export function Paper(props: PaperProps) {
                 console.error('MouseDown on unknown type, ', type);
                 break;
         }
-    }, [move, objects_local]);
+    }
 
-    let onMouseUpHandler = React.useCallback((event: React.MouseEvent) => {
+    let onMouseUpHandler = (event: React.MouseEvent) => {
         let { target } = move;
 
         switch (target.type) {
@@ -247,13 +244,18 @@ export function Paper(props: PaperProps) {
             case 'Object': {
                 let { mouseDown, object } = move;
                 let { resizeDir, altClick, width, height, x, y } = object;
-                let parent = target!.node!.parentNode as SVGGElement;
+
+                let parent = target.node!.parentNode as SVGGElement;
                 let id = parent.id;
+                // if (id == null) {
+                //     console.error("can't access id via parentNode", target.node);
+                // }
+                let props = paper_obj!.objects[id] as ObjectUI;
 
                 if (mouseDown) {
                     if (resizeDir) {
-                        if (object.dirty) {
-                            dispatch(objectResizeBy({ id, width, height }));
+                        if (width !== props.width && height !== props.height) {
+                            dispatch(objectResizeBy({ id, width: width, height: height }));
                         }
                     } else if (event.altKey) {
                         altClick = true;
@@ -261,8 +263,7 @@ export function Paper(props: PaperProps) {
                         let { line } = object;
                         console.log('up', line);
                     } else {
-                        if (object.dirty) {
-                            yuk = id;
+                        if (x !== props.x && y !== props.y) {
                             dispatch(objectMoveTo({ id, x, y }))
                         }
                     }
@@ -272,9 +273,7 @@ export function Paper(props: PaperProps) {
                         mouseDown: false,
                         object: {
                             ...object,
-                            resizeDir: null,
-                            altClick,
-                            dirty: false
+                            resizeDir: null, altClick
                         }
                     });
                 }
@@ -286,9 +285,9 @@ export function Paper(props: PaperProps) {
                 break;
         }
 
-    }, [move, objects_local]);
+    }
 
-    let onMouseMoveHandler = React.useCallback((event: React.MouseEvent) => {
+    let onMouseMoveHandler = (event: React.MouseEvent) => {
         let { target } = move;
 
         switch (target.type) {
@@ -387,15 +386,12 @@ export function Paper(props: PaperProps) {
 
                         // Update local props to get the thing to animate.
                         let parent = target!.node!.parentNode as SVGGElement;
-                        let props = objects_local[parent.id] as ObjectUI;
+                        let props = paper_obj!.objects[parent.id] as ObjectUI;
 
                         props.x = x;
                         props.y = y;
-                        console.log(move);
-                        console.log({ ...move, object: { ...object, x, y, dirty: true } });
 
-
-                        setMove({ ...move, object: { ...object, x, y, dirty: true } });
+                        setMove({ ...move, object: { ...object, x, y } });
                     }
                 }
             }
@@ -407,7 +403,7 @@ export function Paper(props: PaperProps) {
                 break;
         }
 
-    }, [move, objects_local]);
+    }
 
     let contextMenuHandler = (event: React.MouseEvent) => {
         event.preventDefault();
@@ -433,11 +429,8 @@ export function Paper(props: PaperProps) {
 
 
     let objectInstances: Array<JSX.Element> = [];
-    for (let key in objects_local) {
-        let { x, y, width, height } = objects_local[key] as ObjectUI;
-        if (key === yuk) {
-            console.log(x, y);
-        }
+    for (let key in paper_obj!.objects) {
+        let { x, y, width, height } = paper_obj!.objects[key] as ObjectUI;
         // This crazy key thing is what makes React redraw the entire Component. We need this to
         // happen when we undo.
         objectInstances.push(<Object key={`${key}${x}${y}${width}${height}`} id={key} x={x} y={y}
