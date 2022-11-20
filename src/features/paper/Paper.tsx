@@ -8,12 +8,13 @@ import { ObjectUI, RelationshipUI } from '../../app/store';
 import { Relationship } from '../relationship/Relationship';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
-    addObjectToPaper, selectPaperSingleton, objectResizeBy, objectMoveTo, relationshipUpdate
+    addObjectToPaper, selectPaperSingleton, objectResizeBy, objectMoveTo, relationshipUpdate,
+    removeObjectFromPaper
 } from './paperSlice';
 import ObjectEditor from '../object/ObjectDialog';
 
 import styles from './Paper.module.css';
-import { addObject } from '../object/objectSlice';
+import { removeObject, addObject } from '../object/objectSlice';
 
 
 const defaultWidth = 3200;
@@ -128,6 +129,8 @@ export function Paper(props: PaperProps) {
     let [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
 
     let onMouseDownHandler = (event: React.MouseEvent) => {
+        event.preventDefault();
+
         let target = event.target as SVGElement;
         if (typeof target.className !== 'object') {
             // Not an SVGElement
@@ -218,6 +221,11 @@ export function Paper(props: PaperProps) {
                             line: { x0: x, y0: y, x1: x, y1: y }
                         }
                     });
+                } else if (event.ctrlKey) {
+                    // Delete
+                    dispatch(removeObjectFromPaper({ id }));
+                    // @ts-ignore
+                    dispatch(removeObject({ id }));
                 } else {
                     // Default dragging
                     setMove({

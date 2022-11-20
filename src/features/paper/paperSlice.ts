@@ -10,6 +10,12 @@ export const paperSlice = createSlice({
     initialState,
     reducers: {
         addPaper: paperAdapter.addOne,
+        removeObjectFromPaper: (state, action) => {
+            let { id } = action.payload;
+
+            let paper = state.entities[state.ids[0]];
+            delete paper?.objects[id];
+        },
         addObjectToPaper: (state, action) => {
             let { id, payload } = action.payload;
 
@@ -50,7 +56,7 @@ export const paperSlice = createSlice({
 });
 
 export const { addPaper, addObjectToPaper, objectMoveTo, objectResizeBy, objectChangeId,
-    relationshipUpdate } = paperSlice.actions;
+    relationshipUpdate, removeObjectFromPaper } = paperSlice.actions;
 
 export let {
     selectAll: selectPapers,
