@@ -13,6 +13,7 @@ import {
 import ObjectEditor from '../object/ObjectDialog';
 
 import styles from './Paper.module.css';
+import { addObject } from '../object/objectSlice';
 
 
 const defaultWidth = 3200;
@@ -21,10 +22,6 @@ const defaultGridSize = 25;
 const defaultScale = 1.0;
 const minScale = 0.4;
 const maxScale = 4.5;
-const defaultPosition = [
-    window.innerWidth / 2 - defaultWidth / 2,
-    window.innerHeight / 2 - defaultHeight / 2
-];
 
 interface PaperProps {
     domain: string,
@@ -37,6 +34,9 @@ interface MoveStruct {
     mouseDown: boolean,
     origin_x: number,
     origin_y: number,
+    meta: boolean,
+    alt: boolean,
+    ctrl: boolean,
     target: {
         node: SVGElement | null,
         type: string
@@ -82,7 +82,6 @@ export function Paper(props: PaperProps) {
     // let uberFoo = (bar: []) => {
     //     mouseMoveCallbacks.push(bar);
     // };
-
     let dispatch = useAppDispatch();
 
     let paper_obj = useAppSelector((state) => selectPaperSingleton(state));
@@ -97,6 +96,9 @@ export function Paper(props: PaperProps) {
         origin_x: window.innerWidth / 2 - paper_obj!.width / 2,
         origin_y: window.innerHeight / 2 - paper_obj!.height / 2,
         target: { node: null, type: '' },
+        meta: false,
+        alt: false,
+        ctrl: false,
         paper: {
             undo: false,
             new_object: null
@@ -140,7 +142,7 @@ export function Paper(props: PaperProps) {
                 if (event.metaKey) {
                     // Start an undo
                     setMove({
-                        ...move, mouseDown: true, target: { node: target, type },
+                        ...move, mouseDown: true, target: { node: target, type }, meta: true,
                         paper: { ...paper, undo: true }
                     });
                 } else if (event.altKey) {
@@ -155,6 +157,7 @@ export function Paper(props: PaperProps) {
                         ...move,
                         mouseDown: true,
                         target: { node: target, type },
+                        alt: true,
                         paper: {
                             ...paper,
                             new_object: {
@@ -190,7 +193,17 @@ export function Paper(props: PaperProps) {
                 let width = props.width;
                 let height = props.height;
 
-                if (event.metaKey) {
+                if (event.altKey) {
+                    // This brings up the object editor.
+                    setMove({
+                        ...move,
+                        mouseDown: true,
+                        target: { node: target, type },
+                        alt: true,
+                        object: { ...object, id, x, y, width, height }
+                    });
+                } else if (event.metaKey) {
+                    // This is supposed to be for creating a new relationship.
                     let x = event.clientX - origin_x;
                     let y = event.clientY - origin_y;
 
@@ -198,6 +211,7 @@ export function Paper(props: PaperProps) {
                         ...move,
                         mouseDown: true,
                         target: { node: target, type },
+                        meta: true,
                         object: {
                             ...object,
                             id, x, y, width, height,
@@ -205,6 +219,7 @@ export function Paper(props: PaperProps) {
                         }
                     });
                 } else {
+                    // Default dragging
                     setMove({
                         ...move,
                         mouseDown: true,
@@ -259,18 +274,20 @@ export function Paper(props: PaperProps) {
     };
 
     let onMouseUpHandler = (event: React.MouseEvent) => {
-        let { mouseDown } = move;
+        let { mouseDown, alt } = move;
 
         if (mouseDown) {
             let { target } = move;
+            let new_obj = false;
             switch (target.type) {
                 case 'Paper': {
-                    let { mouseDown, paper } = move;
+                    let { mouseDown, paper, object } = move;
                     let { undo } = paper;
 
                     if (undo) {
                         dispatch(UndoActionCreators.undo());
-                    } else if (mouseDown && event.altKey) {
+
+                    } else if (mouseDown && alt) {
                         let { x0, y0, x1, y1 } = paper.new_object!;
                         let width = x1 - x0;
                         let height = y1 - y0;
@@ -285,6 +302,9 @@ export function Paper(props: PaperProps) {
                             }
                         };
 
+                        new_obj = true;
+
+                        dispatch(addObject({ id: "fubar", name: "New Object" }));
                         dispatch(addObjectToPaper(obj_ui));
                     } else {
                         // console.log('forwarding mouseup');
@@ -292,17 +312,33 @@ export function Paper(props: PaperProps) {
                         // mouseMoveCallbacks.map(([foo, bar]) => { if (bar !== null) bar(event); });
                     }
 
-                    setMove({
-                        ...move,
-                        mouseDown: false,
-                        target: { node: null, type: '' },
-                        paper: { ...paper, undo: false, new_object: null }
-                    });
+                    if (new_obj) {
+                        setMove({
+                            ...move,
+                            mouseDown: false,
+                            meta: false,
+                            alt: false,
+                            ctrl: false,
+                            target: { node: null, type: '' },
+                            paper: { ...paper, undo: false, new_object: null },
+                            object: { ...object, id: 'fubar', altClick: true }
+                        });
+                    } else {
+                        setMove({
+                            ...move,
+                            mouseDown: false,
+                            meta: false,
+                            alt: false,
+                            ctrl: false,
+                            target: { node: null, type: '' },
+                            paper: { ...paper, undo: false, new_object: null }
+                        });
+                    }
                 }
                     break;
 
                 case 'Object': {
-                    let { mouseDown, object } = move;
+                    let { mouseDown, object, alt, meta } = move;
                     let { resizeDir, altClick, width, height, x, y, dirty } = object;
 
                     let parent = target.node!.parentNode as SVGGElement;
@@ -313,14 +349,16 @@ export function Paper(props: PaperProps) {
                             if (dirty) {
                                 dispatch(objectResizeBy({ id, width: width, height: height }));
                             }
-                        } else if (event.altKey) {
+                        } else if (alt) {
+                            // Bring up the editor
                             altClick = true;
-                        } else if (event.metaKey) {
+                        } else if (meta) {
+                            // Draw a line for a relationsship.
                             let { line } = object;
                             console.log('up', line);
                         } else {
+                            // Panning.
                             if (dirty) {
-
                                 dispatch(objectMoveTo({ id, x, y }))
                             }
                         }
@@ -328,6 +366,9 @@ export function Paper(props: PaperProps) {
                         setMove({
                             ...move,
                             mouseDown: false,
+                            alt: false,
+                            meta: false,
+                            ctrl: false,
                             target: { node: null, type: '' },
                             object: {
                                 ...object, resizeDir: null, altClick, dirty: false
@@ -359,7 +400,14 @@ export function Paper(props: PaperProps) {
                         }));
                     }
 
-                    setMove({ ...move, mouseDown: false, target: { node: null, type: '' } });
+                    setMove({
+                        ...move,
+                        mouseDown: false,
+                        alt: false,
+                        meta: false,
+                        ctrl: false,
+                        target: { node: null, type: '' }
+                    });
                 }
                     break;
 
@@ -371,7 +419,7 @@ export function Paper(props: PaperProps) {
     };
 
     let onMouseMoveHandler = (event: React.MouseEvent) => {
-        let { mouseDown } = move;
+        let { mouseDown, alt } = move;
 
         if (mouseDown) {
             let { target } = move;
@@ -381,7 +429,7 @@ export function Paper(props: PaperProps) {
                     let { mouseDown, paper } = move;
 
                     if (mouseDown) {
-                        if (event.altKey) {
+                        if (alt) {
                             let last = paper.new_object;
                             let { x1, y1 } = last!;
 
@@ -419,12 +467,12 @@ export function Paper(props: PaperProps) {
                     break;
 
                 case 'Object': {
-                    let { mouseDown, object, target } = move;
+                    let { mouseDown, object, target, alt, meta } = move;
                     let { x, y, width, height, resizeDir } = object;
 
                     // If mouseDown we are panning. This is wrong, and actually needs to start drawing.
-                    if (mouseDown && !event.altKey) {
-                        if (event.metaKey) {
+                    if (mouseDown && !alt) {
+                        if (meta) {
                             let { line } = object;
 
                             line!.x1 += event.movementX;
@@ -564,7 +612,7 @@ export function Paper(props: PaperProps) {
         // happen when we undo.
 
         objectInstances.push(<Object key={`${key}${x}${y}${width}${height}`} id={key} x={x} y={y}
-            width={width} height={height} ns={props.domain_ns} origin={origin}
+            width={width} height={height} origin={origin}
         // @ts-ignore
         // uberFoo={uberFoo}
         />);
@@ -578,6 +626,9 @@ export function Paper(props: PaperProps) {
 
         newObject = <rect className={styles.antLine} x={x0} y={y0} width={width}
             height={height} />;
+
+        // let { paper } = move;
+        // setMove({ ...move, paper: { ...paper, new_object: null } });
     }
 
     let relInsts: Array<JSX.Element> = [];
@@ -600,37 +651,55 @@ export function Paper(props: PaperProps) {
         y_lines.push(<line x1={i} y1={0} x2={i} y2={paper_obj!.height} />);
     }
 
-    let { origin_x, origin_y } = move;
+    let doneEditing = () => {
+        if (move.object.altClick) {
+            let { object } = move;
+            setMove({ ...move, object: { ...object, altClick: false } });
+        }
+    }
+
+    let { origin_x, origin_y, object } = move;
 
     // if (contextMenu) {
     // @ts-ignore
     // return ReactDOM.createPortal(contextMenuContent, document.getElementById('root'));
     // } else {
     return (
-        <svg id="svg-root" width={paper_obj!.width} height={paper_obj!.height} xmlns='http://www.w3.org/2000/svg'>
-            {/* @ts-ignore */}
-            {ReactDOM.createPortal(contextMenuContent, document.getElementById('root'))}
-            < g id="paper" pointerEvents="all"
-                transform={"translate(" + origin_x + "," + origin_y + ") scale(" +
-                    defaultScale + ")"}
-                onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler}
-                onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler}
-            // onContextMenu={contextMenuHandler}
+        <>
+            {object.altClick &&
+                // @ts-ignore
+                <ObjectEditor enabled={true} obj_id={move.object.id} ns={props.domain_ns}
+                    done={doneEditing}
+                />
+            }
+            <svg id="svg-root" width={paper_obj!.width} height={paper_obj!.height}
+                xmlns='http://www.w3.org/2000/svg'
             >
-                < rect id="background" width={paper_obj!.width} height={paper_obj!.height} className={styles.paperBase} />
-                <g className={styles.axis}>
-                    {x_lines}
-                </g>
-                <g className={styles.axis}>
-                    {y_lines}
-                </g>
-                <g id="canvas">
-                    {move.paper.new_object !== null && newObject}
-                    {objectInstances}
-                    {relInsts}
-                </g>
-            </g >
-        </svg>
+                {/* @ts-ignore */}
+                {ReactDOM.createPortal(contextMenuContent, document.getElementById('root'))}
+                < g id="paper" pointerEvents="all"
+                    transform={"translate(" + origin_x + "," + origin_y + ") scale(" +
+                        defaultScale + ")"}
+                    onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler}
+                    onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler}
+                // onContextMenu={contextMenuHandler}
+                >
+                    < rect id="background" width={paper_obj!.width} height={paper_obj!.height}
+                        className={styles.paperBase}
+                    />
+                    <g className={styles.axis}>
+                        {x_lines}
+                    </g>
+                    <g className={styles.axis}>
+                        {y_lines}
+                    </g>
+                    <g id="canvas">
+                        {move.paper.new_object !== null && newObject}
+                        {objectInstances}
+                        {relInsts}
+                    </g>
+                </g >
+            </svg>
+        </>
     )
-    // }
 }

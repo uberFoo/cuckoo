@@ -11,14 +11,13 @@ import { v5 as uuid } from 'uuid';
 import { ObjectStore, AttributeStore, Type } from '../../app/store';
 import { selectAttributes } from '../attribute/attributeSlice';
 import { useAppSelector, useAppDispatch, getAttributeType } from '../../app/hooks';
-import { replaceObject } from './objectSlice';
+import { replaceObject, selectObjectById } from './objectSlice';
 import { objectChangeId } from '../paper/paperSlice';
 import { updateObjectReference, updateReferentialAttribute, addAttribute, removeAttribute } from '../attribute/attributeSlice'
 
 interface Props {
     enabled: boolean,
-    object: ObjectStore,
-    attrs: Array<AttributeStore>,
+    obj_id: string,
     ns: string,
     done: () => void
 }
@@ -28,25 +27,43 @@ let TYPES = ['Uuid', 'String', 'Integer', 'Float', 'Boolean'];
 // Modal.setAppElement('#modal-root');
 const ObjectEditor = (props: Props) => {
     let dispatch = useAppDispatch();
+
+    let object = useAppSelector((state) => selectObjectById(state, props.obj_id));
     let attributes: Array<AttributeStore> = useAppSelector((state) => selectAttributes(state));
+    const formik = useFormik({
+        initialValues: {
+            // @ts-ignore
+            objectName: object.name,
+        },
+        onSubmit: (values) => save(values)
+    });
+    let [attrType, setAttrType] = React.useState('');
+
+    if (object === undefined) {
+        console.error("can't find object in the store", props.obj_id);
+        return;
+    }
+
+    let obj_attrs = attributes.filter((a) => a.obj_id === props.obj_id);
 
     let save = (values: { objectName: string }) => {
-        if (values.objectName !== props.object.name) {
+        // @ts-ignore
+        if (values.objectName !== object.name) {
             let new_id = uuid(values.objectName, props.ns);
             // If the name changed then so will the id, which is how our attributes refer to us. We
             // also need to update any referential attributes.
             attributes
-                .filter((a) => a.obj_id === props.object.id)
+                .filter((a) => a.obj_id === props.obj_id)
                 .map((a) => dispatch(updateObjectReference({ id: a.id, obj_id: new_id })));
             attributes
-                .filter((a) => typeof a.type === 'object' && a.type.foreign_key === props.object.id)
+                .filter((a) => typeof a.type === 'object' && a.type.foreign_key === props.obj_id)
                 .map((a) => dispatch(updateReferentialAttribute({ id: a.id, obj_id: new_id })));
 
-            let new_obj = { ...props.object, id: new_id, name: values.objectName };
+            let new_obj = { ...object, id: new_id, name: values.objectName };
 
             // Order is probably importannt
-            dispatch(objectChangeId({ id: new_id, old_id: props.object.id }));
-            dispatch(replaceObject({ object: new_obj, old_id: props.object.id }));
+            dispatch(objectChangeId({ id: new_id, old_id: props.obj_id }));
+            dispatch(replaceObject({ object: new_obj, old_id: props.obj_id }));
         }
 
         props.done();
@@ -56,19 +73,10 @@ const ObjectEditor = (props: Props) => {
         props.done();
     }
 
-    const formik = useFormik({
-        initialValues: {
-            objectName: props.object.name,
-        },
-        onSubmit: (values) => save(values)
-    });
-
     let handleSubmit: (e?: React.FormEvent<HTMLElement> | undefined) => void = (e) => {
         // Poor thing doesn't know that I don't give a shit about the event itself.
         formik.handleSubmit(e as any);
     }
-
-    let [attrType, setAttrType] = React.useState('');
 
     let handleAttrTypeChange = (event: SelectChangeEvent) => {
         setAttrType(event.target.value);
@@ -111,12 +119,12 @@ const ObjectEditor = (props: Props) => {
     let handleAddAttr = () => {
         let element = document.getElementById('attributeName') as HTMLInputElement;
         let name = element!.value;
-        let id = uuid(`${props.object.id}::${name}`, props.ns);
+        let id = uuid(`${props.obj_id}::${name}`, props.ns);
         let attr: AttributeStore = {
             id,
             name,
             type: attrType as Type,
-            obj_id: props.object.id
+            obj_id: props.obj_id
         };
 
         // clean-up
@@ -130,7 +138,7 @@ const ObjectEditor = (props: Props) => {
         dispatch(removeAttribute(e.currentTarget.id));
     }
 
-    let listItems = props.attrs.map((a) => {
+    let listItems = obj_attrs.map((a) => {
         let attr = attributes.filter((b) => b.id === a.id);
         let type = getAttributeType(attr[0]);
         if (type.is_ref) {

@@ -3,11 +3,10 @@ import ReactDOM from 'react-dom';
 import { Menu, MenuItem } from '@mui/material';
 
 import { ObjectStore, AttributeStore } from '../../app/store';
-import { selectObjectById, addObject } from './objectSlice';
+import { selectObjectById } from './objectSlice';
 import { Attribute } from '../attribute/Attribute';
 import { selectAttributes } from '../attribute/attributeSlice';
-import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import ObjectEditor from './ObjectDialog';
+import { useAppSelector } from '../../app/hooks';
 
 import styles from './Object.module.css';
 
@@ -16,7 +15,6 @@ const cornerSize = 14;
 
 interface ObjectProps {
     id: string,
-    ns: string,
     x: number,
     y: number,
     width: number,
@@ -25,24 +23,16 @@ interface ObjectProps {
 };
 
 export function Object(props: ObjectProps) {
-    let dispatch = useAppDispatch();
-
     let object: ObjectStore | undefined = useAppSelector((state) => selectObjectById(state, props.id));
 
-    if (object === undefined) {
-        dispatch(addObject({ id: props.id, name: "New Object" }));
-    }
+    // let [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
 
-    let [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
-    let [editing, setEditing] = useState(false);
-
-
-    let contextMenuHandler = (event: React.MouseEvent) => {
-        event.preventDefault();
-        setContextMenu(
-            contextMenu == null ? { x: event.clientX + 2, y: event.clientY - 6 } : null
-        );
-    };
+    // let contextMenuHandler = (event: React.MouseEvent) => {
+    //     event.preventDefault();
+    //     setContextMenu(
+    //         contextMenu == null ? { x: event.clientX + 2, y: event.clientY - 6 } : null
+    //     );
+    // };
 
     let attributes: Array<AttributeStore> = useAppSelector((state) => selectAttributes(state));
     let attributeInstances: Array<AttributeStore> = attributes
@@ -63,34 +53,26 @@ export function Object(props: ObjectProps) {
         });
 
 
-    let doneEditing = () => {
-        if (editing) setEditing(false);
-    }
+    // let handleCtxClose = () => { setContextMenu(null) };
 
-    let handleCtxClose = () => { setContextMenu(null) };
-
-    let contextMenuContent =
-        <Menu
-            open={contextMenu !== null}
-            onClose={handleCtxClose}
-            anchorReference="anchorPosition"
-            anchorPosition={
-                contextMenu !== null ? { top: contextMenu.x, left: contextMenu.y } : undefined
-            }
-        >
-            <MenuItem>Undo</MenuItem>
-            <MenuItem>Delete</MenuItem>
-        </Menu>;
+    // let contextMenuContent =
+    //     <Menu
+    //         open={contextMenu !== null}
+    //         onClose={handleCtxClose}
+    //         anchorReference="anchorPosition"
+    //         anchorPosition={
+    //             contextMenu !== null ? { top: contextMenu.x, left: contextMenu.y } : undefined
+    //         }
+    //     >
+    //         <MenuItem>Undo</MenuItem>
+    //         <MenuItem>Delete</MenuItem>
+    //     </Menu>;
 
 
     return (
         <>
-            {contextMenu && ReactDOM.createPortal(contextMenuContent,
-                document.getElementById('root') as Element)}
-            {(props.id === "fubar") &&
-                <ObjectEditor enabled={true} object={object!} attrs={attributeInstances}
-                    ns={props.ns} done={doneEditing} />
-            }
+            {/* {contextMenu && ReactDOM.createPortal(contextMenuContent,
+                document.getElementById('root') as Element)} */}
             <g key={props.id} id={props.id} className={"object"}
                 transform={buildTransform(props.x, props.y)}
             >
