@@ -562,6 +562,11 @@ export function Paper(props: PaperProps) {
                                         child.setAttribute('x2', width);
                                         break;
 
+                                    case 'objectName':
+                                        // @ts-ignore
+                                        child.setAttribute('x', width / 2);
+                                        break;
+
                                     default:
                                         break;
                                 }
