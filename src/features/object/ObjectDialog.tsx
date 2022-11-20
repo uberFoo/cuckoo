@@ -8,7 +8,7 @@ import {
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { v5 as uuid } from 'uuid';
 
-import { ObjectStore, AttributeStore, Type } from '../../app/store';
+import { AttributeStore, Type } from '../../app/store';
 import { selectAttributes } from '../attribute/attributeSlice';
 import { useAppSelector, useAppDispatch, getAttributeType } from '../../app/hooks';
 import { replaceObject, selectObjectById } from './objectSlice';
@@ -129,7 +129,6 @@ const ObjectEditor = (props: Props) => {
 
         // clean-up
         element.value = '';
-
 
         dispatch(addAttribute(attr));
     }

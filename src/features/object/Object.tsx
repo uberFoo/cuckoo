@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-import ReactDOM from 'react-dom';
-import { Menu, MenuItem } from '@mui/material';
+import React from 'react';
 
 import { ObjectStore, AttributeStore } from '../../app/store';
 import { selectObjectById } from './objectSlice';

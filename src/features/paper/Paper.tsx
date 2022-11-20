@@ -726,6 +726,7 @@ export function Paper(props: PaperProps) {
     }
 
     let { origin_x, origin_y, object } = move;
+    let { line } = object;
 
     // if (contextMenu) {
     // @ts-ignore
@@ -744,14 +745,14 @@ export function Paper(props: PaperProps) {
             >
                 {/* @ts-ignore */}
                 {ReactDOM.createPortal(contextMenuContent, document.getElementById('root'))}
-                < g id="paper" pointerEvents="all"
+                <g id="paper" pointerEvents="all"
                     transform={"translate(" + origin_x + "," + origin_y + ") scale(" +
                         defaultScale + ")"}
                     onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler}
                     onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler}
                 // onContextMenu={contextMenuHandler}
                 >
-                    < rect id="background" width={paper_obj!.width} height={paper_obj!.height}
+                    <rect id="background" width={paper_obj!.width} height={paper_obj!.height}
                         className={styles.paperBase}
                     />
                     <g className={styles.axis}>
@@ -764,6 +765,9 @@ export function Paper(props: PaperProps) {
                         {move.paper.new_object !== null && newObject}
                         {objectInstances}
                         {relInsts}
+                        {line &&
+                            <line className={styles.antLine} x1={line.x0} y1={line.y0} x2={line.x1} y2={line.y1} />
+                        }
                     </g>
                 </g >
             </svg>

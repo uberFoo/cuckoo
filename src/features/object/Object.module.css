@@ -49,9 +49,3 @@
     overflow-y: auto;
     overflow-x: hidden;
 }
-
-.antLine {
-    fill: none;
-    stroke: #000;
-    stroke-dasharray: 2.5, 2.5;
-}
