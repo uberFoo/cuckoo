@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 
-import { Point } from '../../app/store';
+import { BinaryEnd } from '../../app/store';
 import { selectRelationshipsById } from './relationshipSlice';
 import { selectObjectById } from '../object/objectSlice';
 import { Binary } from './Binary';
@@ -10,8 +10,8 @@ import styles from './Relationship.module.css';
 
 interface RelationshipProps {
     id: string
-    from: Point,
-    to: Point,
+    from: BinaryEnd,
+    to: BinaryEnd,
     uberFoo: (e: React.MouseEvent) => void
 }
 
@@ -25,7 +25,8 @@ export function Relationship(props: RelationshipProps) {
     console.assert(Object.keys(rel!).length === 1);
     switch (Object.keys(rel!)[0]) {
         case "Binary":
-            render = Binary({ ...props, rel: rel! });
+            // @ts-ignore
+            render = Binary({ ...props, rel: rel!.Binary });
             // @ts-ignore
             id = rel!.Binary.id;
             break;

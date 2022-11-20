@@ -46,9 +46,16 @@ export interface ObjectUI {
     height: number
 }
 
+export interface BinaryEnd {
+    id: string,
+    dir: 'North' | 'South' | 'East' | 'West',
+    x: number,
+    y: number
+}
+
 export interface RelationshipUI {
-    from: Point
-    to: Point
+    from: BinaryEnd,
+    to: BinaryEnd
 }
 
 export interface AttributeStore {

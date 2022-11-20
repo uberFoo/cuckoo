@@ -3,16 +3,17 @@ import ReactDOM from 'react-dom';
 import { Menu, MenuItem } from '@mui/material';
 import { ActionCreators as UndoActionCreators } from 'redux-undo';
 
-import { Object, Direction } from '../object/Object';
+import { Object } from '../object/Object';
 import { ObjectUI, RelationshipUI } from '../../app/store';
 import { Relationship } from '../relationship/Relationship';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
-    addObjectToPaper, selectPaperSingleton, objectResizeBy, objectMoveTo
+    addObjectToPaper, selectPaperSingleton, objectResizeBy, objectMoveTo, relationshipUpdate
 } from './paperSlice';
+import ObjectEditor from '../object/ObjectDialog';
 
 import styles from './Paper.module.css';
-import { Microwave } from '@mui/icons-material';
+
 
 const defaultWidth = 3200;
 const defaultHeight = 1600;
@@ -30,6 +31,8 @@ interface PaperProps {
     domain_ns: string
 }
 
+export type Direction = "north" | "south" | "east" | "west" | null;
+
 interface MoveStruct {
     mouseDown: boolean,
     origin_x: number,
@@ -43,6 +46,7 @@ interface MoveStruct {
         new_object: NewObject | null
     },
     object: {
+        id: string,
         x: number,
         y: number,
         width: number,
@@ -51,6 +55,15 @@ interface MoveStruct {
         altClick: boolean,
         line: Line | null,
         dirty: boolean
+    },
+    relationship: {
+        id: string,
+        obj_id: string,
+        parent?: SVGGElement,
+        end: string,
+        dir: string,
+        x: number,
+        y: number,
     }
 };
 interface Rect {
@@ -89,6 +102,7 @@ export function Paper(props: PaperProps) {
             new_object: null
         },
         object: {
+            id: '',
             x: 0,
             y: 0,
             width: 0,
@@ -97,8 +111,17 @@ export function Paper(props: PaperProps) {
             altClick: false,
             line: null,
             dirty: false
+        },
+        relationship: {
+            id: '',
+            obj_id: '',
+            end: '',
+            x: 0,
+            y: 0,
+            dir: ''
         }
     });
+
 
     let [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
 
@@ -177,7 +200,7 @@ export function Paper(props: PaperProps) {
                         target: { node: target, type },
                         object: {
                             ...object,
-                            x, y, width, height,
+                            id, x, y, width, height,
                             line: { x0: x, y0: y, x1: x, y1: y }
                         }
                     });
@@ -188,7 +211,7 @@ export function Paper(props: PaperProps) {
                         target: { node: target, type },
                         object: {
                             ...object,
-                            x, y, width, height,
+                            id, x, y, width, height,
                             resizeDir: dir,
                             altClick: false,
                             dirty: false
@@ -199,234 +222,317 @@ export function Paper(props: PaperProps) {
                 break;
 
             case 'Relationship': {
-                console.log('mouse down on rel', target);
-            }
-                break;
+                let { relationship } = move;
+                let root = target.parentNode as SVGGElement;
+                let [id, obj_id, end] = root.id.split(':');
+                let props = paper_obj!.relationships[id] as RelationshipUI;
 
-            default:
-                console.error('MouseDown on unknown type, ', type, target);
-                break;
-        }
-    }
-
-    let onMouseUpHandler = (event: React.MouseEvent) => {
-        let { target } = move;
-
-        switch (target.type) {
-            case 'Paper': {
-                let { mouseDown, paper } = move;
-                let { undo } = paper;
-
-                if (undo) {
-                    dispatch(UndoActionCreators.undo());
-                } else if (mouseDown && event.altKey) {
-                    let { x0, y0, x1, y1 } = paper.new_object!;
-                    let width = x1 - x0;
-                    let height = y1 - y0;
-
-                    let obj_ui = {
-                        id: "fubar",
-                        payload: {
-                            x: x0,
-                            y: y0,
-                            width,
-                            height
-                        }
-                    };
-
-                    dispatch(addObjectToPaper(obj_ui));
+                let { x, y, dir } = relationship;
+                if (end === 'from') {
+                    x = props.from.x;
+                    y = props.from.y;
+                    dir = props.from.dir;
                 } else {
-                    // console.log('forwarding mouseup');
-                    // // @ts-ignore
-                    // mouseMoveCallbacks.map(([foo, bar]) => { if (bar !== null) bar(event); });
+                    x = props.to.x;
+                    y = props.to.y;
+                    dir = props.to.dir;
                 }
 
                 setMove({
-                    ...move,
-                    mouseDown: false,
-                    paper: { ...paper, undo: false, new_object: null }
+                    ...move, mouseDown: true, target: { node: target, type },
+                    relationship: {
+                        id: id,
+                        obj_id,
+                        parent: root,
+                        end,
+                        dir,
+                        x,
+                        y
+                    }
                 });
             }
                 break;
 
-            case 'Object': {
-                let { mouseDown, object } = move;
-                let { resizeDir, altClick, width, height, x, y, dirty } = object;
+            default:
+                break;
+        }
+    };
 
-                let parent = target.node!.parentNode as SVGGElement;
-                let id = parent.id;
-                // if (id == null) {
-                //     console.error("can't access id via parentNode", target.node);
-                // }
-                // let props = paper_obj!.objects[id] as ObjectUI;
+    let onMouseUpHandler = (event: React.MouseEvent) => {
+        let { mouseDown } = move;
 
-                if (mouseDown) {
-                    if (resizeDir) {
-                        if (dirty) {
-                            // console.log('dispatch resize');
-                            dispatch(objectResizeBy({ id, width: width, height: height }));
-                        }
-                    } else if (event.altKey) {
-                        altClick = true;
-                    } else if (event.metaKey) {
-                        let { line } = object;
-                        console.log('up', line);
+        if (mouseDown) {
+            let { target } = move;
+            switch (target.type) {
+                case 'Paper': {
+                    let { mouseDown, paper } = move;
+                    let { undo } = paper;
+
+                    if (undo) {
+                        dispatch(UndoActionCreators.undo());
+                    } else if (mouseDown && event.altKey) {
+                        let { x0, y0, x1, y1 } = paper.new_object!;
+                        let width = x1 - x0;
+                        let height = y1 - y0;
+
+                        let obj_ui = {
+                            id: "fubar",
+                            payload: {
+                                x: x0,
+                                y: y0,
+                                width,
+                                height
+                            }
+                        };
+
+                        dispatch(addObjectToPaper(obj_ui));
                     } else {
-                        // if (x !== props.x && y !== props.y) {
-                        if (dirty) {
-                            // console.log('dispatch moveto');
-                            dispatch(objectMoveTo({ id, x, y }))
-                        }
+                        // console.log('forwarding mouseup');
+                        // // @ts-ignore
+                        // mouseMoveCallbacks.map(([foo, bar]) => { if (bar !== null) bar(event); });
                     }
 
                     setMove({
                         ...move,
                         mouseDown: false,
-                        object: {
-                            ...object, resizeDir: null, altClick, dirty: false
-                        }
+                        target: { node: null, type: '' },
+                        paper: { ...paper, undo: false, new_object: null }
                     });
                 }
-            }
-                break;
+                    break;
 
-            case 'Relationship': {
-                console.log('mouse up on rel', target);
-            }
-                break;
+                case 'Object': {
+                    let { mouseDown, object } = move;
+                    let { resizeDir, altClick, width, height, x, y, dirty } = object;
 
-            default:
-                console.error('MouseUp on unknown type, ', target.type, target);
-                break;
-        }
+                    let parent = target.node!.parentNode as SVGGElement;
+                    let id = parent.id;
 
-    }
-
-    let onMouseMoveHandler = (event: React.MouseEvent) => {
-        let { target } = move;
-
-        switch (target.type) {
-            case 'Paper': {
-                let { mouseDown, paper } = move;
-
-                if (mouseDown) {
-                    if (event.altKey) {
-                        let last = paper.new_object;
-                        let { x1, y1 } = last!;
-
-                        // New Object
-                        x1 += event.movementX;
-                        y1 += event.movementY;
-
-                        setMove({
-                            ...move,
-                            paper: {
-                                ...paper,
-                                new_object:
-                                {
-                                    ...last!,
-                                    x1, y1
-                                }
+                    if (mouseDown) {
+                        if (resizeDir) {
+                            if (dirty) {
+                                dispatch(objectResizeBy({ id, width: width, height: height }));
                             }
-                        });
-                    } else {
-                        // Panning -- super important. We are maintaining our origin
-                        let { origin_x, origin_y } = move;
+                        } else if (event.altKey) {
+                            altClick = true;
+                        } else if (event.metaKey) {
+                            let { line } = object;
+                            console.log('up', line);
+                        } else {
+                            if (dirty) {
 
-                        origin_x += event.movementX;
-                        origin_y += event.movementY;
-
-                        // This forces an update -- good here.
-                        setMove({ ...move, origin_x, origin_y });
-                    }
-                } else {
-                    // console.log('forwarding mouesmove');
-                    // // @ts-ignore
-                    // mouseMoveCallbacks.map(([foo, bar]) => { if (foo !== null) foo(event) });
-                }
-            }
-                break;
-
-            case 'Object': {
-                let { mouseDown, object, target } = move;
-                let { x, y, width, height, resizeDir } = object;
-
-                let parent = target!.node!.parentNode as SVGGElement;
-
-                // If mouseDown we are panning. This is wrong, and actually needs to start drawing.
-                if (mouseDown && !event.altKey) {
-                    if (event.metaKey) {
-                        let { line } = object;
-
-                        line!.x1 += event.movementX;
-                        line!.y1 += event.movementY;
-
-                        // @ts-ignore
-                        setMove({ ...move, object: { line } });
-
-                    } else if (resizeDir) {
-                        let dx = event.movementX;
-                        let dy = event.movementY;
-                        switch (resizeDir) {
-                            case 'north':
-                                y += dy;
-                                if (dy < 0) {
-                                    height += -dy;
-                                } else {
-                                    height -= dy
-                                }
-                                break;
-                            case 'south':
-                                height += dy;
-                                break;
-                            case 'east':
-                                width += dx;
-                                break;
-                            case 'west':
-                                x += dx;
-                                if (dx < 0) {
-                                    width += -dx;
-                                } else {
-                                    width -= dx;
-                                }
-                                break;
-
-                            default:
-                                console.log('WTF');
-                                break;
+                                dispatch(objectMoveTo({ id, x, y }))
+                            }
                         }
 
-                        // TODO: Preview!
                         setMove({
                             ...move,
-                            object: { ...object, width, height, x, y, dirty: true }
+                            mouseDown: false,
+                            target: { node: null, type: '' },
+                            object: {
+                                ...object, resizeDir: null, altClick, dirty: false
+                            }
                         });
-                    } else {
-                        x += event.movementX;
-                        y += event.movementY;
-
-                        let xform = parent!.transform.baseVal.getItem(0);
-                        console.assert(xform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
-                        xform.setTranslate(x, y);
-
-                        setMove({ ...move, object: { ...object, x, y, dirty: true } });
                     }
                 }
+                    break;
+
+                case 'Relationship': {
+                    let { relationship } = move;
+                    let { x, y, obj_id, dir, id, end } = relationship;
+
+                    let ui = paper_obj?.relationships[id];
+
+                    if (end === 'from') {
+                        dispatch(relationshipUpdate({
+                            id, ui: {
+                                ...ui, from:
+                                    { id: obj_id, x, y, dir }
+                            }
+                        }));
+                    } else {
+                        dispatch(relationshipUpdate({
+                            id, ui: {
+                                ...ui,
+                                to: { id: obj_id, x, y, dir }
+                            }
+                        }));
+                    }
+
+                    setMove({ ...move, mouseDown: false, target: { node: null, type: '' } });
+                }
+                    break;
+
+                default:
+                    console.error('MouseUp on unknown type, ', target.type, target);
+                    break;
             }
-
-                break;
-
-            case 'Relationship': {
-                console.log('mouse move on rel', target);
-            }
-                break;
-
-            default:
-                console.error('MouseMove on unknown type, ', target.type, target);
-                break;
         }
+    };
 
-    }
+    let onMouseMoveHandler = (event: React.MouseEvent) => {
+        let { mouseDown } = move;
+
+        if (mouseDown) {
+            let { target } = move;
+
+            switch (target.type) {
+                case 'Paper': {
+                    let { mouseDown, paper } = move;
+
+                    if (mouseDown) {
+                        if (event.altKey) {
+                            let last = paper.new_object;
+                            let { x1, y1 } = last!;
+
+                            // New Object
+                            x1 += event.movementX;
+                            y1 += event.movementY;
+
+                            setMove({
+                                ...move,
+                                paper: {
+                                    ...paper,
+                                    new_object:
+                                    {
+                                        ...last!,
+                                        x1, y1
+                                    }
+                                }
+                            });
+                        } else {
+                            // Panning -- super important. We are maintaining our origin
+                            let { origin_x, origin_y } = move;
+
+                            origin_x += event.movementX;
+                            origin_y += event.movementY;
+
+                            // This forces an update -- good here.
+                            setMove({ ...move, origin_x, origin_y });
+                        }
+                    } else {
+                        // console.log('forwarding mouesmove');
+                        // // @ts-ignore
+                        // mouseMoveCallbacks.map(([foo, bar]) => { if (foo !== null) foo(event) });
+                    }
+                }
+                    break;
+
+                case 'Object': {
+                    let { mouseDown, object, target } = move;
+                    let { x, y, width, height, resizeDir } = object;
+
+                    // If mouseDown we are panning. This is wrong, and actually needs to start drawing.
+                    if (mouseDown && !event.altKey) {
+                        if (event.metaKey) {
+                            let { line } = object;
+
+                            line!.x1 += event.movementX;
+                            line!.y1 += event.movementY;
+
+                            // @ts-ignore
+                            setMove({ ...move, object: { line } });
+
+                        } else if (resizeDir) {
+                            let dx = event.movementX;
+                            let dy = event.movementY;
+                            switch (resizeDir) {
+                                case 'north':
+                                    y += dy;
+                                    if (dy < 0) {
+                                        height += -dy;
+                                    } else {
+                                        height -= dy
+                                    }
+                                    break;
+                                case 'south':
+                                    height += dy;
+                                    break;
+                                case 'east':
+                                    width += dx;
+                                    break;
+                                case 'west':
+                                    x += dx;
+                                    if (dx < 0) {
+                                        width += -dx;
+                                    } else {
+                                        width -= dx;
+                                    }
+                                    break;
+
+                                default:
+                                    console.log('WTF');
+                                    break;
+                            }
+
+                            // TODO: Preview!
+                            setMove({
+                                ...move,
+                                object: { ...object, width, height, x, y, dirty: true }
+                            });
+                        } else {
+                            let parent = target!.node!.parentNode as SVGGElement;
+
+                            x += event.movementX;
+                            y += event.movementY;
+
+                            let xform = parent!.transform.baseVal.getItem(0);
+                            console.assert(xform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
+                            xform.setTranslate(x, y);
+
+                            setMove({ ...move, object: { ...object, x, y, dirty: true } });
+                        }
+                    }
+                }
+
+                    break;
+
+                case 'Relationship': {
+                    let { relationship } = move;
+                    let { x, y, obj_id, dir, parent } = relationship;
+
+                    x += event.movementX;
+                    y += event.movementY;
+
+                    let obj_ui = paper_obj!.objects[obj_id];
+                    if (obj_ui === undefined) {
+                        console.error('undefinded obj_ui', obj_id);
+                        break;
+                    }
+
+                    let top = obj_ui.y;
+                    let bottom = obj_ui.y + obj_ui.height;
+                    let left = obj_ui.x;
+                    let right = obj_ui.x + obj_ui.width;
+
+                    if (x < left) {
+                        x = left;
+                        dir = 'West';
+                    } else if (x > right) {
+                        x = right;
+                        dir = 'East';
+                    } else if (y < top) {
+                        y = top;
+                        dir = 'North';
+                    } else if (y > bottom) {
+                        y = bottom;
+                        dir = 'South';
+                    }
+
+                    let xform = parent!.transform.baseVal.getItem(0);
+                    console.assert(xform!.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
+                    xform?.setTranslate(x, y);
+
+                    setMove({ ...move, relationship: { ...relationship, x, y, dir } })
+                }
+                    break;
+
+                default:
+                    console.error('MouseMove on unknown type, ', target.type, target);
+                    break;
+            }
+        }
+    };
 
     let contextMenuHandler = (event: React.MouseEvent) => {
         event.preventDefault();
@@ -456,6 +562,7 @@ export function Paper(props: PaperProps) {
         let { x, y, width, height } = paper_obj!.objects[key] as ObjectUI;
         // This crazy key thing is what makes React redraw the entire Component. We need this to
         // happen when we undo.
+
         objectInstances.push(<Object key={`${key}${x}${y}${width}${height}`} id={key} x={x} y={y}
             width={width} height={height} ns={props.domain_ns} origin={origin}
         // @ts-ignore
@@ -492,7 +599,7 @@ export function Paper(props: PaperProps) {
     for (let i = 0; i < paper_obj!.width + 1; i += defaultGridSize) {
         y_lines.push(<line x1={i} y1={0} x2={i} y2={paper_obj!.height} />);
     }
-    //
+
     let { origin_x, origin_y } = move;
 
     // if (contextMenu) {
