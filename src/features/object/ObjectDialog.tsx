@@ -3,13 +3,13 @@ import { useFormik } from 'formik';
 import {
     Dialog, DialogTitle, TextField, DialogContent, DialogActions, Button, FormGroup, FormLabel,
     List, ListItemButton, ListItemText, ListItemSecondaryAction, IconButton, FormControl,
-    InputLabel, Select, MenuItem, SelectChangeEvent
+    InputLabel, Select, MenuItem, SelectChangeEvent, Divider
 } from '@mui/material';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { v5 as uuid } from 'uuid';
 
 import { ObjectStore, AttributeStore, Type } from '../../app/store';
-import { selectAttributes, selectAttributeById } from '../attribute/attributeSlice';
+import { selectAttributes } from '../attribute/attributeSlice';
 import { useAppSelector, useAppDispatch, getAttributeType } from '../../app/hooks';
 import { replaceObject } from './objectSlice';
 import { objectChangeId } from '../paper/paperSlice';
@@ -74,6 +74,40 @@ const ObjectEditor = (props: Props) => {
         setAttrType(event.target.value);
     }
 
+    let handleAttrSelect = (e: React.MouseEvent<HTMLSpanElement>) => {
+        // The commented out stuff is broken. This may help:
+        // const handleClick = (index: number) => {
+        //     if (selectedList.includes(index)) {
+        //         setSelectedList(
+        //             selectedList.filter(function (value) {
+        //                 return value !== index;
+        //             }
+        //             )
+        //         );
+        //     } else {
+        //         setSelectedList([...selectedList, index]);
+        //     }
+        // }
+
+        // //JSX
+        // <MenuItem
+        //     onClick={() => handleClick(1)}
+        //     selected={selectedList.includes(1)}
+        // />
+
+        let target = e.target;
+        // @ts-ignore
+        let raw = target.textContent
+        let [name, type] = raw.split(':').map((s: string) => s.trim());
+
+        let nameBox = document.getElementById('attributeName') as HTMLInputElement;
+        // let typeSel = document.getElementById('attr-select');
+        // let typeSelValue = typeSel?.nextElementSibling;
+
+        nameBox!.value = name;
+        // typeSelValue!.value = type;
+    }
+
     let handleAddAttr = () => {
         let element = document.getElementById('attributeName') as HTMLInputElement;
         let name = element!.value;
@@ -84,6 +118,10 @@ const ObjectEditor = (props: Props) => {
             type: attrType as Type,
             obj_id: props.object.id
         };
+
+        // clean-up
+        element.value = '';
+
 
         dispatch(addAttribute(attr));
     }
@@ -107,16 +145,17 @@ const ObjectEditor = (props: Props) => {
             <Dialog open={true}>
                 <DialogTitle>Object Editor</DialogTitle>
                 <DialogContent dividers>
-                    <FormGroup row={true}>
-                        <TextField autoFocus required id="objectName" helperText="Object Name"
+                    <FormGroup>
+                        <TextField autoFocus required id="objectName" label="Object Name"
                             value={formik.values.objectName} onChange={formik.handleChange}
                             variant="outlined" />
                     </FormGroup>
+                    <Divider />
                     <FormGroup>
                         <FormLabel>Attributes</FormLabel>
                         <List>
                             {listItems.map(({ id, name, type }) =>
-                                <ListItemButton divider>
+                                <ListItemButton key={id} id={id} divider onClick={handleAttrSelect} >
                                     {/* <ListItemText primary={name} secondary={type} /> */}
                                     <ListItemText primary={`${name}: ${type}`} />
                                     <ListItemSecondaryAction>
@@ -129,15 +168,15 @@ const ObjectEditor = (props: Props) => {
                                 </ListItemButton>
                             )}
                         </List>
-                        <DialogActions>
-                            <TextField id="attributeName" variant='outlined' helperText='Attribute Name' />
+                        <DialogActions id="editAttrCtls">
+                            <TextField id="attributeName" variant='outlined' label='Attribute Name' InputLabelProps={{ shrink: true }} />
                             <FormControl>
                                 <InputLabel id="attr-type">Type</InputLabel>
                                 {/* @ts-ignore */}
                                 <Select sx={{ m: 1, minWidth: 120 }} labelId='attr-type' value={attrType}
                                     id='attr-select' label='Type' onChange={handleAttrTypeChange}>
                                     {TYPES.map(t =>
-                                        <MenuItem value={t}>{t}</MenuItem>
+                                        <MenuItem key={t} value={t}>{t}</MenuItem>
                                     )}
                                 </Select>
                             </FormControl>

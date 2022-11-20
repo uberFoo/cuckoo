@@ -1,0 +1,39 @@
+.relationship {
+    stroke: black;
+    stroke-width: 1;
+    pointer-events: all;
+}
+
+.relAnchor {
+    cursor: move;
+}
+
+.relGlyph {}
+
+.relPhrase {
+    stroke: none;
+}
+
+.relName {
+    font-size: 20px;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    stroke: none;
+    cursor: move;
+}
+
+.relLine {
+    fill: none;
+    stroke: black;
+    stroke-width: 1.0;
+}
+
+.edit.relAttach {
+    cursor: move;
+}
+
+.resize.relAttach {
+    stroke: transparent;
+    fill: transparent;
+    stroke-width: 7;
+    pointer-events: all;
+}

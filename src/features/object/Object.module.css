@@ -3,6 +3,7 @@
     stroke: black;
     stroke-width: 1;
     pointer-events: all;
+    cursor: move;
 }
 
 .objectBisectLine {
@@ -47,4 +48,10 @@
     max-height: 170px;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+.antLine {
+    fill: none;
+    stroke: #000;
+    stroke-dasharray: 2.5, 2.5;
 }

@@ -7,6 +7,7 @@ import undoable, { StateWithHistory } from 'redux-undo';
 import paperReducer from '../features/paper/paperSlice';
 import objectReducer from '../features/object/objectSlice';
 import attributeReducer from '../features/attribute/attributeSlice';
+import relationshipReducer from '../features/relationship/relationshipSlice';
 
 import model from '../js_schema.json'
 
@@ -16,7 +17,13 @@ export interface PaperStore {
     height: number,
     domain_name: string,
     domain_ns: string,
-    objects: Dictionary<ObjectUI>
+    objects: Dictionary<ObjectUI>,
+    relationships: Dictionary<RelationshipUI>
+}
+
+export interface Point {
+    x: number,
+    y: number
 }
 
 export interface DictionaryNum<T> {
@@ -37,6 +44,18 @@ export interface ObjectUI {
     y: number,
     width: number,
     height: number
+}
+
+export interface BinaryEnd {
+    id: string,
+    dir: 'North' | 'South' | 'East' | 'West',
+    x: number,
+    y: number
+}
+
+export interface RelationshipUI {
+    from: BinaryEnd,
+    to: BinaryEnd
 }
 
 export interface AttributeStore {
@@ -96,6 +115,7 @@ const rootReducer = undoable(combineReducers({
     paper: paperReducer,
     objects: objectReducer,
     attributes: attributeReducer,
+    relationships: relationshipReducer
 }), {
     groupBy: ((action, current, previous) => {
         // This is slick. All we have to to is look for actions that are changing a reference.
@@ -114,6 +134,7 @@ const rootReducer = undoable(combineReducers({
                 return action.payload.id;
 
             default:
+                console.error(`bad action type ${action.type}`);
                 break;
         }
         return null;
