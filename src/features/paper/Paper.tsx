@@ -484,6 +484,7 @@ export function Paper(props: PaperProps) {
                         } else if (resizeDir) {
                             let dx = event.movementX;
                             let dy = event.movementY;
+
                             switch (resizeDir) {
                                 case 'north':
                                     y += dy;
@@ -513,7 +514,60 @@ export function Paper(props: PaperProps) {
                                     break;
                             }
 
-                            // TODO: Preview!
+                            let parent = target!.node!.parentNode as SVGGElement;
+
+                            let xform = parent!.transform.baseVal.getItem(0);
+                            console.assert(xform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
+                            xform.setTranslate(x, y);
+
+                            let kids = parent.children;
+                            for (let i = 0; i < kids.length; i++) {
+                                let child = kids[i];
+
+                                // @ts-ignore
+                                let classes = child.className.baseVal.split('_');
+                                let type = classes[1];
+                                switch (type) {
+                                    case 'objectRect':
+                                        switch (resizeDir) {
+                                            case 'north':
+                                                // @ts-ignore
+                                                child.setAttribute('height', height);
+                                                xform.setTranslate(x, y);
+                                                break;
+
+                                            case 'south':
+                                                // @ts-ignore
+                                                child.setAttribute('height', height);
+                                                break;
+
+                                            case 'east':
+                                                // @ts-ignore
+                                                child.setAttribute('width', width);
+                                                break
+
+                                            case 'west':
+                                                // @ts-ignore
+                                                child.setAttribute('width', width);
+                                                xform.setTranslate(x, y);
+                                                break;
+
+                                            default:
+                                                break;
+                                        }
+                                        break;
+
+                                    case 'objectBisectLine':
+                                        // @ts-ignore
+                                        child.setAttribute('x2', width);
+                                        break;
+
+                                    default:
+                                        break;
+                                }
+
+                            }
+
                             setMove({
                                 ...move,
                                 object: { ...object, width, height, x, y, dirty: true }
@@ -659,7 +713,7 @@ export function Paper(props: PaperProps) {
     }
 
     let { origin_x, origin_y, object } = move;
-    console.log('down', move.mouseDown, 'meta', move.meta, 'alt', move.alt, 'ctrl', move.ctrl, 'undo', move.paper.undo, move.paper.new_object, 'altClick', move.object.altClick, 'obj_id', move.object);
+
     // if (contextMenu) {
     // @ts-ignore
     // return ReactDOM.createPortal(contextMenuContent, document.getElementById('root'));
