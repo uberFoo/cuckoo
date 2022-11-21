@@ -22,7 +22,7 @@ interface ObjectProps {
     origin: { x: number, y: number },
 };
 
-export function Object(props: ObjectProps) {
+export function ObjectWidget(props: ObjectProps) {
     let object: ObjectStore | undefined = useAppSelector((state) => selectObjectById(state, props.id));
 
     // let [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
