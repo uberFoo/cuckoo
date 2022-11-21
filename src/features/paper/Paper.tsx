@@ -3,9 +3,10 @@ import ReactDOM from 'react-dom';
 import { Menu, MenuItem } from '@mui/material';
 import { ActionCreators as UndoActionCreators } from 'redux-undo';
 
-import { Object } from '../object/Object';
+import { ObjectWidget } from '../object/Object';
 import { ObjectUI, RelationshipUI } from '../../app/store';
 import { Relationship } from '../relationship/Relationship';
+import { makeLine, makeTransform } from '../relationship/Binary';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
     addObjectToPaper, selectPaperSingleton, objectResizeBy, objectMoveTo, relationshipUpdate,
@@ -478,8 +479,8 @@ export function Paper(props: PaperProps) {
                     let { mouseDown, object, target, alt, meta } = move;
                     let { x, y, width, height, resizeDir } = object;
 
-                    // If mouseDown we are panning. This is wrong, and actually needs to start drawing.
                     if (mouseDown && !alt) {
+                        // Drawing a new relationship.
                         if (meta) {
                             let { line } = object;
 
@@ -490,6 +491,7 @@ export function Paper(props: PaperProps) {
                             setMove({ ...move, object: { line } });
 
                         } else if (resizeDir) {
+                            // Resizing
                             let dx = event.movementX;
                             let dy = event.movementY;
 
@@ -586,16 +588,72 @@ export function Paper(props: PaperProps) {
                                 object: { ...object, width, height, x, y, dirty: true }
                             });
                         } else {
+                            // Moving
                             let parent = target!.node!.parentNode as SVGGElement;
+                            let id = parent!.id;
 
-                            x += event.movementX;
-                            y += event.movementY;
+                            let x0 = x + event.movementX;
+                            let y0 = y + event.movementY;
 
                             let xform = parent!.transform.baseVal.getItem(0);
                             console.assert(xform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
-                            xform.setTranslate(x, y);
+                            xform.setTranslate(x0, y0);
 
-                            setMove({ ...move, object: { ...object, x, y, dirty: true } });
+                            let top = y0;
+                            let bottom = y0 + height;
+                            let left = x0;
+                            let right = x0 + width;
+
+                            // Now find all the arrows connected to us.
+                            Object.keys(paper_obj!.relationships)
+                                .map((r_id) => {
+                                    let r = paper_obj!.relationships[r_id];
+                                    let from_id = r!.from.id;
+                                    let to_id = r!.to.id;
+                                    if (from_id === id) {
+                                        return {
+                                            x1: r!.from.x,
+                                            y1: r!.from.y,
+                                            e: document.getElementById(`${r_id}:${from_id}:from`)
+                                        };
+                                    } else if (to_id === id) {
+                                        return {
+                                            x1: r!.to.x,
+                                            y1: r!.to.y,
+                                            e: document.getElementById(`${r_id}:${to_id}:to`)
+                                        };
+                                    }
+                                    return null;
+                                }).forEach((glyph) => {
+                                    if (glyph !== null) {
+
+                                        let { x1, y1, e } = glyph;
+                                        let x2 = x1 + event.movementX;
+                                        let y2 = y1 + event.movementY;
+
+                                        let dir = 'West';
+                                        if (x2 < left) {
+                                            x2 = left;
+                                            dir = 'West';
+                                        } else if (x2 > right) {
+                                            x2 = right;
+                                            dir = 'East';
+                                        }
+                                        if (y2 < top) {
+                                            y2 = top;
+                                            dir = 'North';
+                                        } else if (y2 > bottom) {
+                                            y2 = bottom;
+                                            dir = 'South';
+                                        }
+
+                                        e!.setAttribute('transform', makeTransform(x2, y2, dir!));
+                                    }
+                                })
+
+
+
+                            setMove({ ...move, object: { ...object, x: x0, y: y0, dirty: true } });
                         }
                     }
                 }
@@ -604,7 +662,7 @@ export function Paper(props: PaperProps) {
 
                 case 'Relationship': {
                     let { relationship } = move;
-                    let { x, y, obj_id, dir, parent } = relationship;
+                    let { x, y, obj_id, dir, parent, end, id } = relationship;
 
                     x += event.movementX;
                     y += event.movementY;
@@ -626,7 +684,8 @@ export function Paper(props: PaperProps) {
                     } else if (x > right) {
                         x = right;
                         dir = 'East';
-                    } else if (y < top) {
+                    }
+                    if (y < top) {
                         y = top;
                         dir = 'North';
                     } else if (y > bottom) {
@@ -634,9 +693,28 @@ export function Paper(props: PaperProps) {
                         dir = 'South';
                     }
 
-                    let xform = parent!.transform.baseVal.getItem(0);
-                    console.assert(xform!.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
-                    xform?.setTranslate(x, y);
+                    parent!.setAttribute('transform', makeTransform(x, y, dir));
+
+                    let grandParent = parent!.parentNode;
+                    let kids = grandParent!.children;
+                    for (let i = 0; i < kids.length; i++) {
+                        let child = kids[i];
+                        if (child instanceof SVGPathElement) {
+                            let d = '';
+                            if (end === "from") {
+                                let other = paper_obj!.relationships[id]!.to;
+                                // @ts-ignore
+                                d = makeLine({ x, y, dir, id: '' }, other);
+
+                            } else {
+                                let other = paper_obj!.relationships[id]!.from;
+                                // @ts-ignore
+                                d = makeLine(other, { x, y, dir, id: '' });
+                            }
+
+                            child.setAttribute('d', d);
+                        }
+                    }
 
                     setMove({ ...move, relationship: { ...relationship, x, y, dir } })
                 }
@@ -678,7 +756,7 @@ export function Paper(props: PaperProps) {
         // This crazy key thing is what makes React redraw the entire Component. We need this to
         // happen when we undo.
 
-        objectInstances.push(<Object key={`${key}${x}${y}${width}${height}`} id={key} x={x} y={y}
+        objectInstances.push(<ObjectWidget key={`${key}${x}${y}${width}${height}`} id={key} x={x} y={y}
             width={width} height={height} origin={origin}
         // @ts-ignore
         // uberFoo={uberFoo}
@@ -763,11 +841,15 @@ export function Paper(props: PaperProps) {
                     </g>
                     <g id="canvas">
                         {move.paper.new_object !== null && newObject}
-                        {objectInstances}
-                        {relInsts}
                         {line &&
                             <line className={styles.antLine} x1={line.x0} y1={line.y0} x2={line.x1} y2={line.y1} />
                         }
+                        <g id="objects">
+                            {objectInstances}
+                        </g>
+                        <g id="relationships">
+                            {relInsts}
+                        </g>
                     </g>
                 </g >
             </svg>
