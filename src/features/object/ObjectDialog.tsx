@@ -193,7 +193,7 @@ const ObjectEditor = (props: Props) => {
                 </DialogContent >
                 <DialogActions>
                     <Button onClick={cancel}>Cancel</Button>
-                    <Button onClick={handleSubmit}>Save</Button>
+                    <Button onClick={handleSubmit}>Done</Button>
                 </DialogActions>
             </Dialog>
         </div >

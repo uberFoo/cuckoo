@@ -8,7 +8,9 @@
     cursor: move;
 }
 
-.relGlyph {}
+.relGlyph {
+    fill: none;
+}
 
 .relPhrase {
     stroke: none;

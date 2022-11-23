@@ -121,6 +121,10 @@ const rootReducer = undoable(combineReducers({
         // This is slick. All we have to to is look for actions that are changing a reference.
         // Write a function to return the current id, could have been previous. The undo thing
         // uses the ids to group undo operations.
+        //
+        // Now, to group a bunch of stuff moving, that's different. It's not just changing
+        // ids. I need to return something unique that considers the object, and it's
+        // attached relationships.
         switch (action.type) {
             case "attributes/updateObjectReference":
                 return action.payload.id;
@@ -132,6 +136,12 @@ const rootReducer = undoable(combineReducers({
                 return action.payload.id;
             case "objects/addObject":
                 return action.payload.id;
+            case "paper/objectMoveTo":
+                return action.payload.id;
+            case "paper/relationshipUpdateFrom":
+                return action.payload.from.id;
+            case "paper/relationshipUpdateTo":
+                return action.payload.to.id;
 
             default:
                 console.error(`bad action type ${action.type}`);

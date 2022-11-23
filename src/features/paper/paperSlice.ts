@@ -51,12 +51,27 @@ export const paperSlice = createSlice({
 
             let paper = state.entities[state.ids[0]];
             paper!.relationships[id] = ui;
+        },
+        relationshipUpdateFrom: (state, action) => {
+            let { id, from } = action.payload;
+
+            let paper = state.entities[state.ids[0]];
+            let ui = paper!.relationships[id];
+            paper!.relationships[id] = { ...ui!, from };
+        },
+        relationshipUpdateTo: (state, action) => {
+            let { id, to } = action.payload;
+
+            let paper = state.entities[state.ids[0]];
+            let ui = paper!.relationships[id];
+            paper!.relationships[id] = { ...ui!, to };
         }
     }
 });
 
 export const { addPaper, addObjectToPaper, objectMoveTo, objectResizeBy, objectChangeId,
-    relationshipUpdate, removeObjectFromPaper } = paperSlice.actions;
+    relationshipUpdate, removeObjectFromPaper, relationshipUpdateFrom, relationshipUpdateTo }
+    = paperSlice.actions;
 
 export let {
     selectAll: selectPapers,
