@@ -1,12 +1,17 @@
 import React from 'react';
 
-import { ObjectStore, AttributeStore } from '../../app/store';
-import { selectObjectById } from './objectSlice';
+import {
+    ObjectStore, AttributeStore, RelationshipStore, Binary, Independent, Dependent, Isa,
+    isBinary, isIsa, isAssociative
+} from '../../app/store';
+import { selectObjectById, selectObjects } from './objectSlice';
 import { Attribute } from '../attribute/Attribute';
 import { selectAttributes } from '../attribute/attributeSlice';
-import { useAppSelector } from '../../app/hooks';
+import { getAttributeType, useAppSelector } from '../../app/hooks';
+import { selectRelationships } from '../relationship/relationshipSlice';
 
 import styles from './Object.module.css';
+
 
 const textHeight = 20;
 const cornerSize = 14;
@@ -21,7 +26,10 @@ interface ObjectProps {
 };
 
 export function ObjectWidget(props: ObjectProps) {
+    let objects = useAppSelector(state => selectObjects(state));
     let object: ObjectStore | undefined = useAppSelector((state) => selectObjectById(state, props.id));
+
+    console.log(objects);
 
     // let [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
 
@@ -34,7 +42,7 @@ export function ObjectWidget(props: ObjectProps) {
 
     let attributes: Array<AttributeStore> = useAppSelector((state) => selectAttributes(state));
     let attributeInstances: Array<AttributeStore> = attributes
-        .filter((a) => a.obj_id === props.id)
+        .filter(a => a.obj_id === props.id)
         .sort((a, b) => {
             if (a.id < b.id) {
                 return -1
@@ -45,9 +53,39 @@ export function ObjectWidget(props: ObjectProps) {
             }
         });
 
+    let relationships: Array<RelationshipStore> = useAppSelector((state) => selectRelationships(state));
+    let relAttrs = relationships.filter(r => {
+        // @ts-ignore
+        if (r.Binary !== undefined) {
+            // @ts-ignore
+            if (r.Binary.from.obj_id === props.id) {
+                return true;
+            }
+        }
+
+        return false;
+    }).map(r => {
+        // @ts-ignore
+        if (r.Binary !== undefined) {
+            // @ts-ignore
+            let obj = objects.filter(o => o.id === r.Binary.to.obj_id)[0];
+
+            // @ts-ignore
+            return { name: r.Binary.from.formalizing_attr, id: r.Binary.id, is_ref: true, type: `&${obj.name} (R${r.Binary.number})` };
+        }
+        return null;
+    }).filter(r => r !== null).forEach(r => attributeInstances.push(r));;
+
+
+
     let attributeElements: Array<JSX.Element> = attributeInstances
         .map((a, i) => {
-            return <Attribute key={a.id} id={a.id} index={i} />
+            let is_ref = false;
+            if (a.is_ref !== undefined) {
+                is_ref = a.is_ref;
+            }
+            // let is_ref = (a.is_ref !== undefined) : a.is_ref ? false;
+            return <Attribute key={a.id} id={a.id} name={a.name} type={a.type} is_ref={is_ref} index={i} />
         });
 
 

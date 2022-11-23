@@ -67,6 +67,18 @@ export interface AttributeStore {
 
 export type RelationshipStore = Binary | Isa | Associative;
 
+export function isBinary(arg: any): arg is Binary {
+    return arg.to !== undefined;
+}
+
+export function isIsa(arg: any): arg is Isa {
+    return arg.subtypes !== undefined;
+}
+
+export function isAssociative(arg: any): arg is Associative {
+    return arg.one !== undefined;
+}
+
 export interface Binary {
     id: string,
     number: number,
@@ -74,7 +86,7 @@ export interface Binary {
     to: Dependent
 }
 
-interface Independent {
+export interface Independent {
     obj_id: string,
     description: string,
     cardinality: Cardinality,
@@ -82,7 +94,7 @@ interface Independent {
     formalizing_attr: string
 }
 
-interface Dependent {
+export interface Dependent {
     obj_id: string,
     description: string,
     cardinality: Cardinality,
@@ -92,7 +104,8 @@ interface Dependent {
 export interface Isa {
     id: string,
     number: number,
-    obj_id: string
+    obj_id: string,
+    subtypes: string[]
 }
 
 export interface Associative {
@@ -109,7 +122,8 @@ interface ForeignKey {
     foreign_key: string
 }
 
-export type Type = 'Uuid' | 'Integer' | 'Float' | 'String' | ForeignKey
+// export type Type = 'Uuid' | 'Integer' | 'Float' | 'String' | ForeignKey
+export type Type = 'Uuid' | 'Integer' | 'Float' | 'String'
 
 const rootReducer = undoable(combineReducers({
     paper: paperReducer,

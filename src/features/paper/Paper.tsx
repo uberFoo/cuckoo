@@ -147,13 +147,13 @@ export function Paper(props: PaperProps) {
             case 'Paper': {
                 let { paper } = move;
 
-                if (event.metaKey) {
+                if (event.altKey) {
                     // Start an undo
                     setMove({
-                        ...move, mouseDown: true, target: { node: target, type }, meta: true,
+                        ...move, mouseDown: true, target: { node: target, type }, alt: true,
                         paper: { ...paper, undo: true }
                     });
-                } else if (event.altKey) {
+                } else if (event.metaKey) {
                     // Create a new object. We use a Rect struct to hold it's dimensions until
                     // it's instantiated and has it's own coordinates.
                     let { origin_x, origin_y } = move;
@@ -165,7 +165,7 @@ export function Paper(props: PaperProps) {
                         ...move,
                         mouseDown: true,
                         target: { node: target, type },
-                        alt: true,
+                        meta: true,
                         paper: {
                             ...paper,
                             new_object: {
@@ -288,20 +288,20 @@ export function Paper(props: PaperProps) {
     };
 
     let onMouseUpHandler = (event: React.MouseEvent) => {
-        let { mouseDown, alt } = move;
+        let { mouseDown } = move;
 
         if (mouseDown) {
             let { target } = move;
             let new_obj = false;
             switch (target.type) {
                 case 'Paper': {
-                    let { mouseDown, paper, object } = move;
+                    let { mouseDown, paper, object, meta } = move;
                     let { undo } = paper;
 
                     if (undo) {
                         dispatch(UndoActionCreators.undo());
 
-                    } else if (mouseDown && alt) {
+                    } else if (mouseDown && meta) {
                         let { x0, y0, x1, y1 } = paper.new_object!;
                         let width = x1 - x0;
                         let height = y1 - y0;
@@ -359,7 +359,6 @@ export function Paper(props: PaperProps) {
                     let id = parent.id;
 
                     if (mouseDown) {
-                        console.log(dirty_r, dirty_m);
                         if (dirty_r) {
                             dispatch(objectResizeBy({ id, width: width, height: height }));
                         }
@@ -458,17 +457,17 @@ export function Paper(props: PaperProps) {
     };
 
     let onMouseMoveHandler = (event: React.MouseEvent) => {
-        let { mouseDown, alt } = move;
+        let { mouseDown } = move;
 
         if (mouseDown) {
             let { target } = move;
 
             switch (target.type) {
                 case 'Paper': {
-                    let { mouseDown, paper } = move;
+                    let { mouseDown, paper, meta } = move;
 
                     if (mouseDown) {
-                        if (alt) {
+                        if (meta) {
                             let last = paper.new_object;
                             let { x1, y1 } = last!;
 
@@ -506,8 +505,8 @@ export function Paper(props: PaperProps) {
                     break;
 
                 case 'Object': {
-                    let { mouseDown, object, target, alt, meta } = move;
-                    let { x, y, width, height, resizeDir } = object;
+                    let { mouseDown, object, alt, meta } = move;
+                    let { resizeDir } = object;
 
                     if (mouseDown && !alt) {
                         // Drawing a new relationship.
