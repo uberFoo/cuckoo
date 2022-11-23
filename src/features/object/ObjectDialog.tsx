@@ -55,9 +55,9 @@ const ObjectEditor = (props: Props) => {
             attributes
                 .filter((a) => a.obj_id === props.obj_id)
                 .map((a) => dispatch(updateObjectReference({ id: a.id, obj_id: new_id })));
-            attributes
-                .filter((a) => typeof a.type === 'object' && a.type.foreign_key === props.obj_id)
-                .map((a) => dispatch(updateReferentialAttribute({ id: a.id, obj_id: new_id })));
+            // attributes
+            //     .filter((a) => typeof a.type === 'object' && a.type.foreign_key === props.obj_id)
+            //     .map((a) => dispatch(updateReferentialAttribute({ id: a.id, obj_id: new_id })));
 
             let new_obj = { ...object, id: new_id, name: values.objectName };
 

@@ -432,11 +432,6 @@ export function Paper(props: PaperProps) {
                             }
                         }));
                     }
-                    // if (end === 'from') {
-                    //     dispatch(relationshipUpdate({ id, ui: { id: obj_id, x, y, dir } }));
-                    // } else {
-                    //     dispatch(relationshipUpdateTo({ id, to: { id: obj_id, x, y, dir } }));
-                    // }
 
                     setMove({
                         ...move,
@@ -605,9 +600,6 @@ export function Paper(props: PaperProps) {
 
         newObject = <rect className={styles.antLine} x={x0} y={y0} width={width}
             height={height} />;
-
-        // let { paper } = move;
-        // setMove({ ...move, paper: { ...paper, new_object: null } });
     }
 
     let relInsts: Array<JSX.Element> = [];

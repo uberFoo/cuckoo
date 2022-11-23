@@ -62,7 +62,8 @@ export interface AttributeStore {
     id: string,
     name: string,
     type: Type,
-    obj_id: string
+    obj_id: string,
+    is_ref?: boolean
 }
 
 export type RelationshipStore = Binary | Isa | Associative;

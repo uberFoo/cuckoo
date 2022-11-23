@@ -1,8 +1,7 @@
 import React from 'react';
 
 import {
-    ObjectStore, AttributeStore, RelationshipStore, Binary, Independent, Dependent, Isa,
-    isBinary, isIsa, isAssociative
+    ObjectStore, AttributeStore, RelationshipStore
 } from '../../app/store';
 import { selectObjectById, selectObjects } from './objectSlice';
 import { Attribute } from '../attribute/Attribute';
@@ -74,6 +73,7 @@ export function ObjectWidget(props: ObjectProps) {
             return { name: r.Binary.from.formalizing_attr, id: r.Binary.id, is_ref: true, type: `&${obj.name} (R${r.Binary.number})` };
         }
         return null;
+        // @ts-ignore
     }).filter(r => r !== null).forEach(r => attributeInstances.push(r));;
 
 
@@ -84,7 +84,6 @@ export function ObjectWidget(props: ObjectProps) {
             if (a.is_ref !== undefined) {
                 is_ref = a.is_ref;
             }
-            // let is_ref = (a.is_ref !== undefined) : a.is_ref ? false;
             return <Attribute key={a.id} id={a.id} name={a.name} type={a.type} is_ref={is_ref} index={i} />
         });
 
