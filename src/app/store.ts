@@ -6,7 +6,6 @@ import undoable, { StateWithHistory } from 'redux-undo';
 
 import paperReducer from '../features/paper/paperSlice';
 import objectReducer from '../features/object/objectSlice';
-import attributeReducer from '../features/attribute/attributeSlice';
 import relationshipReducer from '../features/relationship/relationshipSlice';
 
 import model from '../js_schema.json'
@@ -37,6 +36,7 @@ export interface Dictionary<T> extends DictionaryNum<T> {
 export interface ObjectStore {
     id: string,
     name: string,
+    attributes: Dictionary<AttributeStore>
 }
 
 export interface ObjectUI {
@@ -62,7 +62,6 @@ export interface AttributeStore {
     id: string,
     name: string,
     type: Type,
-    obj_id: string,
     is_ref?: boolean
 }
 
@@ -129,7 +128,6 @@ export type Type = 'Uuid' | 'Integer' | 'Float' | 'String'
 const rootReducer = undoable(combineReducers({
     paper: paperReducer,
     objects: objectReducer,
-    attributes: attributeReducer,
     relationships: relationshipReducer
 }), {
     groupBy: ((action, current, previous) => {

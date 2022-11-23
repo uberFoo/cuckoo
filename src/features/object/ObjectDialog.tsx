@@ -9,11 +9,9 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { v5 as uuid } from 'uuid';
 
 import { AttributeStore, Type } from '../../app/store';
-import { selectAttributes } from '../attribute/attributeSlice';
-import { useAppSelector, useAppDispatch, getAttributeType } from '../../app/hooks';
-import { replaceObject, selectObjectById } from './objectSlice';
+import { useAppSelector, useAppDispatch } from '../../app/hooks';
+import { removeAttribute, addAttribute, replaceObject, selectObjectById } from './objectSlice';
 import { objectChangeId } from '../paper/paperSlice';
-import { updateObjectReference, updateReferentialAttribute, addAttribute, removeAttribute } from '../attribute/attributeSlice'
 
 interface Props {
     enabled: boolean,
@@ -29,7 +27,7 @@ const ObjectEditor = (props: Props) => {
     let dispatch = useAppDispatch();
 
     let object = useAppSelector((state) => selectObjectById(state, props.obj_id));
-    let attributes: Array<AttributeStore> = useAppSelector((state) => selectAttributes(state));
+    // let attributes: Array<AttributeStore> = useAppSelector((state) => selectAttributes(state));
     const formik = useFormik({
         initialValues: {
             // @ts-ignore
@@ -44,17 +42,15 @@ const ObjectEditor = (props: Props) => {
         return;
     }
 
-    let obj_attrs = attributes.filter((a) => a.obj_id === props.obj_id);
-
     let save = (values: { objectName: string }) => {
         // @ts-ignore
         if (values.objectName !== object.name) {
             let new_id = uuid(values.objectName, props.ns);
             // If the name changed then so will the id, which is how our attributes refer to us. We
             // also need to update any referential attributes.
-            attributes
-                .filter((a) => a.obj_id === props.obj_id)
-                .map((a) => dispatch(updateObjectReference({ id: a.id, obj_id: new_id })));
+            // attributes
+            //     .filter((a) => a.obj_id === props.obj_id)
+            //     .map((a) => dispatch(updateObjectReference({ id: a.id, obj_id: new_id })));
             // attributes
             //     .filter((a) => typeof a.type === 'object' && a.type.foreign_key === props.obj_id)
             //     .map((a) => dispatch(updateReferentialAttribute({ id: a.id, obj_id: new_id })));
@@ -66,10 +62,6 @@ const ObjectEditor = (props: Props) => {
             dispatch(replaceObject({ object: new_obj, old_id: props.obj_id }));
         }
 
-        props.done();
-    }
-
-    let cancel = () => {
         props.done();
     }
 
@@ -124,27 +116,25 @@ const ObjectEditor = (props: Props) => {
             id,
             name,
             type: attrType as Type,
-            obj_id: props.obj_id
+            // obj_id: props.obj_id
         };
 
         // clean-up
         element.value = '';
 
-        dispatch(addAttribute(attr));
+
+        dispatch(addAttribute({ id: props.obj_id, attr }));
     }
 
     let handleDeleteAttribute = (e: React.MouseEvent<HTMLDivElement>) => {
-        dispatch(removeAttribute(e.currentTarget.id));
+        dispatch(removeAttribute({
+            id: props.obj_id, attr_id: e.currentTarget.id
+        }));
     }
 
-    let listItems = obj_attrs.map((a) => {
-        let attr = attributes.filter((b) => b.id === a.id);
-        let type = getAttributeType(attr[0]);
-        if (type.is_ref) {
-            return { id: a.id, name: a.name, type: `&${type.type}` };
-        } else {
-            return { id: a.id, name: a.name, type: type.type };
-        }
+    let listItems = Object.keys(object.attributes).map(id => {
+        let a = object!.attributes[id];
+        return { id: a!.id, name: a!.name, type: a!.type };
     });
 
     return (
@@ -192,7 +182,6 @@ const ObjectEditor = (props: Props) => {
                     </FormGroup>
                 </DialogContent >
                 <DialogActions>
-                    <Button onClick={cancel}>Cancel</Button>
                     <Button onClick={handleSubmit}>Done</Button>
                 </DialogActions>
             </Dialog>

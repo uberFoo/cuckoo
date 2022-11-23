@@ -306,20 +306,23 @@ export function Paper(props: PaperProps) {
                         let width = x1 - x0;
                         let height = y1 - y0;
 
-                        let obj_ui = {
-                            id: "fubar",
-                            payload: {
-                                x: x0,
-                                y: y0,
-                                width,
-                                height
-                            }
-                        };
+                        if (width > 50 && height > 50) {
 
-                        new_obj = true;
+                            let obj_ui = {
+                                id: "fubar",
+                                payload: {
+                                    x: x0,
+                                    y: y0,
+                                    width,
+                                    height
+                                }
+                            };
 
-                        dispatch(addObject({ id: "fubar", name: "New Object" }));
-                        dispatch(addObjectToPaper(obj_ui));
+                            new_obj = true;
+
+                            dispatch(addObject({ id: "fubar", name: "New Object", attributes: {} }));
+                            dispatch(addObjectToPaper(obj_ui));
+                        }
                     } else {
                         // console.log('forwarding mouseup');
                         // // @ts-ignore
@@ -820,7 +823,7 @@ let handleObjectMove = (paper_obj: PaperStore, move: MoveStruct, event: React.Mo
     if (rels.length === 0) {
         // Now find all the arrows connected to us.
         Object.keys(paper_obj.relationships)
-            .map((r_id) => {
+            .forEach((r_id) => {
                 let r = paper_obj.relationships[r_id];
                 let from_id = r!.from.id;
                 let to_id = r!.to.id;
@@ -837,7 +840,6 @@ let handleObjectMove = (paper_obj: PaperStore, move: MoveStruct, event: React.Mo
                     // let y = xform.matrix.f + event.movementY;
                     let x0 = r!.from.x;
                     let y0 = r!.from.y;
-                    console.log(x, y, x0, y0);
 
                     moveGlyph(x, y, glyph, paper_obj!, { x0: x0, y0: y0, x1: x + width, y1: y + height });
                     rels.push({ target: glyph, x: x0, y: y0 });
@@ -851,7 +853,6 @@ let handleObjectMove = (paper_obj: PaperStore, move: MoveStruct, event: React.Mo
                     // let y = xform.matrix.f + event.movementY;
                     let x0 = r!.to.x;
                     let y0 = r!.to.y;
-                    console.log(x, y, x0, y0);
 
                     moveGlyph(x, y, glyph, paper_obj!, { x0: x0, y0: y0, x1: x + width, y1: y + height });
                     rels.push({ target: glyph, x: x0, y: y0 });
@@ -907,12 +908,34 @@ let moveGlyph = (x: number, y: number, target: SVGGElement, paper: PaperStore, b
     let d_east = distToSegmentSquared({ x: dx, y: dy }, { x: east, y: south }, { x: east, y: north });
     let mins = [d_north, d_west, d_south, d_east];
 
+    // The idea here is to only swap sides if we fall outside of a tolerance.
+    let my_min = (values: number[]) => {
+        let min_idx = values.indexOf(Math.min(...mins));
+        let min_value = values[min_idx];
+        values[min_idx] *= 2;
+
+        let penultimate_idx = values.indexOf(Math.min(...mins));
+        let diff = values[penultimate_idx] - min_value;
+        // console.log('indicies', min_idx, penultimate_idx);
+        // console.log('mins', min_value, values[penultimate_idx], diff);
+        if (diff < 15) {
+            return penultimate_idx;
+        } else {
+            return min_idx;
+        }
+    };
+
     let idx = mins.indexOf(Math.min(...mins));
+    if (box) {
+        idx = my_min(mins);
+    }
 
     // This is sort of funky. I'm not even sure of what I want to accomplish. As it stands,
     // the location of the anchor is maintained, and the new location tries to match that of
     // the old location. That's the nested ternary operators.
     // I think what I'd like is for a less abrupt fallback.
+    //
+    // Now thinking that the anchor should stick to it's position on the box as long as possible.
     switch (idx) {
         case 0:
             dir = 'North';
@@ -944,8 +967,6 @@ let moveGlyph = (x: number, y: number, target: SVGGElement, paper: PaperStore, b
             break;
     }
 
-    // console.log(x, y, dx, dy, idx, mins.map(x => Math.sqrt(x)), north, south, east, west);
-
     // Move the glyph
     target.setAttribute('transform', makeTransform(x, y, dir));
 
@@ -953,7 +974,6 @@ let moveGlyph = (x: number, y: number, target: SVGGElement, paper: PaperStore, b
     if (orig_dir !== dir) {
         target.id = target.id.replace(orig_dir, dir);
     }
-    // console.log(target, target.parentNode);
 
     // Move the line
     let grandParent = target.parentNode;

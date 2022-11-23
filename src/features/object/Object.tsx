@@ -1,12 +1,11 @@
 import React from 'react';
 
 import {
-    ObjectStore, AttributeStore, RelationshipStore
+    ObjectStore, RelationshipStore
 } from '../../app/store';
 import { selectObjectById, selectObjects } from './objectSlice';
 import { Attribute } from '../attribute/Attribute';
-import { selectAttributes } from '../attribute/attributeSlice';
-import { getAttributeType, useAppSelector } from '../../app/hooks';
+import { useAppSelector } from '../../app/hooks';
 import { selectRelationships } from '../relationship/relationshipSlice';
 
 import styles from './Object.module.css';
@@ -28,8 +27,6 @@ export function ObjectWidget(props: ObjectProps) {
     let objects = useAppSelector(state => selectObjects(state));
     let object: ObjectStore | undefined = useAppSelector((state) => selectObjectById(state, props.id));
 
-    console.log(objects);
-
     // let [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
 
     // let contextMenuHandler = (event: React.MouseEvent) => {
@@ -39,18 +36,20 @@ export function ObjectWidget(props: ObjectProps) {
     //     );
     // };
 
-    let attributes: Array<AttributeStore> = useAppSelector((state) => selectAttributes(state));
-    let attributeInstances: Array<AttributeStore> = attributes
-        .filter(a => a.obj_id === props.id)
-        .sort((a, b) => {
-            if (a.id < b.id) {
-                return -1
-            } else if (a.id > b.id) {
-                return 1;
-            } else {
-                return 0
-            }
-        });
+    // let attributes: Array<AttributeStore> = useAppSelector((state) => selectAttributes(state));
+    // let attributeInstances: Array<AttributeStore> = attributes
+    //     .filter(a => a.obj_id === props.id)
+    //     .sort((a, b) => {
+    //         if (a.id < b.id) {
+    //             return -1
+    //         } else if (a.id > b.id) {
+    //             return 1;
+    //         } else {
+    //             return 0
+    //         }
+    //     });
+
+    let attributeInstances = { ...object!.attributes };
 
     let relationships: Array<RelationshipStore> = useAppSelector((state) => selectRelationships(state));
     let relAttrs = relationships.filter(r => {
@@ -69,22 +68,30 @@ export function ObjectWidget(props: ObjectProps) {
             // @ts-ignore
             let obj = objects.filter(o => o.id === r.Binary.to.obj_id)[0];
 
-            // @ts-ignore
-            return { name: r.Binary.from.formalizing_attr, id: r.Binary.id, is_ref: true, type: `&${obj.name} (R${r.Binary.number})` };
+            return {
+                // @ts-ignore
+                name: r.Binary.from.formalizing_attribute_name,
+                // @ts-ignore
+                id: r.Binary.id, is_ref: true,
+                // @ts-ignore
+                type: `&${obj.name} (R${r.Binary.number})`
+            };
         }
         return null;
         // @ts-ignore
-    }).filter(r => r !== null).forEach(r => attributeInstances.push(r));;
+    }).filter(r => r !== null).forEach(r => attributeInstances[r.id] = r);;
 
 
 
-    let attributeElements: Array<JSX.Element> = attributeInstances
-        .map((a, i) => {
+    let attributeElements: Array<JSX.Element> = Object.keys(attributeInstances)
+        .map((id, i) => {
+            let a = attributeInstances[id];
+
             let is_ref = false;
-            if (a.is_ref !== undefined) {
-                is_ref = a.is_ref;
+            if (a!.is_ref !== undefined) {
+                is_ref = a!.is_ref;
             }
-            return <Attribute key={a.id} id={a.id} name={a.name} type={a.type} is_ref={is_ref} index={i} />
+            return <Attribute key={a!.id} id={a!.id} name={a!.name} type={a!.type} is_ref={is_ref} index={i} />
         });
 
 
