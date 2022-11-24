@@ -2,7 +2,7 @@ import { configureStore, ThunkAction, Action, combineReducers } from '@reduxjs/t
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import logger from 'redux-logger';
-import undoable, { StateWithHistory } from 'redux-undo';
+import undoable, { StateWithHistory, excludeAction } from 'redux-undo';
 
 import paperReducer from '../features/paper/paperSlice';
 import objectReducer from '../features/object/objectSlice';
@@ -14,6 +14,7 @@ export interface PaperStore {
     id: string,
     width: number,
     height: number,
+    offset: Point,
     domain_name: string,
     domain_ns: string,
     objects: Dictionary<ObjectUI>,
@@ -141,6 +142,13 @@ const rootReducer = undoable(combineReducers({
     objects: objectReducer,
     relationships: relationshipReducer
 }), {
+    // Ignore panning the paper.
+    // @ts-ignore
+    filter: ((action, current, previous) => {
+        if (action.type === "paper/savePaperOffset") {
+            return false;
+        }
+    }),
     groupBy: ((action, current, previous) => {
         // This is slick. All we have to to is look for actions that are changing a reference.
         // Write a function to return the current id, could have been previous. The undo thing

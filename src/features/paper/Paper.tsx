@@ -10,7 +10,7 @@ import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
     addObjectToPaper, selectPaperSingleton, objectResizeBy, objectMoveTo,
     relationshipUpdateBinaryFrom, relationshipUpdateBinaryTo, removeObjectFromPaper,
-    relationshipUpdateIsaFrom, relationshipUpdateIsaTo
+    relationshipUpdateIsaFrom, relationshipUpdateIsaTo, savePaperOffset
 } from './paperSlice';
 import ObjectEditor from '../object/ObjectDialog';
 import { removeObject, addObject } from '../object/objectSlice';
@@ -28,7 +28,9 @@ const maxScale = 4.5;
 
 interface PaperProps {
     domain: string,
-    domain_ns: string
+    domain_ns: string,
+    x: number,
+    y: number,
 }
 
 export type Direction = "north" | "south" | "east" | "west" | null;
@@ -92,8 +94,8 @@ export function Paper(props: PaperProps) {
 
     let [move, setMove] = useState<MoveStruct>({
         mouseDown: false,
-        origin_x: window.innerWidth / 2 - paper_obj!.width / 2,
-        origin_y: window.innerHeight / 2 - paper_obj!.height / 2,
+        origin_x: props.x, //window.innerWidth / 2 - paper_obj!.width / 2,
+        origin_y: props.y, //window.innerHeight / 2 - paper_obj!.height / 2,
         target: { node: null, type: '' },
         meta: false,
         alt: false,
@@ -176,7 +178,7 @@ export function Paper(props: PaperProps) {
                 } else if (event.ctrlKey) {
                     // This is for a context menu. Don't need to do anything.
                 } else {
-                    // At a minimum we need to record that the mouse was down.
+                    // At a minimum we need to record that the mouse was down. And the target too!
                     setMove({ ...move, mouseDown: true, target: { node: target, type } });
                 }
             }
@@ -258,8 +260,6 @@ export function Paper(props: PaperProps) {
                 let ui = paper_obj!.relationships[id] as RelationshipUI;
 
                 let { x, y } = relationship;
-                console.log('down', id, obj_id, dir, end);
-                console.log('down-a', x, y);
 
                 switch (Object.keys(ui)[0]) {
                     case 'BinaryUI':
@@ -285,7 +285,6 @@ export function Paper(props: PaperProps) {
                         } else {
                             props.to.forEach((to_ui: BinaryEnd, index: number) => {
                                 if (to_ui.id === obj_id) {
-                                    console.log('eureka');
                                     x = to_ui.x;
                                     y = to_ui.y;
                                     dir = to_ui.dir;
@@ -296,7 +295,6 @@ export function Paper(props: PaperProps) {
                         break;
                 }
 
-                console.log('down-b', x, y);
                 setMove({
                     ...move, mouseDown: true, target: { node: target, type },
                     relationship: {
@@ -355,6 +353,10 @@ export function Paper(props: PaperProps) {
                                 dispatch(addObject({ id: "fubar", name: "New Object", attributes: {} }));
                                 dispatch(addObjectToPaper(obj_ui));
                             }
+                        } else {
+                            let { origin_x, origin_y } = move;
+                            // Presumably we are panning
+                            dispatch(savePaperOffset({ x: origin_x, y: origin_y }));
                         }
                     }
 

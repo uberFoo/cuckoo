@@ -38,8 +38,13 @@ export function Isa(props: IsaProps) {
         <>
             <g id={id_from} key={id_from} className={styles.relAnchor} transform={transform}>
                 <rect className={styles.relBoxAssist} x={0} y={-25} width={50} height={50} />
-                <path className={styles.relGlyph} d="M 20 0 L 40 0 M 20 -15 L 20 15 M 20 -15 L 0 0 L 20 15" />
+                <path className={styles.relGlyph}
+                    d="M 20 0 L 40 0 M 20 -15 L 20 15 M 20 -15 L 0 0 L 20 15"
+                />
             </g>
+            <text className={styles.relName} x={ui.from.x + 40} y={ui.from.y + 40}>
+                {"R" + props.rel.number}
+            </text>
             {to_s}
         </>
     )
