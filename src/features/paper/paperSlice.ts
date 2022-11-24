@@ -52,26 +52,47 @@ export const paperSlice = createSlice({
             let paper = state.entities[state.ids[0]];
             paper!.relationships[id] = ui;
         },
-        relationshipUpdateFrom: (state, action) => {
+        relationshipUpdateBinaryFrom: (state, action) => {
             let { id, from } = action.payload;
 
             let paper = state.entities[state.ids[0]];
             let ui = paper!.relationships[id];
-            paper!.relationships[id] = { ...ui!, from };
+            // @ts-ignore
+            let bui = ui!.BinaryUI;
+            // @ts-ignore
+            paper!.relationships[id] = { ...ui!, BinaryUI: { ...bui!, from } };
         },
-        relationshipUpdateTo: (state, action) => {
+        relationshipUpdateBinaryTo: (state, action) => {
             let { id, to } = action.payload;
 
             let paper = state.entities[state.ids[0]];
             let ui = paper!.relationships[id];
-            paper!.relationships[id] = { ...ui!, to };
+            // @ts-ignore
+            let bui = ui!.BinaryUI;
+            // @ts-ignore
+            paper!.relationships[id] = { ...ui!, BinaryUI: { ...bui, to } };
+        },
+        relationshipUpdateIsaFrom: (state, action) => {
+            let { id, new_from } = action.payload;
+
+            let paper = state.entities[state.ids[0]];
+            // let ui = paper!.relationships[id];
+            // @ts-ignore
+            paper!.relationships[id].IsaUI.from = new_from;
+        },
+        relationshipUpdateIsaTo: (state, action) => {
+            let { id, index, new_to } = action.payload;
+
+            let paper = state.entities[state.ids[0]];
+            // @ts-ignore
+            paper!.relationships[id].IsaUI.to[index] = new_to;
         }
     }
 });
 
 export const { addPaper, addObjectToPaper, objectMoveTo, objectResizeBy, objectChangeId,
-    relationshipUpdate, removeObjectFromPaper, relationshipUpdateFrom, relationshipUpdateTo }
-    = paperSlice.actions;
+    relationshipUpdate, removeObjectFromPaper, relationshipUpdateBinaryFrom,
+    relationshipUpdateBinaryTo, relationshipUpdateIsaFrom, relationshipUpdateIsaTo } = paperSlice.actions;
 
 export let {
     selectAll: selectPapers,

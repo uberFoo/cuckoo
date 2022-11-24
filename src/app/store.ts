@@ -1,4 +1,4 @@
-import { configureStore, ThunkAction, Action, getDefaultMiddleware, combineReducers } from '@reduxjs/toolkit';
+import { configureStore, ThunkAction, Action, combineReducers } from '@reduxjs/toolkit';
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import logger from 'redux-logger';
@@ -23,6 +23,13 @@ export interface PaperStore {
 export interface Point {
     x: number,
     y: number
+}
+
+export interface Rect {
+    x0: number,
+    y0: number,
+    x1: number,
+    y1: number,
 }
 
 export interface DictionaryNum<T> {
@@ -53,7 +60,14 @@ export interface BinaryEnd {
     y: number
 }
 
-export interface RelationshipUI {
+export type RelationshipUI = BinaryUI | IsaUI;
+
+export interface IsaUI {
+    from: BinaryEnd,
+    to: BinaryEnd[]
+}
+
+export interface BinaryUI {
     from: BinaryEnd,
     to: BinaryEnd
 }
@@ -116,11 +130,8 @@ export interface Associative {
     other: string
 }
 
-type Cardinality = 'One' | 'Many';
-type Conditionality = 'Conditional' | 'Unconditional';
-interface ForeignKey {
-    foreign_key: string
-}
+export type Cardinality = 'One' | 'Many';
+export type Conditionality = 'Conditional' | 'Unconditional';
 
 // export type Type = 'Uuid' | 'Integer' | 'Float' | 'String' | ForeignKey
 export type Type = 'Uuid' | 'Integer' | 'Float' | 'String'
@@ -151,10 +162,14 @@ const rootReducer = undoable(combineReducers({
                 return action.payload.id;
             case "paper/objectMoveTo":
                 return action.payload.id;
-            case "paper/relationshipUpdateFrom":
+            case "paper/relationshipUpdateBinaryFrom":
                 return action.payload.from.id;
-            case "paper/relationshipUpdateTo":
+            case "paper/relationshipUpdateBinaryTo":
                 return action.payload.to.id;
+            case "paper/relationshipUpdateIsaFrom":
+                return action.payload.new_from.id;
+            case "paper/relationshipUpdateIsaTo":
+                return action.payload.new_to.id;
 
             default:
                 console.error(`bad action type ${action.type}`);
