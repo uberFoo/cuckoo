@@ -41,7 +41,7 @@ export function Binary(props: BinaryProps) {
                     "rotate(" + from_rotation + ")"}
             >
                 {/* This makes the arrows easier to drag. */}
-                <rect x={0} y={-25} width={50} height={50} fillOpacity={0} strokeOpacity={0} />
+                <rect className={styles.relBoxAssist} x={0} y={-25} width={50} height={50} />
                 <path className={styles.relGlyph}
                     d={from_card} />
                 {from_cond}
@@ -50,7 +50,7 @@ export function Binary(props: BinaryProps) {
                 transform={"translate(" + ui.to.x + "," + ui.to.y + ")" +
                     " rotate(" + to_rotation + ")"}
             >
-                <rect x={0} y={-25} width={50} height={50} fillOpacity={0} strokeOpacity={0} />
+                <rect className={styles.relBoxAssist} x={0} y={-25} width={50} height={50} />
                 <path className={styles.relGlyph} d={to_card} />
                 {to_cond}
             </g>

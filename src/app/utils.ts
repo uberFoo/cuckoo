@@ -250,6 +250,8 @@ export function moveGlyph(x: number, y: number, target: SVGGElement, paper: Pape
     }
     let type = Object.keys(rel_ui)[0];
 
+    // console.log(id, obj_id, dir, end);
+    // console.log(x, y);
 
     let north = box ? box.y0 : obj_ui.y;
     let south = box ? box.y1 : obj_ui.y + obj_ui.height;

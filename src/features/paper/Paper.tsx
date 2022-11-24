@@ -253,39 +253,50 @@ export function Paper(props: PaperProps) {
             case 'Relationship': {
                 let { relationship } = move;
                 let root = target.parentNode as SVGGElement;
+
                 let [id, obj_id, dir, end] = root.id.split(':');
-                let props = paper_obj!.relationships[id] as RelationshipUI;
+                let ui = paper_obj!.relationships[id] as RelationshipUI;
 
                 let { x, y } = relationship;
+                console.log('down', id, obj_id, dir, end);
+                console.log('down-a', x, y);
 
-                switch (Object.keys(props)[0]) {
+                switch (Object.keys(ui)[0]) {
                     case 'BinaryUI':
+                        // @ts-ignore
+                        let props = ui.BinaryUI as BinaryUI;
                         if (end === 'from') {
-                            // @ts-ignore
-                            x = props.BinaryUI.from.x;
-                            // @ts-ignore
-                            y = props.BinaryUI.from.y;
-                            // @ts-ignore
-                            dir = props.BinaryUI.from.dir;
+                            x = props.from.x;
+                            y = props.from.y;
+                            dir = props.from.dir;
                         } else {
-                            // @ts-ignore
-                            x = props.BinaryUI.to.x;
-                            // @ts-ignore
-                            y = props.BinaryUI.to.y;
-                            // @ts-ignore
-                            dir = props.BinaryUI.to.dir;
+                            x = props.to.x;
+                            y = props.to.y;
+                            dir = props.to.dir;
                         }
                         break;
-                    case 'IsaUI':
+                    case 'IsaUI': {
                         // @ts-ignore
-                        x = props.IsaUI.from.x;
-                        // @ts-ignore
-                        y = props.IsaUI.from.y;
-                        // @ts-ignore
-                        dir = props.IsaUI.from.dir;
+                        let props = ui.IsaUI as IsaUI;
+                        if (end === 'from') {
+                            x = props.from.x;
+                            y = props.from.y;
+                            dir = props.from.dir;
+                        } else {
+                            props.to.forEach((to_ui: BinaryEnd, index: number) => {
+                                if (to_ui.id === obj_id) {
+                                    console.log('eureka');
+                                    x = to_ui.x;
+                                    y = to_ui.y;
+                                    dir = to_ui.dir;
+                                }
+                            });
+                        }
+                    }
                         break;
                 }
 
+                console.log('down-b', x, y);
                 setMove({
                     ...move, mouseDown: true, target: { node: target, type },
                     relationship: {
@@ -488,10 +499,10 @@ export function Paper(props: PaperProps) {
                                     id, new_from: { ...isa_ui.from, x, y, dir }
                                 }));
                             } else {
-                                isa_ui.to.forEach((rel_ui: BinaryEnd, index: number) => {
-                                    if (rel_ui.id === id) {
+                                isa_ui.to.forEach((to_ui: BinaryEnd, index: number) => {
+                                    if (to_ui.id === obj_id) {
                                         dispatch(relationshipUpdateIsaTo({
-                                            id, index, new_to: { ...rel_ui, x, y, dir }
+                                            id, index, new_to: { ...to_ui, x, y, dir }
                                         }))
                                     }
                                 })
@@ -563,10 +574,6 @@ export function Paper(props: PaperProps) {
                             // This forces an update -- good here.
                             setMove({ ...move, origin_x, origin_y });
                         }
-                    } else {
-                        // console.log('forwarding mouesmove');
-                        // // @ts-ignore
-                        // mouseMoveCallbacks.map(([foo, bar]) => { if (foo !== null) foo(event) });
                     }
                 }
                     break;
@@ -600,16 +607,20 @@ export function Paper(props: PaperProps) {
                     break;
 
                 case 'Relationship': {
-                    let { target, relationship } = move;
-                    let { x, y } = relationship;
+                    let { relationship } = move;
+                    let { x, y, parent } = relationship;
+
+                    if (parent === undefined) {
+                        console.error('undefined parent node');
+                        break;
+                    }
 
                     if (event.movementX !== 0 || event.movementY !== 0) {
 
                         x += event.movementX;
                         y += event.movementY;
 
-                        let [x0, y0, dir0] = moveGlyph(x, y,
-                            target.node!.parentNode as SVGGElement, paper_obj!)!;
+                        let [x0, y0, dir0] = moveGlyph(x, y, parent, paper_obj!)!;
 
                         setMove({
                             ...move, relationship: {

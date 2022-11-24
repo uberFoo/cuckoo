@@ -28,7 +28,7 @@ export function Isa(props: IsaProps) {
         let transform = makeTransform(s.x, s.y, s.dir);
         return (
             <g id={id_to} key={id_to} className={styles.relAnchor} transform={transform}>
-                <rect x={0} y={-25} width={50} height={50} fillOpacity={0} strokeOpacity={0} />
+                <rect className={styles.relBoxAssist} x={0} y={-25} width={50} height={50} />
                 <path className={styles.relGlyph} d="M 0 0 L 40 0" />
             </g>
         )
@@ -37,7 +37,7 @@ export function Isa(props: IsaProps) {
     return (
         <>
             <g id={id_from} key={id_from} className={styles.relAnchor} transform={transform}>
-                <rect x={0} y={-25} width={50} height={50} fillOpacity={0} strokeOpacity={0} />
+                <rect className={styles.relBoxAssist} x={0} y={-25} width={50} height={50} />
                 <path className={styles.relGlyph} d="M 20 0 L 40 0 M 20 -15 L 20 15 M 20 -15 L 0 0 L 20 15" />
             </g>
             {to_s}
