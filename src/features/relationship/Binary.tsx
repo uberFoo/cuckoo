@@ -56,7 +56,7 @@ export function Binary(props: BinaryProps) {
             </g>
             <text className={styles.relName} x={(ui.to.x + ui.from.x) / 2}
                 y={(ui.to.y + ui.from.y) / 2}>{"R" + binary.number}</text>
-            <path id={line_id} className={styles.relLine}
+            <path id={line_id} key={line_id} className={styles.relLine}
                 d={makeLine(ui.from, ui.to)}
             />
         </>

@@ -253,6 +253,9 @@ export function moveGlyph(x: number, y: number, target: SVGGElement, paper: Pape
     // console.log(id, obj_id, dir, end);
     // console.log(x, y);
 
+    // I don't even remember the intention of box exactly, a few days later. I can do better.
+    // I think it's meant to offer an idea of where the box we are attached to is currently. Rather
+    // than rely on what's stored.
     let north = box ? box.y0 : obj_ui.y;
     let south = box ? box.y1 : obj_ui.y + obj_ui.height;
     let west = box ? box.x0 : obj_ui.x;
@@ -274,10 +277,21 @@ export function moveGlyph(x: number, y: number, target: SVGGElement, paper: Pape
             dy = rel_ui.BinaryUI.from.y;
         }
     } else if (box && type === 'IsaUI') {
-        // @ts-ignore
-        dx = rel_ui.IsaUI.from.x;
-        // @ts-ignore
-        dy = rel_ui.IsaUI.from.y;
+        if (end === 'from') {
+            // @ts-ignore
+            dx = rel_ui.IsaUI.from.x;
+            // @ts-ignore
+            dy = rel_ui.IsaUI.from.y;
+        } else {
+            // @ts-ignore
+            let ui = rel_ui.IsaUI;
+            ui.to.forEach((to_ui: BinaryEnd, index: number) => {
+                if (to_ui.id === obj_id) {
+                    dx = to_ui.x;
+                    dy = to_ui.y;
+                }
+            });
+        }
     }
 
     // Find the point on the target boundary that minimizes the distance to (x, y).

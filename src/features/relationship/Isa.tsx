@@ -3,7 +3,7 @@ import { useAppSelector } from '../../app/hooks';
 
 import { selectObjectById } from '../object/objectSlice';
 import { Isa as IsaStore, IsaUI } from '../../app/store';
-import { makeTransform } from '../../app/utils';
+import { makeLine, makeTransform } from '../../app/utils';
 
 import styles from './Relationship.module.css';
 
@@ -24,13 +24,18 @@ export function Isa(props: IsaProps) {
     let transform = makeTransform(ui.from.x, ui.from.y, ui.from.dir);
 
     let to_s = ui.to.map(s => {
+        // This is relationship_id:subtype_id:direction:"to"
         let id_to = `${props.id}:${s.id}:${s.dir}:to`;
+        let line_id = `${props.id}:${s.id}`
         let transform = makeTransform(s.x, s.y, s.dir);
         return (
-            <g id={id_to} key={id_to} className={styles.relAnchor} transform={transform}>
-                <rect className={styles.relBoxAssist} x={0} y={-25} width={50} height={50} />
-                <path className={styles.relGlyph} d="M 0 0 L 40 0" />
-            </g>
+            <>
+                <g id={id_to} key={id_to} className={styles.relAnchor} transform={transform}>
+                    <rect className={styles.relBoxAssist} x={0} y={-25} width={50} height={50} />
+                    <path className={styles.relGlyph} d="M 0 0 L 40 0" />
+                </g>
+                <path id={line_id} className={styles.relLine} d={makeLine(s, ui.from)} />
+            </>
         )
     });
 
