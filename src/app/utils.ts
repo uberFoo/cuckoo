@@ -42,7 +42,7 @@ export function handleObjectResize(move: MoveStruct, event: React.MouseEvent) {
             break;
 
         default:
-            console.log('WTF');
+            console.error('WTF');
             break;
     }
 
@@ -250,9 +250,6 @@ export function moveGlyph(x: number, y: number, target: SVGGElement, paper: Pape
     }
     let type = Object.keys(rel_ui)[0];
 
-    // console.log(id, obj_id, dir, end);
-    // console.log(x, y);
-
     // I don't even remember the intention of box exactly, a few days later. I can do better.
     // I think it's meant to offer an idea of where the box we are attached to is currently. Rather
     // than rely on what's stored.
@@ -309,8 +306,7 @@ export function moveGlyph(x: number, y: number, target: SVGGElement, paper: Pape
 
         let penultimate_idx = values.indexOf(Math.min(...mins));
         let diff = values[penultimate_idx] - min_value;
-        // console.log('indicies', min_idx, penultimate_idx);
-        // console.log('mins', min_value, values[penultimate_idx], diff);
+
         if (diff < 15) {
             return penultimate_idx;
         } else {
@@ -368,6 +364,7 @@ export function moveGlyph(x: number, y: number, target: SVGGElement, paper: Pape
         target.id = target.id.replace(orig_dir, dir);
     }
 
+    // Move the lines
     if (type === 'BinaryUI') {
         // Move the line
         let grandParent = target.parentNode;
@@ -392,9 +389,41 @@ export function moveGlyph(x: number, y: number, target: SVGGElement, paper: Pape
                 child.setAttribute('d', d);
             }
         }
-    }
+    } else if (type === 'IsaUI') {
+        // @ts-ignore
+        let ui = rel_ui.IsaUI;
+        if (end === 'to') {
+            let grandParent = target.parentNode;
+            let kids = grandParent!.children;
+            for (let i = 0; i < kids.length; i++) {
+                let child = kids[i];
+                if (child instanceof SVGPathElement) {
+                    let [_id, _obj_id] = child.id.split(':');
+                    if (_obj_id === obj_id) {
+                        // Make up a fake ui element to send.
+                        // @ts-ignore
+                        let d = makeLine(ui.from, { x, y, dir, id: '' });
+                        child.setAttribute('d', d);
+                    }
+                }
+            }
+        } else {
+            let grandParent = target.parentNode;
+            let kids = grandParent!.children;
+            let index = 0;
+            for (let i = 0; i < kids.length; i++) {
+                let child = kids[i];
+                if (child instanceof SVGPathElement) {
+                    // @ts-ignore
+                    let d = makeLine({ x, y, dir, id: '' }, ui.to[index]);
+                    child.setAttribute('d', d);
+                    index++;
+                }
+            }
+        }
 
-    return [x, y, dir];
+        return [x, y, dir];
+    }
 }
 
 function sqr(x: number) { return x * x }
