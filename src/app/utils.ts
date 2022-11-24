@@ -422,8 +422,8 @@ export function moveGlyph(x: number, y: number, target: SVGGElement, paper: Pape
             }
         }
 
-        return [x, y, dir];
     }
+    return [x, y, dir];
 }
 
 function sqr(x: number) { return x * x }

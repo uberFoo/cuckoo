@@ -50,16 +50,17 @@ function App() {
             }
             setMenuOpen(false)
         }
-    }, [menuOpen]);
+    }, [menuOpen, menuPayload]);
 
     const ImportModel = async () => {
         try {
             let path = await open();
             // @ts-ignore
             let content = await readTextFile(path);
+
             let state = store.getState();
+            state = JSON.parse(content);
             // @ts-ignore
-            state = [...state, content];
             // console.log(content);
         } catch (e) {
             console.error(e);
