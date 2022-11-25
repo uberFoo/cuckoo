@@ -31,8 +31,13 @@ export function Binary(props: BinaryProps) {
     let from_card = getGlyph(props.rel.from.cardinality);
     let to_card = getGlyph(props.rel.to.cardinality);
 
-    let from_cond = getConditionality(props.rel.from.conditionality);
-    let to_cond = getConditionality(props.rel.to.Conditionality);
+    let from_cond = getConditionality(props.rel.from.conditionality, ui.from.dir);
+    let to_cond = getConditionality(props.rel.to.Conditionality, ui.to.dir);
+
+    let from_phrase = makeRelPhrase(`${props.id}:from`, props.rel.from.description, ui.from.x,
+        ui.from.y, ui.from.offset);
+    let to_phrase = makeRelPhrase(`${props.id}:to`, props.rel.to.description, ui.to.x, ui.to.y,
+        ui.to.offset);
 
     return (
         <>
@@ -46,6 +51,7 @@ export function Binary(props: BinaryProps) {
                     d={from_card} />
                 {from_cond}
             </g>
+            {from_phrase}
             <g id={id_to} key={id_to} className={styles.relAnchor}
                 transform={"translate(" + ui.to.x + "," + ui.to.y + ")" +
                     " rotate(" + to_rotation + ")"}
@@ -54,6 +60,7 @@ export function Binary(props: BinaryProps) {
                 <path className={styles.relGlyph} d={to_card} />
                 {to_cond}
             </g>
+            {to_phrase}
             <text className={styles.relName} x={(ui.to.x + ui.from.x) / 2}
                 y={(ui.to.y + ui.from.y) / 2}>{"R" + binary.number}</text>
             <path id={line_id} key={line_id} className={styles.relLine}
@@ -76,11 +83,46 @@ let getGlyph = (card: Cardinality) => {
     }
 }
 
-let getConditionality = (cond: Conditionality) => {
-    switch (cond) {
-        case 'Conditional':
-            return <text x={20} y={20}>c</text>
-        case 'Unconditional':
-            return (<></>)
+let getConditionality = (cond: Conditionality, dir: string) => {
+    if (cond === 'Conditional') {
+        switch (dir) {
+            case 'North':
+                return (
+                    <g transform={"translate(40, 20) rotate(90)"}>
+                        <text>c</text>
+                    </g>
+                );
+            case 'West':
+                return (
+                    <g transform={"translate(40, 20) rotate(180)"}>
+                        <text>c</text>
+                    </g>
+                );
+            case 'South':
+                return (
+                    <g transform={"translate(40, 20) rotate(270)"}>
+                        <text>c</text>
+                    </g>
+                );
+            case 'East':
+                return (
+                    <g transform={"translate(40, 20) rotate(0)"}>
+                        <text>c</text>
+                    </g>
+                );
+            default:
+                console.error('bad dir in getConditionality', dir);
+                break;
+        }
+    } else if (cond === 'Unconditional') {
+        return (<></>);
     }
+}
+
+let makeRelPhrase = (id: string, phrase: string, x: number, y: number, offset: { x: number, y: number }) => {
+    return (
+        <text id={id} key={id} className={styles.relPhrase} x={x + offset.x} y={y + offset.y} >
+            {phrase}
+        </ text >
+    )
 }

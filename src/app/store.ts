@@ -2,7 +2,7 @@ import { configureStore, ThunkAction, Action, combineReducers } from '@reduxjs/t
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import logger from 'redux-logger';
-import undoable, { StateWithHistory, excludeAction } from 'redux-undo';
+import undoable, { StateWithHistory } from 'redux-undo';
 
 import paperReducer from '../features/paper/paperSlice';
 import objectReducer from '../features/object/objectSlice';
@@ -58,7 +58,8 @@ export interface BinaryEnd {
     id: string,
     dir: 'North' | 'South' | 'East' | 'West',
     x: number,
-    y: number
+    y: number,
+    offset: Point
 }
 
 export type RelationshipUI = BinaryUI | IsaUI;

@@ -46,11 +46,41 @@ export function Isa(props: IsaProps) {
                 <path className={styles.relGlyph}
                     d="M 20 0 L 40 0 M 20 -15 L 20 15 M 20 -15 L 0 0 L 20 15"
                 />
+                {makeName(props.rel.number, ui.from.dir)}
             </g>
-            <text className={styles.relName} x={ui.from.x + 40} y={ui.from.y + 40}>
-                {"R" + props.rel.number}
-            </text>
             {to_s}
         </>
     )
+}
+
+let makeName = (number: number, dir: string) => {
+    switch (dir) {
+        case 'North':
+            return (
+                <g transform={"translate(40, 40) rotate(90)"}>
+                    <text className={styles.relName}>{"R" + number}</text>
+                </g>
+            );
+        case 'West':
+            return (
+                <g transform={"translate(40, 40) rotate(180)"}>
+                    <text className={styles.relName}>{"R" + number}</text>
+                </g>
+            );
+        case 'South':
+            return (
+                <g transform={"translate(40, 40) rotate(270)"}>
+                    <text className={styles.relName}>{"R" + number}</text>
+                </g>
+            );
+        case 'East':
+            return (
+                <g transform={"translate(40, 40) rotate(0)"}>
+                    <text className={styles.relName}>{"R" + number}</text>
+                </g>
+            );
+        default:
+            console.error('bad dir in getConditionality', dir);
+            break;
+    }
 }

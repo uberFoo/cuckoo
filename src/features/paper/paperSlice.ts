@@ -92,13 +92,38 @@ export const paperSlice = createSlice({
             let paper = state.entities[state.ids[0]];
             // @ts-ignore
             paper!.relationships[id].IsaUI.to[index] = new_to;
+        },
+        relationshipUpdateBinaryRelPhrase: (state, action) => {
+            let { id, end, offset } = action.payload;
+
+            let paper = state.entities[state.ids[0]];
+            let ui = paper!.relationships[id];
+
+            if (end === 'from') {
+                // @ts-ignore
+                let from = ui!.BinaryUI.from;
+                // @ts-ignore
+                paper!.relationships[id].BinaryUI.from = {
+                    ...from,
+                    offset: { x: offset.x + from.offset.x, y: offset.y + from.offset.y }
+                };
+            } else {
+                // @ts-ignore
+                let to = ui!.BinaryUI.to;
+                // @ts-ignore
+                paper!.relationships[id].BinaryUI.to = {
+                    ...to,
+                    offset: { x: offset.x + to.offset.x, y: offset.y + to.offset.y }
+                };
+            }
         }
     }
 });
 
 export const { addPaper, addObjectToPaper, objectMoveTo, objectResizeBy, objectChangeId,
     relationshipUpdate, removeObjectFromPaper, relationshipUpdateBinaryFrom, savePaperOffset,
-    relationshipUpdateBinaryTo, relationshipUpdateIsaFrom, relationshipUpdateIsaTo } = paperSlice.actions;
+    relationshipUpdateBinaryTo, relationshipUpdateIsaFrom, relationshipUpdateIsaTo,
+    relationshipUpdateBinaryRelPhrase } = paperSlice.actions;
 
 export let {
     selectAll: selectPapers,

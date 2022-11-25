@@ -10,7 +10,8 @@ import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
     addObjectToPaper, selectPaperSingleton, objectResizeBy, objectMoveTo,
     relationshipUpdateBinaryFrom, relationshipUpdateBinaryTo, removeObjectFromPaper,
-    relationshipUpdateIsaFrom, relationshipUpdateIsaTo, savePaperOffset
+    relationshipUpdateIsaFrom, relationshipUpdateIsaTo, savePaperOffset,
+    relationshipUpdateBinaryRelPhrase
 } from './paperSlice';
 import ObjectEditor from '../object/ObjectDialog';
 import { removeObject, addObject } from '../object/objectSlice';
@@ -68,9 +69,11 @@ export interface MoveStruct {
         obj_id: string,
         parent?: SVGGElement,
         end: string,
-        dir: string,
+        dir: string | null,
         x: number,
         y: number,
+        dx: number,
+        dy: number,
     }
 };
 
@@ -123,7 +126,9 @@ export function Paper(props: PaperProps) {
             end: '',
             x: 0,
             y: 0,
-            dir: ''
+            dir: null,
+            dx: 0,
+            dy: 0
         }
     });
 
@@ -254,45 +259,54 @@ export function Paper(props: PaperProps) {
 
             case 'Relationship': {
                 let { relationship } = move;
+                let { x, y } = relationship;
+
                 let root = target.parentNode as SVGGElement;
 
                 let [id, obj_id, dir, end] = root.id.split(':');
-                let ui = paper_obj!.relationships[id] as RelationshipUI;
 
-                let { x, y } = relationship;
+                if (obj_id === undefined &&
+                    target.className.baseVal.split('_')[1] === 'relPhrase') {
+                    [id, end] = target.id.split(':');
 
-                switch (Object.keys(ui)[0]) {
-                    case 'BinaryUI':
-                        // @ts-ignore
-                        let props = ui.BinaryUI as BinaryUI;
-                        if (end === 'from') {
-                            x = props.from.x;
-                            y = props.from.y;
-                            dir = props.from.dir;
-                        } else {
-                            x = props.to.x;
-                            y = props.to.y;
-                            dir = props.to.dir;
+                    x = Number(target.getAttribute('x'));
+                    y = Number(target.getAttribute('y'));
+                } else {
+                    let ui = paper_obj!.relationships[id] as RelationshipUI;
+
+                    switch (Object.keys(ui)[0]) {
+                        case 'BinaryUI':
+                            // @ts-ignore
+                            let props = ui.BinaryUI as BinaryUI;
+                            if (end === 'from') {
+                                x = props.from.x;
+                                y = props.from.y;
+                                dir = props.from.dir;
+                            } else {
+                                x = props.to.x;
+                                y = props.to.y;
+                                dir = props.to.dir;
+                            }
+                            break;
+                        case 'IsaUI': {
+                            // @ts-ignore
+                            let props = ui.IsaUI as IsaUI;
+                            if (end === 'from') {
+                                x = props.from.x;
+                                y = props.from.y;
+                                dir = props.from.dir;
+                            } else {
+                                props.to.forEach((to_ui: BinaryEnd, index: number) => {
+                                    if (to_ui.id === obj_id) {
+                                        x = to_ui.x;
+                                        y = to_ui.y;
+                                        dir = to_ui.dir;
+                                    }
+                                });
+                            }
                         }
-                        break;
-                    case 'IsaUI': {
-                        // @ts-ignore
-                        let props = ui.IsaUI as IsaUI;
-                        if (end === 'from') {
-                            x = props.from.x;
-                            y = props.from.y;
-                            dir = props.from.dir;
-                        } else {
-                            props.to.forEach((to_ui: BinaryEnd, index: number) => {
-                                if (to_ui.id === obj_id) {
-                                    x = to_ui.x;
-                                    y = to_ui.y;
-                                    dir = to_ui.dir;
-                                }
-                            });
-                        }
+                            break;
                     }
-                        break;
                 }
 
                 setMove({
@@ -304,10 +318,11 @@ export function Paper(props: PaperProps) {
                         end,
                         dir,
                         x,
-                        y
+                        y,
+                        dx: 0,
+                        dy: 0
                     }
                 });
-
             }
                 break;
 
@@ -408,6 +423,7 @@ export function Paper(props: PaperProps) {
                                 let type = o.type;
 
                                 let [id, obj_id, dir, end] = t.id.split(':');
+                                let ui = paper_obj?.relationships[id];
 
                                 let xform = t.transform.baseVal.getItem(0);
                                 console.assert(xform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
@@ -416,13 +432,21 @@ export function Paper(props: PaperProps) {
 
                                 if (type === 'binary') {
                                     if (end === 'from') {
-                                        dispatch(relationshipUpdateBinaryFrom({ id, from: { id: obj_id, x, y, dir } }));
+                                        // @ts-ignore
+                                        let from = ui!.BinaryUI.from;
+                                        dispatch(relationshipUpdateBinaryFrom({
+                                            id,
+                                            from: { ...from, id: obj_id, x, y, dir }
+                                        }));
                                     } else {
-                                        dispatch(relationshipUpdateBinaryTo({ id, to: { id: obj_id, x, y, dir } }));
+                                        // @ts-ignore
+                                        let to = ui!.BinaryUI.to;
+                                        dispatch(relationshipUpdateBinaryTo({
+                                            id,
+                                            to: { ...to, id: obj_id, x, y, dir }
+                                        }));
                                     }
                                 } else if (type === 'isa') {
-                                    let ui = paper_obj?.relationships[id];
-
                                     if (end === 'from') {
                                         // @ts-ignore
                                         let isa_ui = ui!.IsaUI;
@@ -478,44 +502,57 @@ export function Paper(props: PaperProps) {
                     let { relationship } = move;
                     let { x, y, obj_id, dir, id, end } = relationship;
 
-                    let ui = paper_obj?.relationships[id];
+                    // These, among others, aren't defined when a relPhrase is dragged.
+                    if (dir !== null && obj_id !== undefined) {
+                        let ui = paper_obj?.relationships[id];
 
-                    switch (Object.keys(ui!)[0]) {
-                        case 'BinaryUI':
-                            if (end === 'from') {
-                                dispatch(relationshipUpdateBinaryFrom({
-                                    id, from: { id: obj_id, x, y, dir }
-                                }));
-                            } else {
-                                dispatch(relationshipUpdateBinaryTo({
-                                    id, to: { id: obj_id, x, y, dir }
-                                }));
+                        switch (Object.keys(ui!)[0]) {
+                            case 'BinaryUI':
+                                if (end === 'from') {
+                                    // @ts-ignore
+                                    let from = ui!.BinaryUI.from;
+                                    dispatch(relationshipUpdateBinaryFrom({
+                                        id,
+                                        from: { ...from, id: obj_id, x, y, dir }
+                                    }));
+                                } else {
+                                    // @ts-ignore
+                                    let to = ui!.BinaryUI.to;
+                                    dispatch(relationshipUpdateBinaryTo({
+                                        id,
+                                        to: { ...to, id: obj_id, x, y, dir }
+                                    }));
+                                }
+                                break;
+                            case 'IsaUI': {
+                                // @ts-ignore
+                                let isa_ui = ui.IsaUI;
+
+                                if (end === 'from') {
+                                    dispatch(relationshipUpdateIsaFrom({
+                                        id, new_from: { ...isa_ui.from, x, y, dir }
+                                    }));
+                                } else {
+                                    isa_ui.to.forEach((to_ui: BinaryEnd, index: number) => {
+                                        if (to_ui.id === obj_id) {
+                                            dispatch(relationshipUpdateIsaTo({
+                                                id, index, new_to: { ...to_ui, x, y, dir }
+                                            }))
+                                        }
+                                    })
+
+                                }
                             }
-                            break;
-                        case 'IsaUI': {
-                            // @ts-ignore
-                            let isa_ui = ui.IsaUI;
+                                break;
 
-                            if (end === 'from') {
-                                dispatch(relationshipUpdateIsaFrom({
-                                    id, new_from: { ...isa_ui.from, x, y, dir }
-                                }));
-                            } else {
-                                isa_ui.to.forEach((to_ui: BinaryEnd, index: number) => {
-                                    if (to_ui.id === obj_id) {
-                                        dispatch(relationshipUpdateIsaTo({
-                                            id, index, new_to: { ...to_ui, x, y, dir }
-                                        }))
-                                    }
-                                })
-
-                            }
+                            default:
+                                console.error('unknown relationship ui', ui!);
+                                break
                         }
-                            break;
-
-                        default:
-                            console.error('unknown relationship ui', ui!);
-                            break
+                    } else {
+                        // Assume rel phrase drag
+                        let { dx, dy } = relationship;
+                        dispatch(relationshipUpdateBinaryRelPhrase({ id, end, offset: { x: dx, y: dy } }));
                     }
 
                     setMove({
@@ -524,7 +561,8 @@ export function Paper(props: PaperProps) {
                         alt: false,
                         meta: false,
                         ctrl: false,
-                        target: { node: null, type: '' }
+                        target: { node: null, type: '' },
+                        relationship: { id: '', obj_id: '', end: '', x: 0, y: 0, dir: null, dx: 0, dy: 0 }
                     });
                 }
                     break;
@@ -610,7 +648,7 @@ export function Paper(props: PaperProps) {
 
                 case 'Relationship': {
                     let { relationship } = move;
-                    let { x, y, parent } = relationship;
+                    let { x, y, parent, dx, dy } = relationship;
 
                     if (parent === undefined) {
                         console.error('undefined parent node');
@@ -621,13 +659,25 @@ export function Paper(props: PaperProps) {
 
                         x += event.movementX;
                         y += event.movementY;
+                        dx += event.movementX;
+                        dy += event.movementY;
 
-                        let [x0, y0, dir0] = moveGlyph(x, y, parent, paper_obj!)!;
+                        let type = target.node!.className.baseVal.split('_')[1];
+
+                        let x0 = x;
+                        let y0 = y;
+                        let dir0 = null;
+
+                        if (type === 'relGlyph' || type === 'relBoxAssist') {
+                            [x0, y0, dir0] = moveGlyph(x, y, parent, paper_obj!)!;
+                        } else if (type === 'relPhrase') {
+                            target.node!.setAttribute('x', `${x}`);
+                            target.node!.setAttribute('y', `${y}`);
+                        }
 
                         setMove({
                             ...move, relationship: {
-                                // @ts-ignore
-                                ...relationship, x: x0, y: y0, dir: dir0
+                                ...relationship, x: x0, y: y0, dir: dir0, dx, dy
                             }
                         });
                     }

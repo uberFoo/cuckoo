@@ -19,6 +19,7 @@
 
 .relPhrase {
     stroke: none;
+    cursor: move;
 }
 
 .relName {

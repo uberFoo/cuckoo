@@ -233,7 +233,9 @@ export function handleObjectMove(paper_obj: PaperStore, move: MoveStruct, event:
     return { ...move, object: { ...object, x, y, dirty_m: true, rels } };
 }
 
-export function moveGlyph(x: number, y: number, target: SVGGElement, paper: PaperStore, box?: Rect) {
+export function moveGlyph(x: number, y: number, target: SVGGElement, paper: PaperStore, box?: Rect):
+    [number, number, string] {
+
     let [id, obj_id, dir, end] = target.id.split(':');
     let orig_dir = dir;
 
@@ -423,6 +425,7 @@ export function moveGlyph(x: number, y: number, target: SVGGElement, paper: Pape
         }
 
     }
+
     return [x, y, dir];
 }
 
@@ -438,8 +441,11 @@ function distToSegmentSquared(p: Point, v: Point, w: Point) {
         y: v.y + t * (w.y - v.y)
     });
 }
-export function makeTransform(x: number, y: number, dir: string) {
-    return 'translate(' + x + ',' + y + ') rotate(' + getRotation(dir)! + ')';
+export function makeTransform(x: number, y: number, dir?: string) {
+    if (dir)
+        return 'translate(' + x + ',' + y + ') rotate(' + getRotation(dir)! + ')';
+    else
+        return 'translate(' + x + ',' + y + ')';
 }
 
 export function getRotation(dir: string) {
