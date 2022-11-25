@@ -1,3 +1,4 @@
+import React from 'react';
 import { MoveStruct } from '../features/paper/Paper';
 import { Rect, Point, BinaryEnd, PaperStore } from './store';
 

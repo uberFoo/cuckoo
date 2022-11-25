@@ -114,7 +114,7 @@ export interface Dependent {
     obj_id: string,
     description: string,
     cardinality: Cardinality,
-    Conditionality: Conditionality
+    conditionality: Conditionality
 }
 
 export interface Isa {
@@ -179,6 +179,10 @@ const rootReducer = undoable(combineReducers({
                 return action.payload.new_from.id;
             case "paper/relationshipUpdateIsaTo":
                 return action.payload.new_to.id;
+            case "relationship/addRelationship":
+                return action.payload.id;
+            case "paper/addRelationshipToPaper":
+                return action.payload.id;
 
             default:
                 console.error(`bad action type ${action.type}`);

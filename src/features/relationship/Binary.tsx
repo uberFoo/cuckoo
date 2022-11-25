@@ -32,7 +32,7 @@ export function Binary(props: BinaryProps) {
     let to_card = getGlyph(props.rel.to.cardinality);
 
     let from_cond = getConditionality(props.rel.from.conditionality, ui.from.dir);
-    let to_cond = getConditionality(props.rel.to.Conditionality, ui.to.dir);
+    let to_cond = getConditionality(props.rel.to.conditionality, ui.to.dir);
 
     let from_phrase = makeRelPhrase(`${props.id}:from`, props.rel.from.description, ui.from.x,
         ui.from.y, ui.from.offset);

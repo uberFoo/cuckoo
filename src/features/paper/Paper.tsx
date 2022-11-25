@@ -4,18 +4,19 @@ import { Menu, MenuItem } from '@mui/material';
 import { ActionCreators as UndoActionCreators } from 'redux-undo';
 
 import { ObjectWidget } from '../object/Object';
-import { Rect, ObjectUI, RelationshipUI, BinaryEnd } from '../../app/store';
+import { RelationshipStore, BinaryUI, Rect, ObjectUI, RelationshipUI, BinaryEnd } from '../../app/store';
 import { Relationship } from '../relationship/Relationship';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
     addObjectToPaper, selectPaperSingleton, objectResizeBy, objectMoveTo,
     relationshipUpdateBinaryFrom, relationshipUpdateBinaryTo, removeObjectFromPaper,
     relationshipUpdateIsaFrom, relationshipUpdateIsaTo, savePaperOffset,
-    relationshipUpdateBinaryRelPhrase
+    relationshipUpdateBinaryRelPhrase, addRelationshipToPaper
 } from './paperSlice';
 import ObjectEditor from '../object/ObjectDialog';
 import { removeObject, addObject } from '../object/objectSlice';
 import { handleObjectMove, handleObjectResize, moveGlyph } from '../../app/utils';
+import { addRelationship } from '../relationship/relationshipSlice';
 
 import styles from './Paper.module.css';
 
@@ -191,7 +192,6 @@ export function Paper(props: PaperProps) {
 
             case 'Object': {
                 let { origin_x, origin_y, object } = move;
-                let dir = target.id as Direction;
 
                 let root = target.parentNode as SVGGElement;
                 let canvas = root?.parentNode;
@@ -239,6 +239,7 @@ export function Paper(props: PaperProps) {
                     dispatch(removeObject({ id }));
                 } else {
                     // Default dragging
+                    let dir = target.id as Direction;
                     setMove({
                         ...move,
                         mouseDown: true,
@@ -271,7 +272,7 @@ export function Paper(props: PaperProps) {
 
                     x = Number(target.getAttribute('x'));
                     y = Number(target.getAttribute('y'));
-                } else {
+                } else if (obj_id !== undefined) {
                     let ui = paper_obj!.relationships[id] as RelationshipUI;
 
                     switch (Object.keys(ui)[0]) {
@@ -479,7 +480,57 @@ export function Paper(props: PaperProps) {
                         } else if (meta) {
                             // Draw a line for a relationsship.
                             let { line } = object;
-                            console.log('up', line);
+
+                            let start_obj = id;
+
+                            let target = event.target as SVGElement;
+                            let parent = target.parentNode as SVGGElement;
+                            let end_obj = parent.id;
+
+                            let relationship_ui: BinaryUI = {
+                                from: {
+                                    id: start_obj,
+                                    x: line!.x0,
+                                    y: line!.y0,
+                                    offset: {
+                                        x: 20,
+                                        y: 20
+                                    },
+                                    dir: 'East'
+                                },
+                                to: {
+                                    id: end_obj,
+                                    x: line!.x1,
+                                    y: line!.y1,
+                                    offset: {
+                                        x: 20,
+                                        y: 20
+                                    },
+                                    dir: 'West'
+                                }
+                            };
+
+                            let relationship: RelationshipStore = {
+                                id: 'foo',
+                                number: 888,
+                                from: {
+                                    obj_id: start_obj,
+                                    description: '',
+                                    cardinality: 'One',
+                                    conditionality: 'Unconditional',
+                                    formalizing_attr: ''
+                                },
+                                to: {
+                                    obj_id: end_obj,
+                                    description: '',
+                                    cardinality: 'One',
+                                    conditionality: 'Unconditional'
+                                }
+                            };
+
+                            // @ts-ignore
+                            dispatch(addRelationship({ id: 'foo', payload: { Binary: relationship } }));
+                            dispatch(addRelationshipToPaper({ id: 'foo', payload: { BinaryUI: relationship_ui } }));
                         }
 
 
@@ -492,6 +543,7 @@ export function Paper(props: PaperProps) {
                             target: { node: null, type: '' },
                             object: {
                                 ...object, resizeDir: null, altClick, dirty_m: false, dirty_r: false,
+                                line: null
                             }
                         });
                     }
@@ -499,7 +551,7 @@ export function Paper(props: PaperProps) {
                     break;
 
                 case 'Relationship': {
-                    let { relationship } = move;
+                    let { relationship, target } = move;
                     let { x, y, obj_id, dir, id, end } = relationship;
 
                     // These, among others, aren't defined when a relPhrase is dragged.
@@ -549,7 +601,7 @@ export function Paper(props: PaperProps) {
                                 console.error('unknown relationship ui', ui!);
                                 break
                         }
-                    } else {
+                    } else if (target!.node!.className.baseVal.split('_') === 'relPhrase') {
                         // Assume rel phrase drag
                         let { dx, dy } = relationship;
                         dispatch(relationshipUpdateBinaryRelPhrase({ id, end, offset: { x: dx, y: dy } }));

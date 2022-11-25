@@ -7,6 +7,7 @@ import { selectObjectById, selectObjects } from './objectSlice';
 import { Attribute } from '../attribute/Attribute';
 import { useAppSelector } from '../../app/hooks';
 import { selectRelationships } from '../relationship/relationshipSlice';
+import { makeTransform } from '../../app/utils';
 
 import styles from './Object.module.css';
 
@@ -26,28 +27,6 @@ interface ObjectProps {
 export function ObjectWidget(props: ObjectProps) {
     let objects = useAppSelector(state => selectObjects(state));
     let object: ObjectStore | undefined = useAppSelector((state) => selectObjectById(state, props.id));
-
-    // let [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
-
-    // let contextMenuHandler = (event: React.MouseEvent) => {
-    //     event.preventDefault();
-    //     setContextMenu(
-    //         contextMenu == null ? { x: event.clientX + 2, y: event.clientY - 6 } : null
-    //     );
-    // };
-
-    // let attributes: Array<AttributeStore> = useAppSelector((state) => selectAttributes(state));
-    // let attributeInstances: Array<AttributeStore> = attributes
-    //     .filter(a => a.obj_id === props.id)
-    //     .sort((a, b) => {
-    //         if (a.id < b.id) {
-    //             return -1
-    //         } else if (a.id > b.id) {
-    //             return 1;
-    //         } else {
-    //             return 0
-    //         }
-    //     });
 
     let attributeInstances = { ...object!.attributes };
 
@@ -81,8 +60,6 @@ export function ObjectWidget(props: ObjectProps) {
         // @ts-ignore
     }).filter(r => r !== null).forEach(r => attributeInstances[r.id] = r);;
 
-
-
     let attributeElements: Array<JSX.Element> = Object.keys(attributeInstances)
         .map((id, i) => {
             let a = attributeInstances[id];
@@ -94,29 +71,10 @@ export function ObjectWidget(props: ObjectProps) {
             return <Attribute key={a!.id} id={a!.id} name={a!.name} type={a!.type} is_ref={is_ref} index={i} />
         });
 
-
-    // let handleCtxClose = () => { setContextMenu(null) };
-
-    // let contextMenuContent =
-    //     <Menu
-    //         open={contextMenu !== null}
-    //         onClose={handleCtxClose}
-    //         anchorReference="anchorPosition"
-    //         anchorPosition={
-    //             contextMenu !== null ? { top: contextMenu.x, left: contextMenu.y } : undefined
-    //         }
-    //     >
-    //         <MenuItem>Undo</MenuItem>
-    //         <MenuItem>Delete</MenuItem>
-    //     </Menu>;
-
-
     return (
         <>
-            {/* {contextMenu && ReactDOM.createPortal(contextMenuContent,
-                document.getElementById('root') as Element)} */}
             <g key={props.id} id={props.id} className={"object"}
-                transform={buildTransform(props.x, props.y)}
+                transform={makeTransform(props.x, props.y)}
             >
                 <rect className={styles.objectRect} width={props.width} height={props.height} />
                 <text className={styles.objectName} x={props.width / 2} y={textHeight}>{object!.name}</text>
@@ -142,9 +100,4 @@ export function ObjectWidget(props: ObjectProps) {
             </g >
         </>
     );
-}
-
-
-function buildTransform(x: number, y: number) {
-    return 'translate(' + x + ',' + y + ')'
 }

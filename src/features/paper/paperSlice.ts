@@ -14,7 +14,6 @@ export const paperSlice = createSlice({
             let paper = state.entities[state.ids[0]];
             // @ts-ignore
             state.entities[state.ids[0]] = { ...paper, offset: action.payload };
-
         },
         removeObjectFromPaper: (state, action) => {
             let { id } = action.payload;
@@ -116,6 +115,12 @@ export const paperSlice = createSlice({
                     offset: { x: offset.x + to.offset.x, y: offset.y + to.offset.y }
                 };
             }
+        },
+        addRelationshipToPaper: (state, action) => {
+            let { id, payload } = action.payload;
+
+            let paper = state.entities[state.ids[0]];
+            paper!.relationships[id] = payload;
         }
     }
 });
@@ -123,7 +128,7 @@ export const paperSlice = createSlice({
 export const { addPaper, addObjectToPaper, objectMoveTo, objectResizeBy, objectChangeId,
     relationshipUpdate, removeObjectFromPaper, relationshipUpdateBinaryFrom, savePaperOffset,
     relationshipUpdateBinaryTo, relationshipUpdateIsaFrom, relationshipUpdateIsaTo,
-    relationshipUpdateBinaryRelPhrase } = paperSlice.actions;
+    relationshipUpdateBinaryRelPhrase, addRelationshipToPaper } = paperSlice.actions;
 
 export let {
     selectAll: selectPapers,
