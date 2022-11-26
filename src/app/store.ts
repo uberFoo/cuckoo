@@ -185,6 +185,8 @@ const rootReducer = undoable(combineReducers({
                 return action.payload.id;
             case "paper/addRelationshipToPaper":
                 return action.payload.id;
+            case "paper/relationshipUpdateBinaryRelPhrase":
+                return action.payload.id;
 
             default:
                 console.error(`bad action type ${action.type}`);

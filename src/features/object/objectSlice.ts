@@ -10,12 +10,6 @@ export let objectSlice = createSlice({
     initialState,
     reducers: {
         addObject: objectAdapter.addOne,
-        // addObject: (state, action) => {
-        //     let { id, name, extent } = action.payload;
-        //     objectAdapter.addOne(state, { id, name });
-        //     //@ts-ignore
-        //     action.asyncDispatch(addUI(extent));
-        // },
         removeObject: objectAdapter.removeOne,
         replaceObject: (state, action) => {
             let { object, old_id } = action.payload;

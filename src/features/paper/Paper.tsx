@@ -11,12 +11,12 @@ import {
     addObjectToPaper, selectPaperSingleton, objectResizeBy, objectMoveTo,
     relationshipUpdateBinaryFrom, relationshipUpdateBinaryTo, removeObjectFromPaper,
     relationshipUpdateIsaFrom, relationshipUpdateIsaTo, savePaperOffset,
-    relationshipUpdateBinaryRelPhrase, addRelationshipToPaper, selectObjectUIById
+    relationshipUpdateBinaryRelPhrase, addRelationshipToPaper, removeRelationshipFromPaper
 } from './paperSlice';
 import ObjectEditor from '../object/ObjectDialog';
 import { removeObject, addObject } from '../object/objectSlice';
 import { intersection, handleObjectMove, handleObjectResize, moveGlyph } from '../../app/utils';
-import { addRelationship } from '../relationship/relationshipSlice';
+import { addRelationship, removeRelationship } from '../relationship/relationshipSlice';
 
 import styles from './Paper.module.css';
 
@@ -59,7 +59,7 @@ export interface MoveStruct {
         width: number,
         height: number,
         resizeDir: Direction,
-        altClick: boolean,
+        object_dialog: boolean,
         line: Line | null,
         dirty_m: boolean,
         dirty_r: boolean,
@@ -115,7 +115,7 @@ export function Paper(props: PaperProps) {
             width: 0,
             height: 0,
             resizeDir: null,
-            altClick: false,
+            object_dialog: false,
             line: null,
             dirty_m: false,
             dirty_r: false,
@@ -248,7 +248,7 @@ export function Paper(props: PaperProps) {
                             ...object,
                             id, x, y, width, height,
                             resizeDir: dir,
-                            altClick: false,
+                            object_dialog: false,
                             dirty_m: false,
                             dirty_r: false,
                             rels: []
@@ -266,7 +266,13 @@ export function Paper(props: PaperProps) {
 
                 let [id, obj_id, dir, end] = root.id.split(':');
 
-                if (obj_id === undefined &&
+                if (event.ctrlKey) {
+                    // Delete
+                    dispatch(removeRelationshipFromPaper({ id }));
+                    // @ts-ignore
+                    dispatch(removeRelationship({ id }));
+                    return;
+                } else if (obj_id === undefined &&
                     target.className.baseVal.split('_')[1] === 'relPhrase') {
                     [id, end] = target.id.split(':');
 
@@ -387,7 +393,7 @@ export function Paper(props: PaperProps) {
                             target: { node: null, type: '' },
                             paper: { ...paper, new_object: null },
                             // This is PFM. I've created a monster.
-                            object: { ...object, id: 'fubar', altClick: true }
+                            object: { ...object, id: 'fubar', object_dialog: true }
                         });
                     } else {
                         setMove({
@@ -406,7 +412,7 @@ export function Paper(props: PaperProps) {
 
                 case 'Object': {
                     let { mouseDown, object, alt, meta } = move;
-                    let { altClick, width, height, x, y, dirty_m, dirty_r, rels } = object;
+                    let { object_dialog, width, height, x, y, dirty_m, dirty_r, rels } = object;
 
                     let parent = target.node!.parentNode as SVGGElement;
                     let id = parent.id;
@@ -476,7 +482,7 @@ export function Paper(props: PaperProps) {
 
                         if (alt) {
                             // Bring up the editor
-                            altClick = true;
+                            object_dialog = true;
                         } else if (meta) {
                             // Draw a line for a relationsship.
                             let { line, x, y, width, height } = object;
@@ -580,7 +586,7 @@ export function Paper(props: PaperProps) {
                             ctrl: false,
                             target: { node: null, type: '' },
                             object: {
-                                ...object, resizeDir: null, altClick, dirty_m: false, dirty_r: false,
+                                ...object, resizeDir: null, object_dialog, dirty_m: false, dirty_r: false,
                                 line: null
                             }
                         });
@@ -846,9 +852,9 @@ export function Paper(props: PaperProps) {
     }
 
     let doneEditing = () => {
-        if (move.object.altClick) {
+        if (move.object.object_dialog) {
             let { object } = move;
-            setMove({ ...move, object: { ...object, altClick: false } });
+            setMove({ ...move, object: { ...object, object_dialog: false } });
         }
     }
 
@@ -861,7 +867,7 @@ export function Paper(props: PaperProps) {
     // } else {
     return (
         <>
-            {object.altClick &&
+            {object.object_dialog &&
                 // @ts-ignore
                 <ObjectEditor enabled={true} obj_id={move.object.id} ns={props.domain_ns}
                     done={doneEditing}

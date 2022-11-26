@@ -121,14 +121,21 @@ export const paperSlice = createSlice({
 
             let paper = state.entities[state.ids[0]];
             paper!.relationships[id] = payload;
-        }
+        },
+        removeRelationshipFromPaper: (state, action) => {
+            let { id } = action.payload;
+
+            let paper = state.entities[state.ids[0]];
+            delete paper?.relationships[id];
+        },
     }
 });
 
 export const { addPaper, addObjectToPaper, objectMoveTo, objectResizeBy, objectChangeId,
     relationshipUpdate, removeObjectFromPaper, relationshipUpdateBinaryFrom, savePaperOffset,
     relationshipUpdateBinaryTo, relationshipUpdateIsaFrom, relationshipUpdateIsaTo,
-    relationshipUpdateBinaryRelPhrase, addRelationshipToPaper } = paperSlice.actions;
+    relationshipUpdateBinaryRelPhrase, addRelationshipToPaper, removeRelationshipFromPaper }
+    = paperSlice.actions;
 
 export let {
     selectAll: selectPapers,

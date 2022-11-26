@@ -10,14 +10,17 @@ export let relationshipSlice = createSlice({
     initialState,
     reducers: {
         addRelationship: (state, action) => {
+            // This needs special handling because of the way serde serializes enums.
             let { id, payload } = action.payload;
+
             state.ids.push(id)
             state.entities[id] = payload;
-        }
+        },
+        removeRelationship: relationshipAdapter.removeOne
     }
 });
 
-export let { addRelationship } = relationshipSlice.actions;
+export let { addRelationship, removeRelationship } = relationshipSlice.actions;
 
 export let {
     selectAll: selectRelationships,
