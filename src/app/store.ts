@@ -8,7 +8,7 @@ import paperReducer from '../features/paper/paperSlice';
 import objectReducer from '../features/object/objectSlice';
 import relationshipReducer from '../features/relationship/relationshipSlice';
 
-import model from '../js_schema.json'
+import model from '../sarzak_ooa_model.json';
 
 export interface PaperStore {
     id: string,

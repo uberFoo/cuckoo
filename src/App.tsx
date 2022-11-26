@@ -67,15 +67,23 @@ function App() {
         }
     };
 
-    const ExportSchema = () => {
+    const ExportSchema = async () => {
+        let state = store.getState();
+        // Yank out the paper, since it's not really part of the schema.
+        let { objects, relationships } = state.present;
+        // Make it pretty too.
+        let json = JSON.stringify({ objects, relationships }, null, 4);
+
+        let path = await save();
+        await writeFile({ contents: json, path: path! });
     };
 
     const ExportModel = async () => {
         let state = store.getState();
-        let json = JSON.stringify(state, null, 4);
+        let json = JSON.stringify(state);
+
         let path = await save();
-        // @ts-ignore
-        await writeFile({ contents: json, path: path });
+        await writeFile({ contents: json, path: path! });
     };
 
     let paper_obj = useAppSelector((state) => selectPaperSingleton(state));
