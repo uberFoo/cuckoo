@@ -16,18 +16,16 @@ import {
 import ObjectEditor from '../object/ObjectDialog';
 import BinaryEditor from '../relationship/BinaryDialog';
 import { removeObject, addObject } from '../object/objectSlice';
-import { intersection, handleObjectMove, handleObjectResize, moveGlyph } from '../../app/utils';
+import { handleObjectMove, handleObjectResize, moveGlyph } from '../../app/utils';
 import { addRelationship, removeRelationship } from '../relationship/relationshipSlice';
 
 import styles from './Paper.module.css';
 
 
-const defaultWidth = 3200;
-const defaultHeight = 1600;
 const defaultGridSize = 25;
 const defaultScale = 1.0;
-const minScale = 0.4;
-const maxScale = 4.5;
+// const minScale = 0.4;
+// const maxScale = 4.5;
 
 interface PaperProps {
     domain: string,
@@ -577,7 +575,7 @@ export function Paper(props: PaperProps) {
                                 }
                             };
 
-                            let relationship: RelationshipStore = {
+                            let relationship_state: RelationshipStore = {
                                 id: 'foo',
                                 number: 888,
                                 from: {
@@ -596,8 +594,23 @@ export function Paper(props: PaperProps) {
                             };
 
                             // @ts-ignore
-                            dispatch(addRelationship({ id: 'foo', payload: { Binary: relationship } }));
+                            dispatch(addRelationship({ id: 'foo', payload: { Binary: relationship_state } }));
                             dispatch(addRelationshipToPaper({ id: 'foo', payload: { BinaryUI: relationship_ui } }));
+                            let { relationship } = move;
+                            setMove({
+                                ...move,
+                                mouseDown: false,
+                                meta: false,
+                                object: {
+                                    ...object,
+                                    line: null
+                                },
+                                relationship: {
+                                    ...relationship, id: 'foo',
+                                    relationship_dialog: true
+                                }
+                            });
+                            return;
                         }
 
 

@@ -13,13 +13,10 @@ import { addRelationship, removeRelationship, updateRelationship, selectRelation
 import { relationshipChangeId } from '../paper/paperSlice';
 
 interface Props {
-    enabled: boolean,
     id: string,
     ns: string,
     done: () => void
 }
-
-let TYPES = ['Uuid', 'String', 'Integer', 'Float', 'Boolean'];
 
 // Modal.setAppElement('#modal-root');
 const BinaryEditor = (props: Props) => {
