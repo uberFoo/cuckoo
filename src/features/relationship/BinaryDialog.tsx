@@ -18,7 +18,6 @@ interface Props {
     done: () => void
 }
 
-// Modal.setAppElement('#modal-root');
 const BinaryEditor = (props: Props) => {
     let dispatch = useAppDispatch();
 
@@ -130,7 +129,7 @@ const BinaryEditor = (props: Props) => {
         <div>
             <Dialog open={true} fullWidth maxWidth={"sm"}>
                 <FormControl>
-                    <DialogTitle>Relationship Editor</DialogTitle>
+                    <DialogTitle>Binary Relationship Editor</DialogTitle>
                     <DialogContent dividers>
                         <FormGroup>
                             <TextField autoFocus required id="rel_num" label="Relationship Number"

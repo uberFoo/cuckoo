@@ -17,6 +17,7 @@ import {
 } from './paperSlice';
 import ObjectEditor from '../object/ObjectDialog';
 import BinaryEditor from '../relationship/BinaryDialog';
+import IsaEditor from '../relationship/IsaDialog';
 import { removeObject, addObject } from '../object/objectSlice';
 import { handleObjectMove, handleObjectResize, moveGlyph } from '../../app/utils';
 import { addRelationship, removeRelationship, addTargetToIsa } from '../relationship/relationshipSlice';
@@ -77,6 +78,7 @@ export interface MoveStruct {
         dx: number,
         dy: number,
         relationship_dialog: boolean,
+        relationship_type: string
     }
 };
 
@@ -133,6 +135,7 @@ export function Paper(props: PaperProps) {
             dx: 0,
             dy: 0,
             relationship_dialog: false,
+            relationship_type: ''
         }
     });
 
@@ -286,12 +289,22 @@ export function Paper(props: PaperProps) {
                     return;
                 } else if (event.altKey) {
                     // This brings up the relationship editor.
+                    while (target.id === "") {
+                        target = target.parentNode as SVGGElement;
+                    }
+                    let [rel_id, ...foo] = target.id.split(':');
+                    let rel = paper_obj!.relationships[rel_id];
+                    let type = Object.keys(rel!)[0];
+
                     setMove({
                         ...move,
                         mouseDown: true,
                         target: { node: target, type },
                         alt: true,
-                        relationship: { ...relationship, id, relationship_dialog: true }
+                        relationship: {
+                            ...relationship, id: rel_id, relationship_type: type,
+                            relationship_dialog: true
+                        }
                     });
                     return;
 
@@ -350,6 +363,7 @@ export function Paper(props: PaperProps) {
                         y,
                         dx: 0,
                         dy: 0,
+                        relationship_type: '',
                         relationship_dialog: false
                     }
                 });
@@ -610,6 +624,7 @@ export function Paper(props: PaperProps) {
                                     },
                                     relationship: {
                                         ...relationship, id: 'foo',
+                                        relationship_type: 'BinaryUI',
                                         relationship_dialog: true
                                     }
                                 });
@@ -647,7 +662,8 @@ export function Paper(props: PaperProps) {
                                     },
                                     relationship: {
                                         ...relationship, id: 'foo',
-                                        relationship_dialog: false
+                                        relationship_type: 'IsaUI',
+                                        relationship_dialog: true
                                     }
                                 });
                             } else {
@@ -713,7 +729,8 @@ export function Paper(props: PaperProps) {
 
                 case 'Relationship': {
                     let { relationship, target } = move;
-                    let { x, y, obj_id, dir, id, end, relationship_dialog } = relationship;
+                    let { x, y, obj_id, dir, id, end, relationship_type, relationship_dialog }
+                        = relationship;
 
                     // These, among others, aren't defined when a relPhrase is dragged.
                     if (dir !== null && obj_id !== undefined) {
@@ -784,6 +801,7 @@ export function Paper(props: PaperProps) {
                             dir: null,
                             dx: 0,
                             dy: 0,
+                            relationship_type,
                             relationship_dialog
                         }
                     });
@@ -985,10 +1003,13 @@ export function Paper(props: PaperProps) {
     let doneEditing = () => {
         if (move.object.object_dialog) {
             let { object } = move;
-            setMove({ ...move, object: { ...object, object_dialog: false } });
+            setMove({ ...move, mouseDown: false, object: { ...object, object_dialog: false } });
         } else if (move.relationship.relationship_dialog) {
             let { relationship } = move;
-            setMove({ ...move, relationship: { ...relationship, relationship_dialog: false } });
+            setMove({
+                ...move, mouseDown: false,
+                relationship: { ...relationship, relationship_dialog: false }
+            });
         }
     }
 
@@ -1007,10 +1028,15 @@ export function Paper(props: PaperProps) {
                         done={doneEditing}
                     />
                 }
-                {relationship.relationship_dialog &&
+                {relationship.relationship_dialog && relationship.relationship_type === 'BinaryUI' &&
                     // @ts-ignore
-                    <BinaryEditor enabled={true} id={move.relationship.id} ns={props.domain_ns}
+                    <BinaryEditor id={move.relationship.id} ns={props.domain_ns}
                         done={doneEditing}
+                    />
+                }
+                {relationship.relationship_dialog && relationship.relationship_type === 'IsaUI' &&
+                    // @ts-ignore
+                    <IsaEditor id={move.relationship.id} ns={props.domain_ns} done={doneEditing}
                     />
                 }
                 <svg id="svg-root" width={paper_obj!.width} height={paper_obj!.height}
