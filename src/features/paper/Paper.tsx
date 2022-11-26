@@ -4,20 +4,22 @@ import { Menu, MenuItem } from '@mui/material';
 import { ActionCreators as UndoActionCreators } from 'redux-undo';
 
 import { ObjectWidget } from '../object/Object';
-import { RelationshipStore, BinaryUI, Rect, ObjectUI, RelationshipUI, BinaryEnd } from '../../app/store';
+import {
+    RelationshipStore, BinaryUI, IsaUI, Isa, Binary, Rect, ObjectUI, RelationshipUI, BinaryEnd
+} from '../../app/store';
 import { Relationship } from '../relationship/Relationship';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
     addObjectToPaper, selectPaperSingleton, objectResizeBy, objectMoveTo,
     relationshipUpdateBinaryFrom, relationshipUpdateBinaryTo, removeObjectFromPaper,
     relationshipUpdateIsaFrom, relationshipUpdateIsaTo, savePaperOffset,
-    relationshipUpdateBinaryRelPhrase, addRelationshipToPaper, removeRelationshipFromPaper
+    relationshipUpdateBinaryRelPhrase, addRelationshipToPaper, removeRelationshipFromPaper, relationshipAddTargetToIsa
 } from './paperSlice';
 import ObjectEditor from '../object/ObjectDialog';
 import BinaryEditor from '../relationship/BinaryDialog';
 import { removeObject, addObject } from '../object/objectSlice';
 import { handleObjectMove, handleObjectResize, moveGlyph } from '../../app/utils';
-import { addRelationship, removeRelationship } from '../relationship/relationshipSlice';
+import { addRelationship, removeRelationship, addTargetToIsa } from '../relationship/relationshipSlice';
 
 import styles from './Paper.module.css';
 
@@ -514,103 +516,182 @@ export function Paper(props: PaperProps) {
                             }
 
                             let start_obj = id;
-
                             let target = event.target as SVGElement;
-                            let parent = target.parentNode as SVGGElement;
-                            let end_obj = parent.id;
+                            let type = target.className.baseVal.split('_')[1];
+                            if (type === 'objectRect') {
+                                let parent = target.parentNode as SVGGElement;
+                                let end_obj = parent.id;
 
-                            let xform = parent.transform.baseVal.getItem(0);
-                            console.assert(xform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
-                            let end_x = xform.matrix.e;
-                            let end_y = xform.matrix.f;
-                            let end_width = Number(target.getAttribute('width'));
-                            let end_height = Number(target.getAttribute('height'));
+                                // let xform = parent.transform.baseVal.getItem(0);
+                                // console.assert(xform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
+                                // let end_x = xform.matrix.e;
+                                // let end_y = xform.matrix.f;
+                                // let end_width = Number(target.getAttribute('width'));
+                                // let end_height = Number(target.getAttribute('height'));
 
 
-                            // Doh! I just realized that I don't know which edge was dragged over.
-                            // If I figure that out I can do the arrow directions properly.
-                            // It's tricky. The line mostly likely will intercept each object
-                            // twice. I'd need to figure out which ones to use. Sounds like a
-                            // minimization problem. Not worthwhile atm.
-                            // let from_intersection = intersection(
-                            //     { x: line.x0, y: line.y0 },
-                            //     { x: line.x1, y: line.y1 },
-                            //     { x, y },
-                            //     { x: x + width, y: y + height }
-                            // );
+                                // Doh! I just realized that I don't know which edge was dragged over.
+                                // If I figure that out I can do the arrow directions properly.
+                                // It's tricky. The line mostly likely will intercept each object
+                                // twice. I'd need to figure out which ones to use. Sounds like a
+                                // minimization problem. Not worthwhile atm.
+                                // let from_intersection = intersection(
+                                //     { x: line.x0, y: line.y0 },
+                                //     { x: line.x1, y: line.y1 },
+                                //     { x, y },
+                                //     { x: x + width, y: y + height }
+                                // );
 
-                            // let to_intersection = intersection(
-                            //     { x: line.x0, y: line.y0 },
-                            //     { x: line.x1, y: line.y1 },
-                            //     { x: end_x, y: end_y },
-                            //     { x: end_x + end_width, y: end_y + end_height }
-                            // );
+                                // let to_intersection = intersection(
+                                //     { x: line.x0, y: line.y0 },
+                                //     { x: line.x1, y: line.y1 },
+                                //     { x: end_x, y: end_y },
+                                //     { x: end_x + end_width, y: end_y + end_height }
+                                // );
 
-                            // console.log(from_intersection, to_intersection);
+                                // console.log(from_intersection, to_intersection);
 
-                            let relationship_ui: BinaryUI = {
-                                from: {
+                                let relationship_ui: BinaryUI = {
+                                    from: {
+                                        id: start_obj,
+                                        x: line!.x0,
+                                        y: line!.y0,
+                                        // x: from_intersection!.x,
+                                        // y: from_intersection!.y,
+                                        offset: {
+                                            x: 20,
+                                            y: 20
+                                        },
+                                        dir: 'East'
+                                    },
+                                    to: {
+                                        id: end_obj,
+                                        x: line?.x1,
+                                        y: line?.y1,
+                                        // x: to_intersection!.x,
+                                        // y: to_intersection!.y,
+                                        offset: {
+                                            x: 20,
+                                            y: 20
+                                        },
+                                        dir: 'West'
+                                    }
+                                };
+
+                                let relationship_state: Binary = {
+                                    id: 'foo',
+                                    number: 888,
+                                    from: {
+                                        obj_id: start_obj,
+                                        description: '',
+                                        cardinality: 'One',
+                                        conditionality: 'Unconditional',
+                                        formalizing_attribute_name: ''
+                                    },
+                                    to: {
+                                        obj_id: end_obj,
+                                        description: '',
+                                        cardinality: 'One',
+                                        conditionality: 'Unconditional'
+                                    }
+                                };
+
+                                // @ts-ignore
+                                dispatch(addRelationship({ id: 'foo', payload: { Binary: relationship_state } }));
+                                dispatch(addRelationshipToPaper({ id: 'foo', payload: { BinaryUI: relationship_ui } }));
+                                let { relationship } = move;
+                                setMove({
+                                    ...move,
+                                    mouseDown: false,
+                                    meta: false,
+                                    object: {
+                                        ...object,
+                                        line: null
+                                    },
+                                    relationship: {
+                                        ...relationship, id: 'foo',
+                                        relationship_dialog: true
+                                    }
+                                });
+                                return;
+                            } else if (type === 'relGlyph' || type === 'relBoxAssist' ||
+                                type === 'relName') {
+                                // We must be adding a to object to an Isa relationship
+                                // @ts-ignore
+                                while (target.id === "") {
+                                    target = target.parentNode as SVGGElement;
+                                }
+                                let [rel_id, to_obj, ...foo] = target.id.split(':');
+                                // @ts-ignore
+                                // let rel_ui = paper_obj!.relationships[rel_id].IsaUI as IsaUI;
+                                let to_end: BinaryEnd = ({
                                     id: start_obj,
                                     x: line!.x0,
                                     y: line!.y0,
-                                    // x: from_intersection!.x,
-                                    // y: from_intersection!.y,
-                                    offset: {
-                                        x: 20,
-                                        y: 20
-                                    },
-                                    dir: 'East'
-                                },
-                                to: {
-                                    id: end_obj,
-                                    x: line?.x1,
-                                    y: line?.y1,
-                                    // x: to_intersection!.x,
-                                    // y: to_intersection!.y,
                                     offset: {
                                         x: 20,
                                         y: 20
                                     },
                                     dir: 'West'
-                                }
-                            };
+                                });
 
-                            let relationship_state: RelationshipStore = {
-                                id: 'foo',
-                                number: 888,
-                                from: {
+                                dispatch(addTargetToIsa({ rel_id, to: start_obj }));
+                                dispatch(relationshipAddTargetToIsa({ id: rel_id, to_end: to_end }));
+                                setMove({
+                                    ...move,
+                                    mouseDown: false,
+                                    meta: false,
+                                    object: {
+                                        ...object,
+                                        line: null
+                                    },
+                                    relationship: {
+                                        ...relationship, id: 'foo',
+                                        relationship_dialog: false
+                                    }
+                                });
+                            } else {
+                                // You must have dragged it to the paper. Create a new Isa.
+                                let relationship_ui: IsaUI = {
+                                    from: {
+                                        id: start_obj,
+                                        x: line!.x0,
+                                        y: line!.y0,
+                                        offset: {
+                                            x: 20,
+                                            y: 20
+                                        },
+                                        dir: 'South'
+                                    },
+                                    to: []
+                                };
+
+                                let relationship_state: Isa = {
+                                    id: 'foo',
+                                    number: 888,
                                     obj_id: start_obj,
-                                    description: '',
-                                    cardinality: 'One',
-                                    conditionality: 'Unconditional',
-                                    formalizing_attribute_name: ''
-                                },
-                                to: {
-                                    obj_id: end_obj,
-                                    description: '',
-                                    cardinality: 'One',
-                                    conditionality: 'Unconditional'
-                                }
-                            };
+                                    subtypes: []
+                                };
 
-                            // @ts-ignore
-                            dispatch(addRelationship({ id: 'foo', payload: { Binary: relationship_state } }));
-                            dispatch(addRelationshipToPaper({ id: 'foo', payload: { BinaryUI: relationship_ui } }));
-                            let { relationship } = move;
-                            setMove({
-                                ...move,
-                                mouseDown: false,
-                                meta: false,
-                                object: {
-                                    ...object,
-                                    line: null
-                                },
-                                relationship: {
-                                    ...relationship, id: 'foo',
-                                    relationship_dialog: true
-                                }
-                            });
-                            return;
+                                // @ts-ignore
+                                dispatch(addRelationship({ id: 'foo', payload: { Isa: relationship_state } }));
+                                dispatch(addRelationshipToPaper({ id: 'foo', payload: { IsaUI: relationship_ui } }));
+                                let { relationship } = move;
+                                setMove({
+                                    ...move,
+                                    mouseDown: false,
+                                    meta: false,
+                                    object: {
+                                        ...object,
+                                        line: null
+                                    },
+                                    relationship: {
+                                        ...relationship, id: 'foo',
+                                        relationship_dialog: false
+                                    }
+                                });
+                                return;
+                            }
                         }
 
 

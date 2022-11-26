@@ -138,6 +138,13 @@ export const paperSlice = createSlice({
             let paper = state.entities[state.ids[0]];
             delete paper?.relationships[id];
         },
+        relationshipAddTargetToIsa: (state, action) => {
+            let { id, to_end } = action.payload;
+
+            let paper = state.entities[state.ids[0]];
+            // @ts-ignore
+            paper!.relationships[id].IsaUI.to.push(to_end);
+        }
     }
 });
 
@@ -145,7 +152,7 @@ export const { addPaper, addObjectToPaper, objectMoveTo, objectResizeBy, objectC
     relationshipUpdate, removeObjectFromPaper, relationshipUpdateBinaryFrom, savePaperOffset,
     relationshipUpdateBinaryTo, relationshipUpdateIsaFrom, relationshipUpdateIsaTo,
     relationshipUpdateBinaryRelPhrase, addRelationshipToPaper, removeRelationshipFromPaper,
-    relationshipChangeId }
+    relationshipChangeId, relationshipAddTargetToIsa }
     = paperSlice.actions;
 
 export let {
