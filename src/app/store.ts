@@ -149,7 +149,9 @@ const rootReducer = undoable(combineReducers({
         if (action.type === "paper/savePaperOffset") {
             return false;
         }
+        return true;
     }),
+    debug: true,
     groupBy: ((action, current, previous) => {
         // This is slick. All we have to to is look for actions that are changing a reference.
         // Write a function to return the current id, could have been previous. The undo thing

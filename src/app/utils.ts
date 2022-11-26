@@ -494,3 +494,22 @@ export function makeLine(from: BinaryEnd, to: BinaryEnd) {
     let t = getAnchorOffset(to.x, to.y, to.dir);
     return "M " + f![0] + " " + f![1] + " L " + t![0] + " " + t![1];
 }
+
+export function intersection(from1: Point, to1: Point, from2: Point, to2: Point): Point | undefined {
+    const dX: number = to1.x - from1.x;
+    const dY: number = to1.y - from1.y;
+
+    const determinant: number = dX * (to2.y - from2.y) - (to2.x - from2.x) * dY;
+    if (determinant === 0) return undefined; // parallel lines
+
+    const lambda: number = ((to2.y - from2.y) * (to2.x - from1.x) + (from2.x - to2.x) * (to2.y - from1.y)) / determinant;
+    const gamma: number = ((from1.y - to1.y) * (to2.x - from1.x) + dX * (to2.y - from1.y)) / determinant;
+
+    // check if there is an intersection
+    if (!(0 <= lambda && lambda <= 1) || !(0 <= gamma && gamma <= 1)) return undefined;
+
+    return {
+        x: from1.x + lambda * dX,
+        y: from1.y + lambda * dY,
+    };
+}

@@ -11,11 +11,11 @@ import {
     addObjectToPaper, selectPaperSingleton, objectResizeBy, objectMoveTo,
     relationshipUpdateBinaryFrom, relationshipUpdateBinaryTo, removeObjectFromPaper,
     relationshipUpdateIsaFrom, relationshipUpdateIsaTo, savePaperOffset,
-    relationshipUpdateBinaryRelPhrase, addRelationshipToPaper
+    relationshipUpdateBinaryRelPhrase, addRelationshipToPaper, selectObjectUIById
 } from './paperSlice';
 import ObjectEditor from '../object/ObjectDialog';
 import { removeObject, addObject } from '../object/objectSlice';
-import { handleObjectMove, handleObjectResize, moveGlyph } from '../../app/utils';
+import { intersection, handleObjectMove, handleObjectResize, moveGlyph } from '../../app/utils';
 import { addRelationship } from '../relationship/relationshipSlice';
 
 import styles from './Paper.module.css';
@@ -479,7 +479,12 @@ export function Paper(props: PaperProps) {
                             altClick = true;
                         } else if (meta) {
                             // Draw a line for a relationsship.
-                            let { line } = object;
+                            let { line, x, y, width, height } = object;
+
+                            if (line === null) {
+                                console.error("this sucks");
+                                return;
+                            }
 
                             let start_obj = id;
 
@@ -487,11 +492,42 @@ export function Paper(props: PaperProps) {
                             let parent = target.parentNode as SVGGElement;
                             let end_obj = parent.id;
 
+                            let xform = parent.transform.baseVal.getItem(0);
+                            console.assert(xform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
+                            let end_x = xform.matrix.e;
+                            let end_y = xform.matrix.f;
+                            let end_width = Number(target.getAttribute('width'));
+                            let end_height = Number(target.getAttribute('height'));
+
+
+                            // Doh! I just realized that I don't know which edge was dragged over.
+                            // If I figure that out I can do the arrow directions properly.
+                            // It's tricky. The line mostly likely will intercept each object
+                            // twice. I'd need to figure out which ones to use. Sounds like a
+                            // minimization problem. Not worthwhile atm.
+                            // let from_intersection = intersection(
+                            //     { x: line.x0, y: line.y0 },
+                            //     { x: line.x1, y: line.y1 },
+                            //     { x, y },
+                            //     { x: x + width, y: y + height }
+                            // );
+
+                            // let to_intersection = intersection(
+                            //     { x: line.x0, y: line.y0 },
+                            //     { x: line.x1, y: line.y1 },
+                            //     { x: end_x, y: end_y },
+                            //     { x: end_x + end_width, y: end_y + end_height }
+                            // );
+
+                            // console.log(from_intersection, to_intersection);
+
                             let relationship_ui: BinaryUI = {
                                 from: {
                                     id: start_obj,
                                     x: line!.x0,
                                     y: line!.y0,
+                                    // x: from_intersection!.x,
+                                    // y: from_intersection!.y,
                                     offset: {
                                         x: 20,
                                         y: 20
@@ -500,8 +536,10 @@ export function Paper(props: PaperProps) {
                                 },
                                 to: {
                                     id: end_obj,
-                                    x: line!.x1,
-                                    y: line!.y1,
+                                    x: line?.x1,
+                                    y: line?.y1,
+                                    // x: to_intersection!.x,
+                                    // y: to_intersection!.y,
                                     offset: {
                                         x: 20,
                                         y: 20
@@ -683,7 +721,7 @@ export function Paper(props: PaperProps) {
                             line!.y1 += event.movementY;
 
                             // @ts-ignore
-                            setMove({ ...move, object: { line } });
+                            setMove({ ...move, object: { ...object, line } });
 
                         } else if (resizeDir) {
                             let new_move = handleObjectResize(move, event);
