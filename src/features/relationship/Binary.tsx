@@ -23,7 +23,8 @@ export function Binary(props: BinaryProps) {
 
     let id_from = `${binary.id}:${fromObj!.id}:${ui.from.dir}:from`;
     let id_to = `${binary.id}:${toObj!.id}:${ui.to.dir}:to`;
-    let line_id = `${id_from}:${id_to}`
+    let line_id = `${binary.id}:${id_from}:${id_to}`;
+    let name_id = `${binary.id}:name`;
 
     let from_rotation = getRotation(ui.from.dir);
     let to_rotation = getRotation(ui.to.dir);
@@ -61,7 +62,7 @@ export function Binary(props: BinaryProps) {
                 {to_cond}
             </g>
             {to_phrase}
-            <text className={styles.relName} x={(ui.to.x + ui.from.x) / 2}
+            <text id={name_id} className={styles.relName} x={(ui.to.x + ui.from.x) / 2}
                 y={(ui.to.y + ui.from.y) / 2}>{"R" + binary.number}</text>
             <path id={line_id} key={line_id} className={styles.relLine}
                 d={makeLine(ui.from, ui.to)}

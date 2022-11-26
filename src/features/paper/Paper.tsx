@@ -14,6 +14,7 @@ import {
     relationshipUpdateBinaryRelPhrase, addRelationshipToPaper, removeRelationshipFromPaper
 } from './paperSlice';
 import ObjectEditor from '../object/ObjectDialog';
+import BinaryEditor from '../relationship/BinaryDialog';
 import { removeObject, addObject } from '../object/objectSlice';
 import { intersection, handleObjectMove, handleObjectResize, moveGlyph } from '../../app/utils';
 import { addRelationship, removeRelationship } from '../relationship/relationshipSlice';
@@ -75,6 +76,7 @@ export interface MoveStruct {
         y: number,
         dx: number,
         dy: number,
+        relationship_dialog: boolean,
     }
 };
 
@@ -129,7 +131,8 @@ export function Paper(props: PaperProps) {
             y: 0,
             dir: null,
             dx: 0,
-            dy: 0
+            dy: 0,
+            relationship_dialog: false,
         }
     });
 
@@ -266,14 +269,33 @@ export function Paper(props: PaperProps) {
 
                 let [id, obj_id, dir, end] = root.id.split(':');
 
+                if (obj_id === undefined) {
+                    // We aren't embedded in a <g> element, so we need to get the relationship id
+                    // from the target itself. The other stuff won't be there.  Probably I should
+                    // do something smarter than this. Switch on the type of element I have, I think.
+                    // Yeah, switch on className I think. Then depending on what they need they can
+                    // get it and then each do their own setMove.
+                    [id,] = target.id.split(':');
+                }
+
                 if (event.ctrlKey) {
                     // Delete
                     dispatch(removeRelationshipFromPaper({ id }));
                     // @ts-ignore
                     dispatch(removeRelationship({ id }));
                     return;
-                } else if (obj_id === undefined &&
-                    target.className.baseVal.split('_')[1] === 'relPhrase') {
+                } else if (event.altKey) {
+                    // This brings up the relationship editor.
+                    setMove({
+                        ...move,
+                        mouseDown: true,
+                        target: { node: target, type },
+                        alt: true,
+                        relationship: { ...relationship, id, relationship_dialog: true }
+                    });
+                    return;
+
+                } else if (target.className.baseVal.split('_')[1] === 'relPhrase') {
                     [id, end] = target.id.split(':');
 
                     x = Number(target.getAttribute('x'));
@@ -327,7 +349,8 @@ export function Paper(props: PaperProps) {
                         x,
                         y,
                         dx: 0,
-                        dy: 0
+                        dy: 0,
+                        relationship_dialog: false
                     }
                 });
             }
@@ -562,7 +585,7 @@ export function Paper(props: PaperProps) {
                                     description: '',
                                     cardinality: 'One',
                                     conditionality: 'Unconditional',
-                                    formalizing_attr: ''
+                                    formalizing_attribute_name: ''
                                 },
                                 to: {
                                     obj_id: end_obj,
@@ -596,7 +619,7 @@ export function Paper(props: PaperProps) {
 
                 case 'Relationship': {
                     let { relationship, target } = move;
-                    let { x, y, obj_id, dir, id, end } = relationship;
+                    let { x, y, obj_id, dir, id, end, relationship_dialog } = relationship;
 
                     // These, among others, aren't defined when a relPhrase is dragged.
                     if (dir !== null && obj_id !== undefined) {
@@ -645,7 +668,7 @@ export function Paper(props: PaperProps) {
                                 console.error('unknown relationship ui', ui!);
                                 break
                         }
-                    } else if (target!.node!.className.baseVal.split('_') === 'relPhrase') {
+                    } else if (target!.node!.className.baseVal.split('_')[1] === 'relPhrase') {
                         // Assume rel phrase drag
                         let { dx, dy } = relationship;
                         dispatch(relationshipUpdateBinaryRelPhrase({ id, end, offset: { x: dx, y: dy } }));
@@ -658,7 +681,17 @@ export function Paper(props: PaperProps) {
                         meta: false,
                         ctrl: false,
                         target: { node: null, type: '' },
-                        relationship: { id: '', obj_id: '', end: '', x: 0, y: 0, dir: null, dx: 0, dy: 0 }
+                        relationship: {
+                            id,
+                            obj_id: '',
+                            end: '',
+                            x: 0,
+                            y: 0,
+                            dir: null,
+                            dx: 0,
+                            dy: 0,
+                            relationship_dialog
+                        }
                     });
                 }
                     break;
@@ -855,10 +888,13 @@ export function Paper(props: PaperProps) {
         if (move.object.object_dialog) {
             let { object } = move;
             setMove({ ...move, object: { ...object, object_dialog: false } });
+        } else if (move.relationship.relationship_dialog) {
+            let { relationship } = move;
+            setMove({ ...move, relationship: { ...relationship, relationship_dialog: false } });
         }
     }
 
-    let { origin_x, origin_y, object } = move;
+    let { origin_x, origin_y, object, relationship } = move;
     let { line } = object;
 
     // if (contextMenu) {
@@ -870,6 +906,12 @@ export function Paper(props: PaperProps) {
             {object.object_dialog &&
                 // @ts-ignore
                 <ObjectEditor enabled={true} obj_id={move.object.id} ns={props.domain_ns}
+                    done={doneEditing}
+                />
+            }
+            {relationship.relationship_dialog &&
+                // @ts-ignore
+                <BinaryEditor enabled={true} id={move.relationship.id} ns={props.domain_ns}
                     done={doneEditing}
                 />
             }

@@ -51,6 +51,16 @@ export const paperSlice = createSlice({
             paper!.objects[id] = { ...orig!, id };
             delete paper!.objects[old_id];
         },
+        // Needed to renumber a relationship
+        relationshipChangeId: (state, action) => {
+            let { id, old_id } = action.payload;
+
+            let paper = state.entities[state.ids[0]];
+            let orig = paper!.relationships[old_id];
+            // @ts-ignore
+            paper!.relationships[id] = { ...orig!, id };
+            delete paper!.relationships[old_id];
+        },
         relationshipUpdate: (state, action) => {
             let { id, ui } = action.payload;
 
@@ -134,7 +144,8 @@ export const paperSlice = createSlice({
 export const { addPaper, addObjectToPaper, objectMoveTo, objectResizeBy, objectChangeId,
     relationshipUpdate, removeObjectFromPaper, relationshipUpdateBinaryFrom, savePaperOffset,
     relationshipUpdateBinaryTo, relationshipUpdateIsaFrom, relationshipUpdateIsaTo,
-    relationshipUpdateBinaryRelPhrase, addRelationshipToPaper, removeRelationshipFromPaper }
+    relationshipUpdateBinaryRelPhrase, addRelationshipToPaper, removeRelationshipFromPaper,
+    relationshipChangeId }
     = paperSlice.actions;
 
 export let {

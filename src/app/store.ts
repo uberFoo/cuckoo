@@ -107,7 +107,7 @@ export interface Independent {
     description: string,
     cardinality: Cardinality,
     conditionality: Conditionality,
-    formalizing_attr: string
+    formalizing_attribute_name: string
 }
 
 export interface Dependent {

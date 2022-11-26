@@ -46,18 +46,8 @@ const ObjectEditor = (props: Props) => {
         // @ts-ignore
         if (values.objectName !== object.name) {
             let new_id = uuid(values.objectName, props.ns);
-            // If the name changed then so will the id, which is how our attributes refer to us. We
-            // also need to update any referential attributes.
-            // attributes
-            //     .filter((a) => a.obj_id === props.obj_id)
-            //     .map((a) => dispatch(updateObjectReference({ id: a.id, obj_id: new_id })));
-            // attributes
-            //     .filter((a) => typeof a.type === 'object' && a.type.foreign_key === props.obj_id)
-            //     .map((a) => dispatch(updateReferentialAttribute({ id: a.id, obj_id: new_id })));
-
             let new_obj = { ...object, id: new_id, name: values.objectName };
 
-            // Order is probably importannt
             dispatch(objectChangeId({ id: new_id, old_id: props.obj_id }));
             dispatch(replaceObject({ object: new_obj, old_id: props.obj_id }));
         }
@@ -132,6 +122,10 @@ const ObjectEditor = (props: Props) => {
         }));
     }
 
+    let cancel = () => {
+        props.done();
+    }
+
     let listItems = Object.keys(object.attributes).map(id => {
         let a = object!.attributes[id];
         return { id: a!.id, name: a!.name, type: a!.type };
@@ -182,6 +176,7 @@ const ObjectEditor = (props: Props) => {
                     </FormGroup>
                 </DialogContent >
                 <DialogActions>
+                    <Button onClick={cancel}>Cancel</Button>
                     <Button onClick={handleSubmit}>Done</Button>
                 </DialogActions>
             </Dialog>
