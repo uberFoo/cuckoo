@@ -151,7 +151,7 @@ const rootReducer = undoable(combineReducers({
         }
         return true;
     }),
-    debug: true,
+    debug: false,
     groupBy: ((action, current, previous) => {
         // This is slick. All we have to to is look for actions that are changing a reference.
         // Write a function to return the current id, could have been previous. The undo thing
@@ -216,7 +216,8 @@ export const store = configureStore({
                 // @ts-ignore
                 ignoreActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
             }
-        }).concat(logger)
+        }).concat(logger),
+    devTools: true
 });
 
 export const persistor = persistStore(store);

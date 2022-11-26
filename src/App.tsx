@@ -59,9 +59,8 @@ function App() {
             let content = await readTextFile(path);
 
             let state = store.getState();
-            state = JSON.parse(content);
-            // @ts-ignore
-            // console.log(content);
+            let new_state = JSON.parse(content);
+
         } catch (e) {
             console.error(e);
         }
@@ -80,7 +79,11 @@ function App() {
 
     const ExportModel = async () => {
         let state = store.getState();
-        let json = JSON.stringify(state);
+        // If we export with history, and import later, for some reason our state doesn't
+        // persist from then forward. I.e., reloading the page brings up the state from
+        // disk.
+        let { present } = state;
+        let json = JSON.stringify(present);
 
         let path = await save();
         await writeFile({ contents: json, path: path! });
