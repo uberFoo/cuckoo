@@ -12,8 +12,14 @@
     fill: none;
 }
 
+.relBoxAssist {
+    fill-opacity: 0;
+    stroke-opacity: 0;
+}
+
 .relPhrase {
     stroke: none;
+    cursor: move;
 }
 
 .relName {

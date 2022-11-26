@@ -1,23 +1,19 @@
-import React, { useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import React from 'react';
+import { useAppSelector } from '../../app/hooks';
 
-import { BinaryEnd } from '../../app/store';
+import { RelationshipUI, BinaryUI } from '../../app/store';
 import { selectRelationshipsById } from './relationshipSlice';
-import { selectObjectById } from '../object/objectSlice';
 import { Binary } from './Binary';
+import { Isa } from './Isa';
 
 import styles from './Relationship.module.css';
 
 interface RelationshipProps {
-    id: string
-    from: BinaryEnd,
-    to: BinaryEnd,
-    uberFoo: (e: React.MouseEvent) => void
+    id: string,
+    ui: RelationshipUI
 }
 
 export function Relationship(props: RelationshipProps) {
-    let dispatch = useAppDispatch();
-
     let rel = useAppSelector((state) => selectRelationshipsById(state, props.id));
 
     let render = null;
@@ -26,12 +22,18 @@ export function Relationship(props: RelationshipProps) {
     switch (Object.keys(rel!)[0]) {
         case "Binary":
             // @ts-ignore
-            render = Binary({ ...props, rel: rel!.Binary });
+            render = Binary({ ...props, ui: props.ui.BinaryUI as BinaryUI, rel: rel!.Binary });
             // @ts-ignore
             id = rel!.Binary.id;
             break;
+
         case "Isa":
+            // @ts-ignore
+            render = Isa({ ...props, ui: props.ui.IsaUI as IsaUI, rel: rel!.Isa });
+            // @ts-ignore
+            id = rel!.Isa.id;
             break;
+
         case "Associative":
             break;
 

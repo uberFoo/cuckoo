@@ -1,9 +1,5 @@
 import React from 'react';
 
-import { selectAttributeById } from './attributeSlice';
-import { getAttributeType, useAppSelector } from '../../app/hooks';
-import { AttributeStore } from '../../app/store';
-
 import styles from './Attribute.module.css';
 
 // Same thing is in Object :-(

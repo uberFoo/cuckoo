@@ -4,18 +4,22 @@ import { Menu, MenuItem } from '@mui/material';
 import { ActionCreators as UndoActionCreators } from 'redux-undo';
 
 import { ObjectWidget } from '../object/Object';
-import { ObjectUI, PaperStore, RelationshipUI, Point } from '../../app/store';
+import { RelationshipStore, BinaryUI, Rect, ObjectUI, RelationshipUI, BinaryEnd } from '../../app/store';
 import { Relationship } from '../relationship/Relationship';
-import { makeLine, makeTransform } from '../relationship/Binary';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
-    addObjectToPaper, selectPaperSingleton, objectResizeBy, objectMoveTo, relationshipUpdate,
-    relationshipUpdateFrom, relationshipUpdateTo, removeObjectFromPaper
+    addObjectToPaper, selectPaperSingleton, objectResizeBy, objectMoveTo,
+    relationshipUpdateBinaryFrom, relationshipUpdateBinaryTo, removeObjectFromPaper,
+    relationshipUpdateIsaFrom, relationshipUpdateIsaTo, savePaperOffset,
+    relationshipUpdateBinaryRelPhrase, addRelationshipToPaper, removeRelationshipFromPaper
 } from './paperSlice';
 import ObjectEditor from '../object/ObjectDialog';
+import BinaryEditor from '../relationship/BinaryDialog';
+import { removeObject, addObject } from '../object/objectSlice';
+import { intersection, handleObjectMove, handleObjectResize, moveGlyph } from '../../app/utils';
+import { addRelationship, removeRelationship } from '../relationship/relationshipSlice';
 
 import styles from './Paper.module.css';
-import { removeObject, addObject } from '../object/objectSlice';
 
 
 const defaultWidth = 3200;
@@ -27,24 +31,26 @@ const maxScale = 4.5;
 
 interface PaperProps {
     domain: string,
-    domain_ns: string
+    domain_ns: string,
+    x: number,
+    y: number,
 }
 
 export type Direction = "north" | "south" | "east" | "west" | null;
 
-interface MoveStruct {
+export interface MoveStruct {
     mouseDown: boolean,
     origin_x: number,
     origin_y: number,
     meta: boolean,
     alt: boolean,
     ctrl: boolean,
+    shift: boolean,
     target: {
         node: SVGElement | null,
         type: string
     },
     paper: {
-        undo: boolean,
         new_object: NewObject | null
     },
     object: {
@@ -54,28 +60,25 @@ interface MoveStruct {
         width: number,
         height: number,
         resizeDir: Direction,
-        altClick: boolean,
+        object_dialog: boolean,
         line: Line | null,
         dirty_m: boolean,
         dirty_r: boolean,
-        rels: { target: SVGGElement, x: number, y: number }[]
+        rels: { target: SVGGElement, x: number, y: number, type: string }[]
     },
     relationship: {
         id: string,
         obj_id: string,
         parent?: SVGGElement,
         end: string,
-        dir: string,
+        dir: string | null,
         x: number,
         y: number,
+        dx: number,
+        dy: number,
+        relationship_dialog: boolean,
     }
 };
-interface Rect {
-    x0: number,
-    y0: number,
-    x1: number,
-    y1: number,
-}
 
 type Line = Rect;
 
@@ -97,14 +100,14 @@ export function Paper(props: PaperProps) {
 
     let [move, setMove] = useState<MoveStruct>({
         mouseDown: false,
-        origin_x: window.innerWidth / 2 - paper_obj!.width / 2,
-        origin_y: window.innerHeight / 2 - paper_obj!.height / 2,
+        origin_x: props.x, //window.innerWidth / 2 - paper_obj!.width / 2,
+        origin_y: props.y, //window.innerHeight / 2 - paper_obj!.height / 2,
         target: { node: null, type: '' },
         meta: false,
         alt: false,
         ctrl: false,
+        shift: false,
         paper: {
-            undo: false,
             new_object: null
         },
         object: {
@@ -114,7 +117,7 @@ export function Paper(props: PaperProps) {
             width: 0,
             height: 0,
             resizeDir: null,
-            altClick: false,
+            object_dialog: false,
             line: null,
             dirty_m: false,
             dirty_r: false,
@@ -126,7 +129,10 @@ export function Paper(props: PaperProps) {
             end: '',
             x: 0,
             y: 0,
-            dir: ''
+            dir: null,
+            dx: 0,
+            dy: 0,
+            relationship_dialog: false,
         }
     });
 
@@ -150,8 +156,12 @@ export function Paper(props: PaperProps) {
                 if (event.altKey) {
                     // Start an undo
                     setMove({
-                        ...move, mouseDown: true, target: { node: target, type }, alt: true,
-                        paper: { ...paper, undo: true }
+                        ...move, mouseDown: true, target: { node: target, type }, alt: true
+                    });
+                } else if (event.shiftKey) {
+                    // Do a redo
+                    setMove({
+                        ...move, mouseDown: true, target: { node: target, type }, shift: true
                     });
                 } else if (event.metaKey) {
                     // Create a new object. We use a Rect struct to hold it's dimensions until
@@ -177,7 +187,7 @@ export function Paper(props: PaperProps) {
                 } else if (event.ctrlKey) {
                     // This is for a context menu. Don't need to do anything.
                 } else {
-                    // At a minimum we need to record that the mouse was down.
+                    // At a minimum we need to record that the mouse was down. And the target too!
                     setMove({ ...move, mouseDown: true, target: { node: target, type } });
                 }
             }
@@ -185,7 +195,6 @@ export function Paper(props: PaperProps) {
 
             case 'Object': {
                 let { origin_x, origin_y, object } = move;
-                let dir = target.id as Direction;
 
                 let root = target.parentNode as SVGGElement;
                 let canvas = root?.parentNode;
@@ -233,6 +242,7 @@ export function Paper(props: PaperProps) {
                     dispatch(removeObject({ id }));
                 } else {
                     // Default dragging
+                    let dir = target.id as Direction;
                     setMove({
                         ...move,
                         mouseDown: true,
@@ -241,9 +251,10 @@ export function Paper(props: PaperProps) {
                             ...object,
                             id, x, y, width, height,
                             resizeDir: dir,
-                            altClick: false,
+                            object_dialog: false,
                             dirty_m: false,
                             dirty_r: false,
+                            rels: []
                         }
                     });
                 }
@@ -252,19 +263,79 @@ export function Paper(props: PaperProps) {
 
             case 'Relationship': {
                 let { relationship } = move;
-                let root = target.parentNode as SVGGElement;
-                let [id, obj_id, dir, end] = root.id.split(':');
-                let props = paper_obj!.relationships[id] as RelationshipUI;
-
                 let { x, y } = relationship;
-                if (end === 'from') {
-                    x = props.from.x;
-                    y = props.from.y;
-                    dir = props.from.dir;
-                } else {
-                    x = props.to.x;
-                    y = props.to.y;
-                    dir = props.to.dir;
+
+                let root = target.parentNode as SVGGElement;
+
+                let [id, obj_id, dir, end] = root.id.split(':');
+
+                if (obj_id === undefined) {
+                    // We aren't embedded in a <g> element, so we need to get the relationship id
+                    // from the target itself. The other stuff won't be there.  Probably I should
+                    // do something smarter than this. Switch on the type of element I have, I think.
+                    // Yeah, switch on className I think. Then depending on what they need they can
+                    // get it and then each do their own setMove.
+                    [id,] = target.id.split(':');
+                }
+
+                if (event.ctrlKey) {
+                    // Delete
+                    dispatch(removeRelationshipFromPaper({ id }));
+                    // @ts-ignore
+                    dispatch(removeRelationship({ id }));
+                    return;
+                } else if (event.altKey) {
+                    // This brings up the relationship editor.
+                    setMove({
+                        ...move,
+                        mouseDown: true,
+                        target: { node: target, type },
+                        alt: true,
+                        relationship: { ...relationship, id, relationship_dialog: true }
+                    });
+                    return;
+
+                } else if (target.className.baseVal.split('_')[1] === 'relPhrase') {
+                    [id, end] = target.id.split(':');
+
+                    x = Number(target.getAttribute('x'));
+                    y = Number(target.getAttribute('y'));
+                } else if (obj_id !== undefined) {
+                    let ui = paper_obj!.relationships[id] as RelationshipUI;
+
+                    switch (Object.keys(ui)[0]) {
+                        case 'BinaryUI':
+                            // @ts-ignore
+                            let props = ui.BinaryUI as BinaryUI;
+                            if (end === 'from') {
+                                x = props.from.x;
+                                y = props.from.y;
+                                dir = props.from.dir;
+                            } else {
+                                x = props.to.x;
+                                y = props.to.y;
+                                dir = props.to.dir;
+                            }
+                            break;
+                        case 'IsaUI': {
+                            // @ts-ignore
+                            let props = ui.IsaUI as IsaUI;
+                            if (end === 'from') {
+                                x = props.from.x;
+                                y = props.from.y;
+                                dir = props.from.dir;
+                            } else {
+                                props.to.forEach((to_ui: BinaryEnd, index: number) => {
+                                    if (to_ui.id === obj_id) {
+                                        x = to_ui.x;
+                                        y = to_ui.y;
+                                        dir = to_ui.dir;
+                                    }
+                                });
+                            }
+                        }
+                            break;
+                    }
                 }
 
                 setMove({
@@ -276,7 +347,10 @@ export function Paper(props: PaperProps) {
                         end,
                         dir,
                         x,
-                        y
+                        y,
+                        dx: 0,
+                        dy: 0,
+                        relationship_dialog: false
                     }
                 });
             }
@@ -295,35 +369,40 @@ export function Paper(props: PaperProps) {
             let new_obj = false;
             switch (target.type) {
                 case 'Paper': {
-                    let { mouseDown, paper, object, meta } = move;
-                    let { undo } = paper;
+                    let { mouseDown, paper, object, meta, alt, shift } = move;
 
-                    if (undo) {
-                        dispatch(UndoActionCreators.undo());
+                    if (mouseDown) {
+                        if (alt) {
+                            dispatch(UndoActionCreators.undo());
+                        } else if (shift) {
+                            dispatch(UndoActionCreators.redo());
+                        } else if (meta) {
+                            let { x0, y0, x1, y1 } = paper.new_object!;
+                            let width = x1 - x0;
+                            let height = y1 - y0;
 
-                    } else if (mouseDown && meta) {
-                        let { x0, y0, x1, y1 } = paper.new_object!;
-                        let width = x1 - x0;
-                        let height = y1 - y0;
+                            if (width > 50 && height > 50) {
 
-                        let obj_ui = {
-                            id: "fubar",
-                            payload: {
-                                x: x0,
-                                y: y0,
-                                width,
-                                height
+                                let obj_ui = {
+                                    id: "fubar",
+                                    payload: {
+                                        x: x0,
+                                        y: y0,
+                                        width,
+                                        height
+                                    }
+                                };
+
+                                new_obj = true;
+
+                                dispatch(addObject({ id: "fubar", name: "New Object", attributes: {} }));
+                                dispatch(addObjectToPaper(obj_ui));
                             }
-                        };
-
-                        new_obj = true;
-
-                        dispatch(addObject({ id: "fubar", name: "New Object" }));
-                        dispatch(addObjectToPaper(obj_ui));
-                    } else {
-                        // console.log('forwarding mouseup');
-                        // // @ts-ignore
-                        // mouseMoveCallbacks.map(([foo, bar]) => { if (bar !== null) bar(event); });
+                        } else {
+                            let { origin_x, origin_y } = move;
+                            // Presumably we are panning
+                            dispatch(savePaperOffset({ x: origin_x, y: origin_y }));
+                        }
                     }
 
                     if (new_obj) {
@@ -333,9 +412,11 @@ export function Paper(props: PaperProps) {
                             meta: false,
                             alt: false,
                             ctrl: false,
+                            shift: false,
                             target: { node: null, type: '' },
-                            paper: { ...paper, undo: false, new_object: null },
-                            object: { ...object, id: 'fubar', altClick: true }
+                            paper: { ...paper, new_object: null },
+                            // This is PFM. I've created a monster.
+                            object: { ...object, id: 'fubar', object_dialog: true }
                         });
                     } else {
                         setMove({
@@ -344,8 +425,9 @@ export function Paper(props: PaperProps) {
                             meta: false,
                             alt: false,
                             ctrl: false,
+                            shift: false,
                             target: { node: null, type: '' },
-                            paper: { ...paper, undo: false, new_object: null }
+                            paper: { ...paper, new_object: null }
                         });
                     }
                 }
@@ -353,7 +435,7 @@ export function Paper(props: PaperProps) {
 
                 case 'Object': {
                     let { mouseDown, object, alt, meta } = move;
-                    let { altClick, width, height, x, y, dirty_m, dirty_r, rels } = object;
+                    let { object_dialog, width, height, x, y, dirty_m, dirty_r, rels } = object;
 
                     let parent = target.node!.parentNode as SVGGElement;
                     let id = parent.id;
@@ -368,18 +450,54 @@ export function Paper(props: PaperProps) {
                             for (let r in rels) {
                                 let o = rels[r];
                                 let t = o.target;
+                                let type = o.type;
 
                                 let [id, obj_id, dir, end] = t.id.split(':');
+                                let ui = paper_obj?.relationships[id];
 
                                 let xform = t.transform.baseVal.getItem(0);
                                 console.assert(xform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
                                 let x = xform.matrix.e;
                                 let y = xform.matrix.f;
 
-                                if (end === 'from') {
-                                    dispatch(relationshipUpdateFrom({ id, from: { id: obj_id, x, y, dir } }));
-                                } else {
-                                    dispatch(relationshipUpdateTo({ id, to: { id: obj_id, x, y, dir } }));
+                                if (type === 'binary') {
+                                    if (end === 'from') {
+                                        // @ts-ignore
+                                        let from = ui!.BinaryUI.from;
+                                        dispatch(relationshipUpdateBinaryFrom({
+                                            id,
+                                            from: { ...from, id: obj_id, x, y, dir }
+                                        }));
+                                    } else {
+                                        // @ts-ignore
+                                        let to = ui!.BinaryUI.to;
+                                        dispatch(relationshipUpdateBinaryTo({
+                                            id,
+                                            to: { ...to, id: obj_id, x, y, dir }
+                                        }));
+                                    }
+                                } else if (type === 'isa') {
+                                    if (end === 'from') {
+                                        // @ts-ignore
+                                        let isa_ui = ui!.IsaUI;
+                                        let from = isa_ui?.from;
+
+                                        dispatch(relationshipUpdateIsaFrom({
+                                            id, new_from: { ...from, x, y, dir }
+                                        }));
+                                    } else {
+                                        // @ts-ignore
+                                        let isa_ui = ui!.IsaUI;
+
+                                        isa_ui.to.forEach((rel_ui: BinaryEnd, index: number) => {
+                                            if (rel_ui.id === obj_id) {
+                                                dispatch(relationshipUpdateIsaTo({
+                                                    id, index, new_to: { ...rel_ui, x, y, dir }
+                                                }
+                                                ));
+                                            }
+                                        });
+                                    }
                                 }
                             }
                             dispatch(objectMoveTo({ id, x, y }))
@@ -387,11 +505,99 @@ export function Paper(props: PaperProps) {
 
                         if (alt) {
                             // Bring up the editor
-                            altClick = true;
+                            object_dialog = true;
                         } else if (meta) {
                             // Draw a line for a relationsship.
-                            let { line } = object;
-                            console.log('up', line);
+                            let { line, x, y, width, height } = object;
+
+                            if (line === null) {
+                                console.error("this sucks");
+                                return;
+                            }
+
+                            let start_obj = id;
+
+                            let target = event.target as SVGElement;
+                            let parent = target.parentNode as SVGGElement;
+                            let end_obj = parent.id;
+
+                            let xform = parent.transform.baseVal.getItem(0);
+                            console.assert(xform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
+                            let end_x = xform.matrix.e;
+                            let end_y = xform.matrix.f;
+                            let end_width = Number(target.getAttribute('width'));
+                            let end_height = Number(target.getAttribute('height'));
+
+
+                            // Doh! I just realized that I don't know which edge was dragged over.
+                            // If I figure that out I can do the arrow directions properly.
+                            // It's tricky. The line mostly likely will intercept each object
+                            // twice. I'd need to figure out which ones to use. Sounds like a
+                            // minimization problem. Not worthwhile atm.
+                            // let from_intersection = intersection(
+                            //     { x: line.x0, y: line.y0 },
+                            //     { x: line.x1, y: line.y1 },
+                            //     { x, y },
+                            //     { x: x + width, y: y + height }
+                            // );
+
+                            // let to_intersection = intersection(
+                            //     { x: line.x0, y: line.y0 },
+                            //     { x: line.x1, y: line.y1 },
+                            //     { x: end_x, y: end_y },
+                            //     { x: end_x + end_width, y: end_y + end_height }
+                            // );
+
+                            // console.log(from_intersection, to_intersection);
+
+                            let relationship_ui: BinaryUI = {
+                                from: {
+                                    id: start_obj,
+                                    x: line!.x0,
+                                    y: line!.y0,
+                                    // x: from_intersection!.x,
+                                    // y: from_intersection!.y,
+                                    offset: {
+                                        x: 20,
+                                        y: 20
+                                    },
+                                    dir: 'East'
+                                },
+                                to: {
+                                    id: end_obj,
+                                    x: line?.x1,
+                                    y: line?.y1,
+                                    // x: to_intersection!.x,
+                                    // y: to_intersection!.y,
+                                    offset: {
+                                        x: 20,
+                                        y: 20
+                                    },
+                                    dir: 'West'
+                                }
+                            };
+
+                            let relationship: RelationshipStore = {
+                                id: 'foo',
+                                number: 888,
+                                from: {
+                                    obj_id: start_obj,
+                                    description: '',
+                                    cardinality: 'One',
+                                    conditionality: 'Unconditional',
+                                    formalizing_attribute_name: ''
+                                },
+                                to: {
+                                    obj_id: end_obj,
+                                    description: '',
+                                    cardinality: 'One',
+                                    conditionality: 'Unconditional'
+                                }
+                            };
+
+                            // @ts-ignore
+                            dispatch(addRelationship({ id: 'foo', payload: { Binary: relationship } }));
+                            dispatch(addRelationshipToPaper({ id: 'foo', payload: { BinaryUI: relationship_ui } }));
                         }
 
 
@@ -403,8 +609,8 @@ export function Paper(props: PaperProps) {
                             ctrl: false,
                             target: { node: null, type: '' },
                             object: {
-                                ...object, resizeDir: null, altClick, dirty_m: false, dirty_r: false,
-                                rels: []
+                                ...object, resizeDir: null, object_dialog, dirty_m: false, dirty_r: false,
+                                line: null
                             }
                         });
                     }
@@ -412,25 +618,60 @@ export function Paper(props: PaperProps) {
                     break;
 
                 case 'Relationship': {
-                    let { relationship } = move;
-                    let { x, y, obj_id, dir, id, end } = relationship;
+                    let { relationship, target } = move;
+                    let { x, y, obj_id, dir, id, end, relationship_dialog } = relationship;
 
-                    let ui = paper_obj?.relationships[id];
+                    // These, among others, aren't defined when a relPhrase is dragged.
+                    if (dir !== null && obj_id !== undefined) {
+                        let ui = paper_obj?.relationships[id];
 
-                    if (end === 'from') {
-                        dispatch(relationshipUpdate({
-                            id, ui: {
-                                ...ui, from:
-                                    { id: obj_id, x, y, dir }
+                        switch (Object.keys(ui!)[0]) {
+                            case 'BinaryUI':
+                                if (end === 'from') {
+                                    // @ts-ignore
+                                    let from = ui!.BinaryUI.from;
+                                    dispatch(relationshipUpdateBinaryFrom({
+                                        id,
+                                        from: { ...from, id: obj_id, x, y, dir }
+                                    }));
+                                } else {
+                                    // @ts-ignore
+                                    let to = ui!.BinaryUI.to;
+                                    dispatch(relationshipUpdateBinaryTo({
+                                        id,
+                                        to: { ...to, id: obj_id, x, y, dir }
+                                    }));
+                                }
+                                break;
+                            case 'IsaUI': {
+                                // @ts-ignore
+                                let isa_ui = ui.IsaUI;
+
+                                if (end === 'from') {
+                                    dispatch(relationshipUpdateIsaFrom({
+                                        id, new_from: { ...isa_ui.from, x, y, dir }
+                                    }));
+                                } else {
+                                    isa_ui.to.forEach((to_ui: BinaryEnd, index: number) => {
+                                        if (to_ui.id === obj_id) {
+                                            dispatch(relationshipUpdateIsaTo({
+                                                id, index, new_to: { ...to_ui, x, y, dir }
+                                            }))
+                                        }
+                                    })
+
+                                }
                             }
-                        }));
-                    } else {
-                        dispatch(relationshipUpdate({
-                            id, ui: {
-                                ...ui,
-                                to: { id: obj_id, x, y, dir }
-                            }
-                        }));
+                                break;
+
+                            default:
+                                console.error('unknown relationship ui', ui!);
+                                break
+                        }
+                    } else if (target!.node!.className.baseVal.split('_')[1] === 'relPhrase') {
+                        // Assume rel phrase drag
+                        let { dx, dy } = relationship;
+                        dispatch(relationshipUpdateBinaryRelPhrase({ id, end, offset: { x: dx, y: dy } }));
                     }
 
                     setMove({
@@ -439,7 +680,18 @@ export function Paper(props: PaperProps) {
                         alt: false,
                         meta: false,
                         ctrl: false,
-                        target: { node: null, type: '' }
+                        target: { node: null, type: '' },
+                        relationship: {
+                            id,
+                            obj_id: '',
+                            end: '',
+                            x: 0,
+                            y: 0,
+                            dir: null,
+                            dx: 0,
+                            dy: 0,
+                            relationship_dialog
+                        }
                     });
                 }
                     break;
@@ -491,10 +743,6 @@ export function Paper(props: PaperProps) {
                             // This forces an update -- good here.
                             setMove({ ...move, origin_x, origin_y });
                         }
-                    } else {
-                        // console.log('forwarding mouesmove');
-                        // // @ts-ignore
-                        // mouseMoveCallbacks.map(([foo, bar]) => { if (foo !== null) foo(event) });
                     }
                 }
                     break;
@@ -512,7 +760,7 @@ export function Paper(props: PaperProps) {
                             line!.y1 += event.movementY;
 
                             // @ts-ignore
-                            setMove({ ...move, object: { line } });
+                            setMove({ ...move, object: { ...object, line } });
 
                         } else if (resizeDir) {
                             let new_move = handleObjectResize(move, event);
@@ -528,21 +776,37 @@ export function Paper(props: PaperProps) {
                     break;
 
                 case 'Relationship': {
-                    let { target, relationship } = move;
-                    let { x, y } = relationship;
+                    let { relationship } = move;
+                    let { x, y, parent, dx, dy } = relationship;
+
+                    if (parent === undefined) {
+                        console.error('undefined parent node');
+                        break;
+                    }
 
                     if (event.movementX !== 0 || event.movementY !== 0) {
 
                         x += event.movementX;
                         y += event.movementY;
+                        dx += event.movementX;
+                        dy += event.movementY;
 
-                        let [x0, y0, dir0] = moveGlyph(x, y,
-                            target.node!.parentNode as SVGGElement, paper_obj!)!;
+                        let type = target.node!.className.baseVal.split('_')[1];
+
+                        let x0 = x;
+                        let y0 = y;
+                        let dir0 = null;
+
+                        if (type === 'relGlyph' || type === 'relBoxAssist') {
+                            [x0, y0, dir0] = moveGlyph(x, y, parent, paper_obj!)!;
+                        } else if (type === 'relPhrase') {
+                            target.node!.setAttribute('x', `${x}`);
+                            target.node!.setAttribute('y', `${y}`);
+                        }
 
                         setMove({
                             ...move, relationship: {
-                                // @ts-ignore
-                                ...relationship, x: x0, y: y0, dir: dir0
+                                ...relationship, x: x0, y: y0, dir: dir0, dx, dy
                             }
                         });
                     }
@@ -587,8 +851,6 @@ export function Paper(props: PaperProps) {
 
         objectInstances.push(<ObjectWidget key={`${key}${x}${y}${width}${height}`} id={key} x={x} y={y}
             width={width} height={height} origin={origin}
-        // @ts-ignore
-        // uberFoo={uberFoo}
         />);
     }
 
@@ -604,10 +866,10 @@ export function Paper(props: PaperProps) {
 
     let relInsts: Array<JSX.Element> = [];
     for (let key in paper_obj!.relationships) {
-        let { from, to } = paper_obj!.relationships[key] as RelationshipUI;
+        let rel_ui = paper_obj!.relationships[key];
 
         // @ts-ignore
-        relInsts.push(<Relationship key={key} id={key} from={from} to={to} />); //uberFoo={uberFoo} />);
+        relInsts.push(<Relationship key={key} id={key} ui={rel_ui} />); //uberFoo={uberFoo} />);
     }
 
     // This is for the background. There's an SVG thing that can do a fill given a swatch that I
@@ -623,13 +885,16 @@ export function Paper(props: PaperProps) {
     }
 
     let doneEditing = () => {
-        if (move.object.altClick) {
+        if (move.object.object_dialog) {
             let { object } = move;
-            setMove({ ...move, object: { ...object, altClick: false } });
+            setMove({ ...move, object: { ...object, object_dialog: false } });
+        } else if (move.relationship.relationship_dialog) {
+            let { relationship } = move;
+            setMove({ ...move, relationship: { ...relationship, relationship_dialog: false } });
         }
     }
 
-    let { origin_x, origin_y, object } = move;
+    let { origin_x, origin_y, object, relationship } = move;
     let { line } = object;
 
     // if (contextMenu) {
@@ -638,9 +903,15 @@ export function Paper(props: PaperProps) {
     // } else {
     return (
         <>
-            {object.altClick &&
+            {object.object_dialog &&
                 // @ts-ignore
                 <ObjectEditor enabled={true} obj_id={move.object.id} ns={props.domain_ns}
+                    done={doneEditing}
+                />
+            }
+            {relationship.relationship_dialog &&
+                // @ts-ignore
+                <BinaryEditor enabled={true} id={move.relationship.id} ns={props.domain_ns}
                     done={doneEditing}
                 />
             }
@@ -681,314 +952,4 @@ export function Paper(props: PaperProps) {
             </svg>
         </>
     )
-}
-
-let handleObjectResize = (move: MoveStruct, event: React.MouseEvent) => {
-    if (event.movementX === 0 && event.movementY === 0) {
-        return null;
-    }
-
-    let { object, target } = move;
-    let { x, y, width, height, resizeDir } = object;
-
-    let dirty_m = false;
-    let dirty_r = false;
-
-    // Resizing
-    let dx = event.movementX;
-    let dy = event.movementY;
-
-    // Figure out what to change based on what's being dragged
-    switch (resizeDir) {
-        case 'north':
-            y += dy;
-            if (dy < 0) {
-                height += -dy;
-            } else {
-                height -= dy
-            }
-            break;
-        case 'south':
-            height += dy;
-            break;
-        case 'east':
-            width += dx;
-            break;
-        case 'west':
-            x += dx;
-            if (dx < 0) {
-                width += -dx;
-            } else {
-                width -= dx;
-            }
-            break;
-
-        default:
-            console.log('WTF');
-            break;
-    }
-
-    let parent = target!.node!.parentNode as SVGGElement;
-
-    let xform = parent!.transform.baseVal.getItem(0);
-    console.assert(xform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
-
-    let kids = parent.children;
-    for (let i = 0; i < kids.length; i++) {
-        let child = kids[i];
-
-        // @ts-ignore
-        let classes = child.className.baseVal.split('_');
-        let type = classes[1];
-        switch (type) {
-            case 'objectRect':
-                switch (resizeDir) {
-                    case 'north':
-                        // @ts-ignore
-                        child.setAttribute('height', height);
-                        xform.setTranslate(x, y);
-                        dirty_m = true;
-                        dirty_r = true;
-                        break;
-
-                    case 'south':
-                        // @ts-ignore
-                        child.setAttribute('height', height);
-                        dirty_r = true;
-                        break;
-
-                    case 'east':
-                        // @ts-ignore
-                        child.setAttribute('width', width);
-                        dirty_r = true;
-                        break
-
-                    case 'west':
-                        // @ts-ignore
-                        child.setAttribute('width', width);
-                        xform.setTranslate(x, y);
-                        dirty_m = true;
-                        dirty_r = true;
-                        break;
-
-                    default:
-                        break;
-                }
-                break;
-
-            case 'objectBisectLine':
-                // @ts-ignore
-                child.setAttribute('x2', width);
-                break;
-
-            case 'objectName':
-                // @ts-ignore
-                child.setAttribute('x', width / 2);
-                break;
-
-            default:
-                break;
-        }
-
-    }
-
-    return {
-        ...move,
-        object: { ...object, width, height, x, y, dirty_m, dirty_r }
-    };
-
-}
-
-let handleObjectMove = (paper_obj: PaperStore, move: MoveStruct, event: React.MouseEvent) => {
-    if (event.movementX === 0 && event.movementY === 0) {
-        return null;
-    }
-
-    let { object, target } = move;
-    let { x, y, rels, width, height } = object;
-
-    let parent = target!.node!.parentNode as SVGGElement;
-    let id = parent!.id;
-
-    x += event.movementX;
-    y += event.movementY;
-
-    let xform = parent!.transform.baseVal.getItem(0);
-    console.assert(xform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
-    xform.setTranslate(x, y);
-
-    if (rels.length === 0) {
-        // Now find all the arrows connected to us.
-        Object.keys(paper_obj.relationships)
-            .map((r_id) => {
-                let r = paper_obj.relationships[r_id];
-                let from_id = r!.from.id;
-                let to_id = r!.to.id;
-
-                // id is the Object.id
-                // We call makeGlyph with the x, y coordinates from the other end of the relationship
-                if (from_id === id) {
-                    let dir = r!.from.dir;
-                    // @ts-ignore
-                    let glyph = document.getElementById(`${r_id}:${from_id}:${dir}:from`) as SVGGElement;
-                    // let xform = glyph.transform.baseVal.getItem(0);
-                    // console.assert(xform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
-                    // let x = xform.matrix.e + event.movementX;
-                    // let y = xform.matrix.f + event.movementY;
-                    let x0 = r!.from.x;
-                    let y0 = r!.from.y;
-                    console.log(x, y, x0, y0);
-
-                    moveGlyph(x, y, glyph, paper_obj!, { x0: x0, y0: y0, x1: x + width, y1: y + height });
-                    rels.push({ target: glyph, x: x0, y: y0 });
-                } else if (to_id === id) {
-                    let dir = r!.to.dir;
-                    // @ts-ignore
-                    let glyph = document.getElementById(`${r_id}:${to_id}:${dir}:to`) as SVGGElement;
-                    // let xform = glyph.transform.baseVal.getItem(0);
-                    // console.assert(xform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
-                    // let x = xform.matrix.e + event.movementX;
-                    // let y = xform.matrix.f + event.movementY;
-                    let x0 = r!.to.x;
-                    let y0 = r!.to.y;
-                    console.log(x, y, x0, y0);
-
-                    moveGlyph(x, y, glyph, paper_obj!, { x0: x0, y0: y0, x1: x + width, y1: y + height });
-                    rels.push({ target: glyph, x: x0, y: y0 });
-                }
-            });
-    } else {
-        // Use the cached result. Note that it's using the location of the top left corner of the
-        // object, and not the other end of the relationship. I guess this works.
-        rels.map((r) => moveGlyph(r.x, r.y, r.target, paper_obj!, { x0: x, y0: y, x1: x + width, y1: y + height }));
-    }
-
-    return { ...move, object: { ...object, x, y, dirty_m: true, rels } };
-}
-
-let moveGlyph = (x: number, y: number, target: SVGGElement, paper: PaperStore, box?: Rect) => {
-    let [id, obj_id, dir, end] = target.id.split(':');
-    let orig_dir = dir;
-
-    let obj_ui = paper.objects[obj_id];
-    if (obj_ui === undefined) {
-        console.error('undefined obj_ui', obj_id);
-        return [x, y, ''];
-    }
-
-    let rel_ui = paper.relationships[id];
-    if (rel_ui === undefined) {
-        console.error('undefined rel_ui', id);
-        return [x, y, ''];
-    }
-
-    let north = box ? box.y0 : obj_ui.y;
-    let south = box ? box.y1 : obj_ui.y + obj_ui.height;
-    let west = box ? box.x0 : obj_ui.x;
-    let east = box ? box.x1 : obj_ui.x + obj_ui.width;
-
-    let dx = x;
-    let dy = y;
-    // minimize the distance from the other end of the relationship, and not the mouse pointer.
-    if (box) {
-        if (end === 'from') {
-            dx = rel_ui.to.x;
-            dy = rel_ui.to.y;
-        } else {
-            dx = rel_ui.from.x;
-            dy = rel_ui.from.y;
-        }
-    }
-
-    // Find the point on the target boundary that minimizes the distance to (x, y).
-    let d_north = distToSegmentSquared({ x: dx, y: dy }, { x: west, y: north }, { x: east, y: north });
-    let d_west = distToSegmentSquared({ x: dx, y: dy }, { x: west, y: north }, { x: west, y: south });
-    let d_south = distToSegmentSquared({ x: dx, y: dy }, { x: west, y: south }, { x: east, y: south });
-    let d_east = distToSegmentSquared({ x: dx, y: dy }, { x: east, y: south }, { x: east, y: north });
-    let mins = [d_north, d_west, d_south, d_east];
-
-    let idx = mins.indexOf(Math.min(...mins));
-
-    // This is sort of funky. I'm not even sure of what I want to accomplish. As it stands,
-    // the location of the anchor is maintained, and the new location tries to match that of
-    // the old location. That's the nested ternary operators.
-    // I think what I'd like is for a less abrupt fallback.
-    switch (idx) {
-        case 0:
-            dir = 'North';
-            y = north;
-            x = x < west ? west : x > east ? east : x;
-            break;
-        case 1:
-            dir = 'West';
-            x = west;
-            // y = dy;
-            y = y < north ? north : y > south ? south : y;
-            break;
-        case 2:
-            dir = 'South';
-            y = south;
-            // x = dx;
-            x = x < west ? west : x > east ? east : x;
-            break;
-        case 3:
-            dir = 'East';
-            x = east;
-            // y = y <= north ? north + (south - north) / 2 : y >= south ? north + (south - north) / 2 : y;
-            y = y < north ? north : y > south ? south : y;
-            // y = dy;
-            break;
-
-        default:
-            console.error('ooops', mins, idx);
-            break;
-    }
-
-    // console.log(x, y, dx, dy, idx, mins.map(x => Math.sqrt(x)), north, south, east, west);
-
-    // Move the glyph
-    target.setAttribute('transform', makeTransform(x, y, dir));
-
-    // this feels dirty
-    if (orig_dir !== dir) {
-        target.id = target.id.replace(orig_dir, dir);
-    }
-    // console.log(target, target.parentNode);
-
-    // Move the line
-    let grandParent = target.parentNode;
-    let kids = grandParent!.children;
-    for (let i = 0; i < kids.length; i++) {
-        let child = kids[i];
-        if (child instanceof SVGPathElement) {
-            let d = '';
-            if (end === "from") {
-                let other = rel_ui.to;
-                // @ts-ignore
-                d = makeLine({ x, y, dir, id: '' }, other);
-
-            } else {
-                let other = rel_ui.from;
-                // @ts-ignore
-                d = makeLine(other, { x, y, dir, id: '' });
-            }
-
-            child.setAttribute('d', d);
-        }
-    }
-
-    return [x, y, dir];
-}
-
-function sqr(x: number) { return x * x }
-function dist2(v: Point, w: Point) { return sqr(v.x - w.x) + sqr(v.y - w.y) }
-function distToSegmentSquared(p: Point, v: Point, w: Point) {
-    var l2 = dist2(v, w);
-    if (l2 == 0) return dist2(p, v);
-    var t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
-    t = Math.max(0, Math.min(1, t));
-    return dist2(p, {
-        x: v.x + t * (w.x - v.x),
-        y: v.y + t * (w.y - v.y)
-    });
 }
