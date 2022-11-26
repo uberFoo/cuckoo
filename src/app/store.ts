@@ -8,7 +8,7 @@ import paperReducer from '../features/paper/paperSlice';
 import objectReducer from '../features/object/objectSlice';
 import relationshipReducer from '../features/relationship/relationshipSlice';
 
-import model from '../js_schema.json'
+import model from '../sarzak_ooa_model.json';
 
 export interface PaperStore {
     id: string,
@@ -151,7 +151,7 @@ const rootReducer = undoable(combineReducers({
         }
         return true;
     }),
-    debug: true,
+    debug: false,
     groupBy: ((action, current, previous) => {
         // This is slick. All we have to to is look for actions that are changing a reference.
         // Write a function to return the current id, could have been previous. The undo thing
@@ -187,10 +187,6 @@ const rootReducer = undoable(combineReducers({
                 return action.payload.id;
             case "paper/relationshipUpdateBinaryRelPhrase":
                 return action.payload.id;
-
-            default:
-                console.error(`bad action type ${action.type}`);
-                break;
         }
         return null;
     })
@@ -216,7 +212,8 @@ export const store = configureStore({
                 // @ts-ignore
                 ignoreActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
             }
-        }).concat(logger)
+        }).concat(logger),
+    devTools: true
 });
 
 export const persistor = persistStore(store);

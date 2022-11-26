@@ -1,6 +1,6 @@
 import { createSlice, createEntityAdapter } from '@reduxjs/toolkit'
 
-import { RootState, RelationshipStore } from '../../app/store';
+import { RootState, RelationshipStore, Isa } from '../../app/store';
 
 let relationshipAdapter = createEntityAdapter<RelationshipStore>();
 let initialState = relationshipAdapter.getInitialState();
@@ -22,10 +22,15 @@ export let relationshipSlice = createSlice({
 
             state.entities[id] = payload;
         },
+        addTargetToIsa: (state, action) => {
+            let { rel_id, to } = action.payload;
+            // @ts-ignore
+            state.entities[rel_id].Isa.subtypes.push(to);
+        }
     }
 });
 
-export let { addRelationship, removeRelationship, updateRelationship,
+export let { addRelationship, removeRelationship, updateRelationship, addTargetToIsa
 } = relationshipSlice.actions;
 
 export let {
