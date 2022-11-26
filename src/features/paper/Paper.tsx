@@ -822,12 +822,16 @@ export function Paper(props: PaperProps) {
 
     let contextMenuHandler = (event: React.MouseEvent) => {
         event.preventDefault();
+        let { origin_x, origin_y } = move;
         setContextMenu(
             contextMenu == null ? { x: event.clientX + 2, y: event.clientY - 6 } : null
         );
     };
 
-    let handleCtxClose = () => { setContextMenu(null) };
+    let handleCtxClose = () => {
+        setMove({ ...move, mouseDown: false });
+        setContextMenu(null)
+    };
 
     let contextMenuContent =
         <Menu
@@ -897,59 +901,60 @@ export function Paper(props: PaperProps) {
     let { origin_x, origin_y, object, relationship } = move;
     let { line } = object;
 
-    // if (contextMenu) {
-    // @ts-ignore
-    // return ReactDOM.createPortal(contextMenuContent, document.getElementById('root'));
-    // } else {
-    return (
-        <>
-            {object.object_dialog &&
-                // @ts-ignore
-                <ObjectEditor enabled={true} obj_id={move.object.id} ns={props.domain_ns}
-                    done={doneEditing}
-                />
-            }
-            {relationship.relationship_dialog &&
-                // @ts-ignore
-                <BinaryEditor enabled={true} id={move.relationship.id} ns={props.domain_ns}
-                    done={doneEditing}
-                />
-            }
-            <svg id="svg-root" width={paper_obj!.width} height={paper_obj!.height}
-                xmlns='http://www.w3.org/2000/svg'
-            >
-                {/* @ts-ignore */}
-                {ReactDOM.createPortal(contextMenuContent, document.getElementById('root'))}
-                <g id="paper" pointerEvents="all"
-                    transform={"translate(" + origin_x + "," + origin_y + ") scale(" +
-                        defaultScale + ")"}
-                    onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler}
-                    onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler}
-                // onContextMenu={contextMenuHandler}
-                >
-                    <rect id="background" width={paper_obj!.width} height={paper_obj!.height}
-                        className={styles.paperBase}
+    if (contextMenu) {
+        // @ts-ignore
+        return ReactDOM.createPortal(contextMenuContent, document.getElementById('root'));
+    } else {
+        return (
+            <>
+                {object.object_dialog &&
+                    // @ts-ignore
+                    <ObjectEditor enabled={true} obj_id={move.object.id} ns={props.domain_ns}
+                        done={doneEditing}
                     />
-                    <g className={styles.axis}>
-                        {x_lines}
-                    </g>
-                    <g className={styles.axis}>
-                        {y_lines}
-                    </g>
-                    <g id="canvas">
-                        {move.paper.new_object !== null && newObject}
-                        {line &&
-                            <line className={styles.antLine} x1={line.x0} y1={line.y0} x2={line.x1} y2={line.y1} />
-                        }
-                        <g id="objects">
-                            {objectInstances}
+                }
+                {relationship.relationship_dialog &&
+                    // @ts-ignore
+                    <BinaryEditor enabled={true} id={move.relationship.id} ns={props.domain_ns}
+                        done={doneEditing}
+                    />
+                }
+                <svg id="svg-root" width={paper_obj!.width} height={paper_obj!.height}
+                    xmlns='http://www.w3.org/2000/svg'
+                >
+                    {/* @ts-ignore */}
+                    {ReactDOM.createPortal(contextMenuContent, document.getElementById('root'))}
+                    <g id="paper" pointerEvents="all"
+                        transform={"translate(" + origin_x + "," + origin_y + ") scale(" +
+                            defaultScale + ")"}
+                        onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler}
+                        onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler}
+                    // onContextMenu={contextMenuHandler}
+                    >
+                        <rect id="background" width={paper_obj!.width} height={paper_obj!.height}
+                            className={styles.paperBase}
+                        />
+                        <g className={styles.axis}>
+                            {x_lines}
                         </g>
-                        <g id="relationships">
-                            {relInsts}
+                        <g className={styles.axis}>
+                            {y_lines}
                         </g>
-                    </g>
-                </g >
-            </svg>
-        </>
-    )
+                        <g id="canvas">
+                            {move.paper.new_object !== null && newObject}
+                            {line &&
+                                <line className={styles.antLine} x1={line.x0} y1={line.y0} x2={line.x1} y2={line.y1} />
+                            }
+                            <g id="objects">
+                                {objectInstances}
+                            </g>
+                            <g id="relationships">
+                                {relInsts}
+                            </g>
+                        </g>
+                    </g >
+                </svg>
+            </>
+        )
+    }
 }

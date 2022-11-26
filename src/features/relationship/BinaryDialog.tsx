@@ -3,7 +3,7 @@ import { useFormik } from 'formik';
 import {
     Dialog, DialogTitle, TextField, DialogContent, DialogActions, Button, FormGroup, FormLabel,
     List, ListItemButton, ListItemText, ListItemSecondaryAction, IconButton, FormControl,
-    InputLabel, Select, MenuItem, SelectChangeEvent, Divider
+    InputLabel, Select, MenuItem, SelectChangeEvent, Divider, RadioGroup, Radio, FormControlLabel
 } from '@mui/material';
 import { v5 as uuid } from 'uuid';
 
@@ -132,35 +132,61 @@ const BinaryEditor = (props: Props) => {
     return (
         <div>
             <Dialog open={true} fullWidth maxWidth={"sm"}>
-                <DialogTitle>Relationship Editor</DialogTitle>
-                <DialogContent dividers>
-                    <FormGroup>
-                        <TextField autoFocus required id="rel_num" label="Relationship Number"
-                            value={formik.values.rel_num} onChange={formik.handleChange}
-                            variant="outlined" />
-                    </FormGroup>
-                    <Divider />
-                    <FormGroup>
-                        <FormLabel>Independent/Formalizing/From</FormLabel>
-                        <TextField autoFocus required id="from_desc" label="Description"
-                            value={formik.values.from_desc} onChange={formik.handleChange}
-                            variant="outlined" />
-                        <TextField autoFocus required id="from_attr" label="Formalizing Attribute"
-                            value={formik.values.from_attr} onChange={formik.handleChange}
-                            variant="outlined" />
-                    </FormGroup>
-                    <Divider />
-                    <FormGroup>
-                        <FormLabel>Dependent/To</FormLabel>
-                        <TextField autoFocus required id="to_desc" label="Description"
-                            value={formik.values.to_desc} onChange={formik.handleChange}
-                            variant="outlined" />
-                    </FormGroup>
-                </DialogContent >
-                <DialogActions>
-                    <Button onClick={cancel}>Cancel</Button>
-                    <Button onClick={handleSubmit}>Save</Button>
-                </DialogActions>
+                <FormControl>
+                    <DialogTitle>Relationship Editor</DialogTitle>
+                    <DialogContent dividers>
+                        <FormGroup>
+                            <TextField autoFocus required id="rel_num" label="Relationship Number"
+                                value={formik.values.rel_num} onChange={formik.handleChange}
+                                variant="outlined" />
+                        </FormGroup>
+                        <Divider />
+                        <FormGroup>
+                            <FormLabel>Independent/Formalizing/From</FormLabel>
+                            <TextField autoFocus required id="from_desc" label="Description"
+                                value={formik.values.from_desc} onChange={formik.handleChange}
+                                variant="outlined" />
+                            <TextField autoFocus required id="from_attr" label="Formalizing Attribute"
+                                value={formik.values.from_attr} onChange={formik.handleChange}
+                                variant="outlined" />
+                            <FormLabel>Cardinality</FormLabel>
+                            <RadioGroup row id="from_card" name="from_card" value={formik.values.from_card}
+                                onChange={formik.handleChange}>
+                                <FormControlLabel value='One' control={<Radio />} label='One' />
+                                <FormControlLabel value='Many' control={<Radio />} label='Many' />
+                            </RadioGroup>
+                            <FormLabel>Conditionality</FormLabel>
+                            <RadioGroup row id="from_cond" name="from_cond" value={formik.values.from_cond}
+                                onChange={formik.handleChange}>
+                                <FormControlLabel value='Unconditional' control={<Radio />} label='Unconditional' />
+                                <FormControlLabel value='Conditional' control={<Radio />} label='Conditional' />
+                            </RadioGroup>
+                        </FormGroup>
+                        <Divider />
+                        <FormGroup>
+                            <FormLabel>Dependent/To</FormLabel>
+                            <TextField autoFocus required id="to_desc" label="Description"
+                                value={formik.values.to_desc} onChange={formik.handleChange}
+                                variant="outlined" />
+                            <FormLabel>Cardinality</FormLabel>
+                            <RadioGroup row id="to_card" name="to_card" value={formik.values.to_card}
+                                onChange={formik.handleChange}>
+                                <FormControlLabel value='One' control={<Radio />} label='One' />
+                                <FormControlLabel value='Many' control={<Radio />} label='Many' />
+                            </RadioGroup>
+                            <FormLabel>Conditionality</FormLabel>
+                            <RadioGroup row id="to_cond" name="to_cond" value={formik.values.to_cond}
+                                onChange={formik.handleChange}>
+                                <FormControlLabel value='Unconditional' control={<Radio />} label='Unconditional' />
+                                <FormControlLabel value='Conditional' control={<Radio />} label='Conditional' />
+                            </RadioGroup>
+                        </FormGroup>
+                    </DialogContent >
+                    <DialogActions>
+                        <Button onClick={cancel}>Cancel</Button>
+                        <Button onClick={handleSubmit}>Save</Button>
+                    </DialogActions>
+                </FormControl>
             </Dialog>
         </div >
     )
