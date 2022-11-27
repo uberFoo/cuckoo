@@ -127,7 +127,7 @@ export function handleObjectMove(paper_obj: PaperStore, move: MoveStruct, event:
     let { x, y, rels, width, height } = object;
 
     let parent = target!.node!.parentNode as SVGGElement;
-    let obj_id = parent!.id;
+    let obj_id = getId(parent!);
 
     x += event.movementX;
     y += event.movementY;
@@ -155,11 +155,7 @@ export function handleObjectMove(paper_obj: PaperStore, move: MoveStruct, event:
                         if (from_id === obj_id) {
                             let dir = r!.from.dir;
                             // @ts-ignore
-                            let glyph = document.getElementById(`${r_id}:${from_id}:${dir}:from`) as SVGGElement;
-                            // let xform = glyph.transform.baseVal.getItem(0);
-                            // console.assert(xform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
-                            // let x = xform.matrix.e + event.movementX;
-                            // let y = xform.matrix.f + event.movementY;
+                            let glyph = document.getElementById(`_${r_id}:${from_id}:${dir}:from`) as SVGGElement;
                             let x0 = r!.from.x;
                             let y0 = r!.from.y;
 
@@ -169,11 +165,7 @@ export function handleObjectMove(paper_obj: PaperStore, move: MoveStruct, event:
                             // @ts-ignore
                             let dir = r!.to.dir;
                             // @ts-ignore
-                            let glyph = document.getElementById(`${r_id}:${to_id}:${dir}:to`) as SVGGElement;
-                            // let xform = glyph.transform.baseVal.getItem(0);
-                            // console.assert(xform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
-                            // let x = xform.matrix.e + event.movementX;
-                            // let y = xform.matrix.f + event.movementY;
+                            let glyph = document.getElementById(`_${r_id}:${to_id}:${dir}:to`) as SVGGElement;
                             // @ts-ignore
                             let x0 = r!.to.x;
                             // @ts-ignore
@@ -193,7 +185,7 @@ export function handleObjectMove(paper_obj: PaperStore, move: MoveStruct, event:
                             let dir = r!.from.dir;
 
                             // @ts-ignore
-                            let glyph = document.getElementById(`${r_id}:${from_id}:${dir}:from`) as SVGGElement;
+                            let glyph = document.getElementById(`_${r_id}:${from_id}:${dir}:from`) as SVGGElement;
 
                             let x0 = r!.from.x;
                             let y0 = r!.from.y;
@@ -207,7 +199,7 @@ export function handleObjectMove(paper_obj: PaperStore, move: MoveStruct, event:
                                     let dir = rel_ui.dir;
 
                                     // @ts-ignore
-                                    let glyph = document.getElementById(`${r_id}:${rel_ui.id}:${dir}:to`) as SVGGElement;
+                                    let glyph = document.getElementById(`_${r_id}:${rel_ui.id}:${dir}:to`) as SVGGElement;
 
                                     let x0 = rel_ui.x;
                                     let y0 = rel_ui.y;
@@ -237,7 +229,7 @@ export function handleObjectMove(paper_obj: PaperStore, move: MoveStruct, event:
 export function moveGlyph(x: number, y: number, target: SVGGElement, paper: PaperStore, box?: Rect):
     [number, number, string] {
 
-    let [id, obj_id, dir, end] = target.id.split(':');
+    let [id, obj_id, dir, end] = getId(target!)?.split(':')!;
     let orig_dir = dir;
 
     let obj_ui = paper.objects[obj_id];
@@ -401,7 +393,7 @@ export function moveGlyph(x: number, y: number, target: SVGGElement, paper: Pape
             for (let i = 0; i < kids.length; i++) {
                 let child = kids[i];
                 if (child instanceof SVGPathElement) {
-                    let [_id, _obj_id] = child.id.split(':');
+                    let [_id, _obj_id] = getId(child)?.split(':')!;
                     if (_obj_id === obj_id) {
                         // Make up a fake ui element to send.
                         // @ts-ignore
@@ -430,6 +422,34 @@ export function moveGlyph(x: number, y: number, target: SVGGElement, paper: Pape
     return [x, y, dir];
 }
 
+export function getId(e: SVGElement) {
+    if (e && e.id) {
+        return e.id.split('_')[1];
+    }
+}
+
+export function selectWidgetGElements(selection: Rect) {
+    let { x0, y0, x1, y1 } = selection;
+
+    return Array.from(document.querySelectorAll('#objects > g'))
+        // @ts-ignore
+        .concat(Array.from(document.querySelectorAll('#relationships > g')).map(g => {
+            return Array.from(document.querySelectorAll(`#${g.id} > g`));
+        }))
+        .flat()
+        .map(g => {
+            // @ts-ignore
+            let xform = g.transform.baseVal.getItem(0);
+            let x = xform.matrix.e;
+            let y = xform.matrix.f;
+
+            if (x > x0 && x < x1 && y > y0 && y < y1)
+                return g;
+            else
+                return null;
+        }).filter(g => g !== null);
+};
+
 function sqr(x: number) { return x * x }
 function dist2(v: Point, w: Point) { return sqr(v.x - w.x) + sqr(v.y - w.y) }
 function distToSegmentSquared(p: Point, v: Point, w: Point) {
@@ -442,9 +462,17 @@ function distToSegmentSquared(p: Point, v: Point, w: Point) {
         y: v.y + t * (w.y - v.y)
     });
 }
+
 export function makeTransform(x: number, y: number, dir?: string) {
     if (dir)
         return 'translate(' + x + ',' + y + ') rotate(' + getRotation(dir)! + ')';
+    else
+        return 'translate(' + x + ',' + y + ')';
+}
+
+export function makeTransform2(x: number, y: number, dir: number) {
+    if (dir)
+        return 'translate(' + x + ',' + y + ') rotate(' + dir + ')';
     else
         return 'translate(' + x + ',' + y + ')';
 }
@@ -512,4 +540,14 @@ export function intersection(from1: Point, to1: Point, from2: Point, to2: Point)
         x: from1.x + lambda * dX,
         y: from1.y + lambda * dY,
     };
+}
+
+export function parseTransform(a: any) {
+    var b = {};
+    for (var i in a = a.match(/(\w+\((\-?\d+\.?\d*e?\-?\d*,?)+\))+/g)) {
+        var c = a[i].match(/[\w\.\-]+/g);
+        // @ts-ignore
+        b[c.shift()] = c;
+    }
+    return b;
 }

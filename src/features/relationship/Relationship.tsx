@@ -43,7 +43,7 @@ export function Relationship(props: RelationshipProps) {
     }
 
     return (
-        <g id={id!} key={rel!.id} className={styles.relationship}>
+        <g id={"_" + id!} key={rel!.id} className={styles.relationship}>
             {render}
         </g>
     );

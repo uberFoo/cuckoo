@@ -73,7 +73,7 @@ export function ObjectWidget(props: ObjectProps) {
 
     return (
         <>
-            <g key={props.id} id={props.id} className={"object"}
+            <g id={`_${props.id}`} key={props.id} className={"Object"}
                 transform={makeTransform(props.x, props.y)}
             >
                 <rect className={styles.objectRect} width={props.width} height={props.height} />

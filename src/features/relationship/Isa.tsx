@@ -20,13 +20,13 @@ export function Isa(props: IsaProps) {
 
     let fromObj = useAppSelector((state) => selectObjectById(state, props.rel.obj_id));
 
-    let id_from = `${props.id}:${fromObj!.id}:${ui.from.dir}:from`;
+    let id_from = `_${props.id}:${fromObj!.id}:isa:${ui.from.dir}:from`;
     let transform = makeTransform(ui.from.x, ui.from.y, ui.from.dir);
 
     let to_s = ui.to.map(s => {
         // This is relationship_id:subtype_id:direction:"to"
-        let id_to = `${props.id}:${s.id}:${s.dir}:to`;
-        let line_id = `${props.id}:${s.id}`
+        let id_to = `_${props.id}:${s.id}:isa:${s.dir}:to`;
+        let line_id = `_${props.id}:${s.id}`
         let transform = makeTransform(s.x, s.y, s.dir);
         return (
             <>
