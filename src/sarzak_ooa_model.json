@@ -1,1 +1,632 @@
-{"paper":{"ids":["88cd70e0-c065-5c4b-b1ce-69194ab4d0cb"],"entities":{"88cd70e0-c065-5c4b-b1ce-69194ab4d0cb":{"id":"88cd70e0-c065-5c4b-b1ce-69194ab4d0cb","domain_name":"Paper::sarzak_ooa_0","domain_ns":"b49d6fe1-e5e9-5896-bd42-b72012429e52","width":3200,"height":1600,"offset":{"x":-1370,"y":-347},"objects":{"b8ec6afc-ddbd-53d6-9be3-e4b738941c2f":{"x":1430,"y":994,"width":250,"height":125},"9803e73c-4984-5179-8460-529fe4ef7921":{"x":1842,"y":1351,"width":169,"height":125},"f3d5c0a4-850d-5071-a7e3-50e53389e3a8":{"x":1641,"y":1352,"width":163,"height":125},"fae606a2-e37c-5f82-8754-1fc11c09fe4c":{"x":1204,"y":1349,"width":165,"height":125},"04fbbc6c-a351-5e6d-b193-191f5510033e":{"x":1424,"y":1350,"width":163,"height":125},"7178e7a4-5131-504b-a7b3-c2c0cfedf343":{"x":1423,"y":592,"width":250,"height":125},"63777957-b6bc-5253-b16b-6ff390f10dba":{"x":1426,"y":786,"width":250,"height":125},"469d77d1-9ede-5919-923d-b007d614af26":{"x":2225,"y":654,"width":250,"height":125},"0cbeeb50-21ce-5e83-9f2e-65d1410d553f":{"x":2090,"y":945,"width":174,"height":117,"id":"0cbeeb50-21ce-5e83-9f2e-65d1410d553f"},"56c5ed80-25e7-592e-ab36-a306c78ac58b":{"x":2418,"y":945,"width":289,"height":118,"id":"56c5ed80-25e7-592e-ab36-a306c78ac58b"},"952d24ad-ce6a-5812-8c6c-33ff9d2b424d":{"x":2315,"y":1165,"width":205,"height":113,"id":"952d24ad-ce6a-5812-8c6c-33ff9d2b424d"},"9c75abf3-b77e-56ee-a19c-d812898b5eaa":{"x":2594,"y":1165,"width":331,"height":118,"id":"9c75abf3-b77e-56ee-a19c-d812898b5eaa"},"17de0bb6-ee65-5516-b8eb-9a9a35e5fedd":{"x":1840,"y":950,"width":174,"height":113,"id":"17de0bb6-ee65-5516-b8eb-9a9a35e5fedd"}},"relationships":{"f084b6c4-b157-51a4-9cbe-e7aa85f372aa":{"BinaryUI":{"from":{"id":"63777957-b6bc-5253-b16b-6ff390f10dba","dir":"West","card":"One","x":1426,"y":822,"offset":{"x":-134,"y":-17}},"to":{"id":"7178e7a4-5131-504b-a7b3-c2c0cfedf343","dir":"West","card":"One","x":1423,"y":651,"offset":{"x":-225,"y":-26}}}},"d0348c92-0e70-5a59-8331-b3be93793409":{"BinaryUI":{"from":{"id":"63777957-b6bc-5253-b16b-6ff390f10dba","dir":"West","card":"One","x":1426,"y":883,"offset":{"x":-94,"y":9}},"to":{"id":"b8ec6afc-ddbd-53d6-9be3-e4b738941c2f","dir":"West","card":"One","x":1430,"y":994,"offset":{"x":-310,"y":28}}}},"a097f6f4-4d97-5ef6-b359-3021766ec90b":{"IsaUI":{"from":{"id":"b8ec6afc-ddbd-53d6-9be3-e4b738941c2f","dir":"South","card":"One","x":1554,"y":1119,"offset":{"x":40,"y":40}},"to":[{"id":"fae606a2-e37c-5f82-8754-1fc11c09fe4c","dir":"North","card":"One","x":1291,"y":1349,"offset":{"x":40,"y":40}},{"id":"f3d5c0a4-850d-5071-a7e3-50e53389e3a8","dir":"North","card":"One","x":1722,"y":1352,"offset":{"x":40,"y":40}},{"id":"04fbbc6c-a351-5e6d-b193-191f5510033e","dir":"North","card":"One","x":1524,"y":1350,"offset":{"x":40,"y":40}},{"id":"9803e73c-4984-5179-8460-529fe4ef7921","dir":"North","card":"One","x":1947,"y":1351,"offset":{"x":40,"y":40}}]}},"3bb0e8c9-a831-581a-80a7-8cabe708fab6":{"IsaUI":{"from":{"id":"469d77d1-9ede-5919-923d-b007d614af26","x":2349,"y":779,"offset":{"x":20,"y":20},"dir":"South"},"to":[{"id":"0cbeeb50-21ce-5e83-9f2e-65d1410d553f","x":2182,"y":945,"offset":{"x":20,"y":20},"dir":"North"},{"id":"4337f8e0-da41-5409-af44-04dde3457d5f","x":2515,"y":945,"offset":{"x":20,"y":20},"dir":"North"},{"id":"17de0bb6-ee65-5516-b8eb-9a9a35e5fedd","x":1913,"y":950,"offset":{"x":20,"y":20},"dir":"North"}]},"id":"3bb0e8c9-a831-581a-80a7-8cabe708fab6"},"faf080a2-97fb-5796-a95e-ba2b28d70546":{"BinaryUI":{"from":{"id":"56c5ed80-25e7-592e-ab36-a306c78ac58b","x":2418,"y":1004,"offset":{"x":-108,"y":-28},"dir":"West"},"to":{"id":"952d24ad-ce6a-5812-8c6c-33ff9d2b424d","x":2379,"y":1165,"offset":{"x":8,"y":-22},"dir":"North"}},"id":"faf080a2-97fb-5796-a95e-ba2b28d70546"},"d6db1de0-4330-5dd6-9302-e37714ee90c6":{"BinaryUI":{"from":{"id":"56c5ed80-25e7-592e-ab36-a306c78ac58b","x":2707,"y":1010,"offset":{"x":28,"y":-13},"dir":"East"},"to":{"id":"9c75abf3-b77e-56ee-a19c-d812898b5eaa","x":2747,"y":1165,"offset":{"x":12,"y":-13},"dir":"North"}},"id":"d6db1de0-4330-5dd6-9302-e37714ee90c6"}}}}},"objects":{"ids":["469d77d1-9ede-5919-923d-b007d614af26","fae606a2-e37c-5f82-8754-1fc11c09fe4c","7178e7a4-5131-504b-a7b3-c2c0cfedf343","f3d5c0a4-850d-5071-a7e3-50e53389e3a8","63777957-b6bc-5253-b16b-6ff390f10dba","b8ec6afc-ddbd-53d6-9be3-e4b738941c2f","9803e73c-4984-5179-8460-529fe4ef7921","04fbbc6c-a351-5e6d-b193-191f5510033e","0cbeeb50-21ce-5e83-9f2e-65d1410d553f","56c5ed80-25e7-592e-ab36-a306c78ac58b","952d24ad-ce6a-5812-8c6c-33ff9d2b424d","9c75abf3-b77e-56ee-a19c-d812898b5eaa","17de0bb6-ee65-5516-b8eb-9a9a35e5fedd"],"entities":{"469d77d1-9ede-5919-923d-b007d614af26":{"id":"469d77d1-9ede-5919-923d-b007d614af26","name":"Relationship","attributes":{"319fe0cf-f599-5aa8-a0e7-a84a6f9a27d9":{"id":"319fe0cf-f599-5aa8-a0e7-a84a6f9a27d9","name":"id","type":"Uuid"}}},"fae606a2-e37c-5f82-8754-1fc11c09fe4c":{"id":"fae606a2-e37c-5f82-8754-1fc11c09fe4c","name":"Integer","attributes":{"8f68cf57-fa3c-5964-affd-6964dbe7353b":{"id":"8f68cf57-fa3c-5964-affd-6964dbe7353b","name":"id","type":"Uuid"}}},"7178e7a4-5131-504b-a7b3-c2c0cfedf343":{"id":"7178e7a4-5131-504b-a7b3-c2c0cfedf343","name":"Object","attributes":{"a37b26e0-49fb-5be8-95a8-fb563ab81cc4":{"id":"a37b26e0-49fb-5be8-95a8-fb563ab81cc4","name":"id","type":"Uuid"},"d01da69e-bf98-5825-a9f6-9ce0405417f1":{"id":"d01da69e-bf98-5825-a9f6-9ce0405417f1","name":"name","type":"String"}}},"f3d5c0a4-850d-5071-a7e3-50e53389e3a8":{"id":"f3d5c0a4-850d-5071-a7e3-50e53389e3a8","name":"Float","attributes":{"b8c0be8b-e2a8-54b5-a70e-2b9ed112397e":{"id":"b8c0be8b-e2a8-54b5-a70e-2b9ed112397e","name":"id","type":"Uuid"}}},"63777957-b6bc-5253-b16b-6ff390f10dba":{"id":"63777957-b6bc-5253-b16b-6ff390f10dba","name":"Attribute","attributes":{"f08c70f0-eeb0-5269-9a0f-4a27e2143b3f":{"id":"f08c70f0-eeb0-5269-9a0f-4a27e2143b3f","name":"name","type":"String"},"49767001-d944-5907-b2ce-d1d87bfed750":{"id":"49767001-d944-5907-b2ce-d1d87bfed750","name":"id","type":"Uuid"}}},"b8ec6afc-ddbd-53d6-9be3-e4b738941c2f":{"id":"b8ec6afc-ddbd-53d6-9be3-e4b738941c2f","name":"Type","attributes":{"52783e59-f28c-5a8b-8947-12d60c2d49d0":{"id":"52783e59-f28c-5a8b-8947-12d60c2d49d0","name":"id","type":"Uuid"}}},"9803e73c-4984-5179-8460-529fe4ef7921":{"id":"9803e73c-4984-5179-8460-529fe4ef7921","name":"String","attributes":{"65e20da8-6e30-5b9b-8572-cbf3538bf55f":{"id":"65e20da8-6e30-5b9b-8572-cbf3538bf55f","name":"id","type":"Uuid"}}},"04fbbc6c-a351-5e6d-b193-191f5510033e":{"id":"04fbbc6c-a351-5e6d-b193-191f5510033e","name":"Boolean","attributes":{"459d3145-9c90-5388-93b1-3626d99625de":{"id":"459d3145-9c90-5388-93b1-3626d99625de","name":"id","type":"Uuid"}}},"0cbeeb50-21ce-5e83-9f2e-65d1410d553f":{"id":"0cbeeb50-21ce-5e83-9f2e-65d1410d553f","name":"Isa","attributes":{"4717289d-ed9c-5931-94ce-a73a66b88856":{"id":"4717289d-ed9c-5931-94ce-a73a66b88856","name":"id","type":"Uuid"},"da88d452-73e4-5344-a0a9-ae0bac76b845":{"id":"da88d452-73e4-5344-a0a9-ae0bac76b845","name":"number","type":"Integer"}}},"56c5ed80-25e7-592e-ab36-a306c78ac58b":{"id":"56c5ed80-25e7-592e-ab36-a306c78ac58b","name":"Binary","attributes":{"6103bc32-cd25-5b9e-9461-b65a159e10fd":{"id":"6103bc32-cd25-5b9e-9461-b65a159e10fd","name":"id","type":"Uuid"},"50140f54-ad40-56f1-9853-05573248df1c":{"id":"50140f54-ad40-56f1-9853-05573248df1c","name":"number","type":"Integer"}}},"952d24ad-ce6a-5812-8c6c-33ff9d2b424d":{"id":"952d24ad-ce6a-5812-8c6c-33ff9d2b424d","name":"Dependent","attributes":{"4717289d-ed9c-5931-94ce-a73a66b88856":{"id":"4717289d-ed9c-5931-94ce-a73a66b88856","name":"id","type":"Uuid"},"2aabbeab-a336-590b-99a4-98b949edeeab":{"id":"2aabbeab-a336-590b-99a4-98b949edeeab","name":"description","type":"String"}}},"9c75abf3-b77e-56ee-a19c-d812898b5eaa":{"id":"9c75abf3-b77e-56ee-a19c-d812898b5eaa","name":"Independent","attributes":{"4717289d-ed9c-5931-94ce-a73a66b88856":{"id":"4717289d-ed9c-5931-94ce-a73a66b88856","name":"id","type":"Uuid"},"2aabbeab-a336-590b-99a4-98b949edeeab":{"id":"2aabbeab-a336-590b-99a4-98b949edeeab","name":"description","type":"String"},"3ae7ce01-4cb8-54ef-9ae9-fbff57ad68c1":{"id":"3ae7ce01-4cb8-54ef-9ae9-fbff57ad68c1","name":"formalizing_attribute_name","type":"String"}}},"17de0bb6-ee65-5516-b8eb-9a9a35e5fedd":{"id":"17de0bb6-ee65-5516-b8eb-9a9a35e5fedd","name":"Associative","attributes":{"4717289d-ed9c-5931-94ce-a73a66b88856":{"id":"4717289d-ed9c-5931-94ce-a73a66b88856","name":"id","type":"Uuid"},"da88d452-73e4-5344-a0a9-ae0bac76b845":{"id":"da88d452-73e4-5344-a0a9-ae0bac76b845","name":"number","type":"Integer"}}}}},"relationships":{"ids":["a097f6f4-4d97-5ef6-b359-3021766ec90b","f084b6c4-b157-51a4-9cbe-e7aa85f372aa","d0348c92-0e70-5a59-8331-b3be93793409","3bb0e8c9-a831-581a-80a7-8cabe708fab6","faf080a2-97fb-5796-a95e-ba2b28d70546","d6db1de0-4330-5dd6-9302-e37714ee90c6"],"entities":{"a097f6f4-4d97-5ef6-b359-3021766ec90b":{"Isa":{"id":"a097f6f4-4d97-5ef6-b359-3021766ec90b","number":3,"obj_id":"b8ec6afc-ddbd-53d6-9be3-e4b738941c2f","subtypes":["fae606a2-e37c-5f82-8754-1fc11c09fe4c","f3d5c0a4-850d-5071-a7e3-50e53389e3a8","04fbbc6c-a351-5e6d-b193-191f5510033e","9803e73c-4984-5179-8460-529fe4ef7921"]}},"f084b6c4-b157-51a4-9cbe-e7aa85f372aa":{"Binary":{"id":"f084b6c4-b157-51a4-9cbe-e7aa85f372aa","number":1,"from":{"obj_id":"63777957-b6bc-5253-b16b-6ff390f10dba","description":"lives in an","cardinality":"Many","conditionality":"Conditional","formalizing_attribute_name":"obj_id"},"to":{"obj_id":"7178e7a4-5131-504b-a7b3-c2c0cfedf343","description":"contains, and is defined by it's","cardinality":"One","conditionality":"Unconditional"}}},"d0348c92-0e70-5a59-8331-b3be93793409":{"Binary":{"id":"d0348c92-0e70-5a59-8331-b3be93793409","number":2,"from":{"obj_id":"63777957-b6bc-5253-b16b-6ff390f10dba","description":"has a","cardinality":"One","conditionality":"Unconditional","formalizing_attribute_name":"type"},"to":{"obj_id":"b8ec6afc-ddbd-53d6-9be3-e4b738941c2f","description":"describes the memory representation of","cardinality":"One","conditionality":"Unconditional"}}},"3bb0e8c9-a831-581a-80a7-8cabe708fab6":{"Isa":{"id":"3bb0e8c9-a831-581a-80a7-8cabe708fab6","number":4,"obj_id":"469d77d1-9ede-5919-923d-b007d614af26","subtypes":["0cbeeb50-21ce-5e83-9f2e-65d1410d553f","4337f8e0-da41-5409-af44-04dde3457d5f","17de0bb6-ee65-5516-b8eb-9a9a35e5fedd"]}},"faf080a2-97fb-5796-a95e-ba2b28d70546":{"Binary":{"id":"faf080a2-97fb-5796-a95e-ba2b28d70546","number":5,"from":{"obj_id":"56c5ed80-25e7-592e-ab36-a306c78ac58b","description":"is attached to","cardinality":"One","conditionality":"Unconditional","formalizing_attribute_name":"dependent"},"to":{"obj_id":"952d24ad-ce6a-5812-8c6c-33ff9d2b424d","description":"comprises half of a","cardinality":"One","conditionality":"Unconditional"}}},"d6db1de0-4330-5dd6-9302-e37714ee90c6":{"Binary":{"id":"d6db1de0-4330-5dd6-9302-e37714ee90c6","number":6,"from":{"obj_id":"56c5ed80-25e7-592e-ab36-a306c78ac58b","description":"is attached to","cardinality":"One","conditionality":"Unconditional","formalizing_attribute_name":"independent"},"to":{"obj_id":"9c75abf3-b77e-56ee-a19c-d812898b5eaa","description":"comprises half of a","cardinality":"One","conditionality":"Unconditional"}}}}}}
+{
+    "paper": {
+        "ids": [
+            "88cd70e0-c065-5c4b-b1ce-69194ab4d0cb"
+        ],
+        "entities": {
+            "88cd70e0-c065-5c4b-b1ce-69194ab4d0cb": {
+                "id": "88cd70e0-c065-5c4b-b1ce-69194ab4d0cb",
+                "domain_name": "Paper::sarzak_ooa_0",
+                "domain_ns": "b49d6fe1-e5e9-5896-bd42-b72012429e52",
+                "width": 4000,
+                "height": 3200,
+                "offset": {
+                    "x": -1370,
+                    "y": -347
+                },
+                "objects": {
+                    "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f": {
+                        "x": 1430,
+                        "y": 994,
+                        "width": 250,
+                        "height": 125
+                    },
+                    "9803e73c-4984-5179-8460-529fe4ef7921": {
+                        "x": 1842,
+                        "y": 1351,
+                        "width": 169,
+                        "height": 125
+                    },
+                    "f3d5c0a4-850d-5071-a7e3-50e53389e3a8": {
+                        "x": 1641,
+                        "y": 1352,
+                        "width": 163,
+                        "height": 125
+                    },
+                    "fae606a2-e37c-5f82-8754-1fc11c09fe4c": {
+                        "x": 1204,
+                        "y": 1349,
+                        "width": 165,
+                        "height": 125
+                    },
+                    "04fbbc6c-a351-5e6d-b193-191f5510033e": {
+                        "x": 1424,
+                        "y": 1350,
+                        "width": 163,
+                        "height": 125
+                    },
+                    "7178e7a4-5131-504b-a7b3-c2c0cfedf343": {
+                        "x": 1423,
+                        "y": 592,
+                        "width": 250,
+                        "height": 125
+                    },
+                    "63777957-b6bc-5253-b16b-6ff390f10dba": {
+                        "x": 1426,
+                        "y": 786,
+                        "width": 250,
+                        "height": 125
+                    },
+                    "469d77d1-9ede-5919-923d-b007d614af26": {
+                        "x": 2225,
+                        "y": 654,
+                        "width": 250,
+                        "height": 125
+                    },
+                    "0cbeeb50-21ce-5e83-9f2e-65d1410d553f": {
+                        "x": 2090,
+                        "y": 945,
+                        "width": 174,
+                        "height": 117,
+                        "id": "0cbeeb50-21ce-5e83-9f2e-65d1410d553f"
+                    },
+                    "56c5ed80-25e7-592e-ab36-a306c78ac58b": {
+                        "x": 2418,
+                        "y": 945,
+                        "width": 289,
+                        "height": 118,
+                        "id": "56c5ed80-25e7-592e-ab36-a306c78ac58b"
+                    },
+                    "952d24ad-ce6a-5812-8c6c-33ff9d2b424d": {
+                        "x": 2315,
+                        "y": 1165,
+                        "width": 205,
+                        "height": 113,
+                        "id": "952d24ad-ce6a-5812-8c6c-33ff9d2b424d"
+                    },
+                    "9c75abf3-b77e-56ee-a19c-d812898b5eaa": {
+                        "x": 2594,
+                        "y": 1165,
+                        "width": 331,
+                        "height": 118,
+                        "id": "9c75abf3-b77e-56ee-a19c-d812898b5eaa"
+                    },
+                    "17de0bb6-ee65-5516-b8eb-9a9a35e5fedd": {
+                        "x": 1840,
+                        "y": 950,
+                        "width": 174,
+                        "height": 113,
+                        "id": "17de0bb6-ee65-5516-b8eb-9a9a35e5fedd"
+                    }
+                },
+                "relationships": {
+                    "f084b6c4-b157-51a4-9cbe-e7aa85f372aa": {
+                        "BinaryUI": {
+                            "from": {
+                                "id": "63777957-b6bc-5253-b16b-6ff390f10dba",
+                                "dir": "West",
+                                "card": "One",
+                                "x": 1426,
+                                "y": 822,
+                                "offset": {
+                                    "x": -134,
+                                    "y": -17
+                                }
+                            },
+                            "to": {
+                                "id": "7178e7a4-5131-504b-a7b3-c2c0cfedf343",
+                                "dir": "West",
+                                "card": "One",
+                                "x": 1423,
+                                "y": 651,
+                                "offset": {
+                                    "x": -225,
+                                    "y": -26
+                                }
+                            }
+                        }
+                    },
+                    "d0348c92-0e70-5a59-8331-b3be93793409": {
+                        "BinaryUI": {
+                            "from": {
+                                "id": "63777957-b6bc-5253-b16b-6ff390f10dba",
+                                "dir": "West",
+                                "card": "One",
+                                "x": 1426,
+                                "y": 883,
+                                "offset": {
+                                    "x": -94,
+                                    "y": 9
+                                }
+                            },
+                            "to": {
+                                "id": "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f",
+                                "dir": "West",
+                                "card": "One",
+                                "x": 1430,
+                                "y": 994,
+                                "offset": {
+                                    "x": -310,
+                                    "y": 28
+                                }
+                            }
+                        }
+                    },
+                    "a097f6f4-4d97-5ef6-b359-3021766ec90b": {
+                        "IsaUI": {
+                            "from": {
+                                "id": "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f",
+                                "dir": "South",
+                                "card": "One",
+                                "x": 1554,
+                                "y": 1119,
+                                "offset": {
+                                    "x": 40,
+                                    "y": 40
+                                }
+                            },
+                            "to": [
+                                {
+                                    "id": "fae606a2-e37c-5f82-8754-1fc11c09fe4c",
+                                    "dir": "North",
+                                    "card": "One",
+                                    "x": 1291,
+                                    "y": 1349,
+                                    "offset": {
+                                        "x": 40,
+                                        "y": 40
+                                    }
+                                },
+                                {
+                                    "id": "f3d5c0a4-850d-5071-a7e3-50e53389e3a8",
+                                    "dir": "North",
+                                    "card": "One",
+                                    "x": 1722,
+                                    "y": 1352,
+                                    "offset": {
+                                        "x": 40,
+                                        "y": 40
+                                    }
+                                },
+                                {
+                                    "id": "04fbbc6c-a351-5e6d-b193-191f5510033e",
+                                    "dir": "North",
+                                    "card": "One",
+                                    "x": 1524,
+                                    "y": 1350,
+                                    "offset": {
+                                        "x": 40,
+                                        "y": 40
+                                    }
+                                },
+                                {
+                                    "id": "9803e73c-4984-5179-8460-529fe4ef7921",
+                                    "dir": "North",
+                                    "card": "One",
+                                    "x": 1947,
+                                    "y": 1351,
+                                    "offset": {
+                                        "x": 40,
+                                        "y": 40
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "3bb0e8c9-a831-581a-80a7-8cabe708fab6": {
+                        "IsaUI": {
+                            "from": {
+                                "id": "469d77d1-9ede-5919-923d-b007d614af26",
+                                "x": 2349,
+                                "y": 779,
+                                "offset": {
+                                    "x": 20,
+                                    "y": 20
+                                },
+                                "dir": "South"
+                            },
+                            "to": [
+                                {
+                                    "id": "0cbeeb50-21ce-5e83-9f2e-65d1410d553f",
+                                    "x": 2182,
+                                    "y": 945,
+                                    "offset": {
+                                        "x": 20,
+                                        "y": 20
+                                    },
+                                    "dir": "North"
+                                },
+                                {
+                                    "id": "4337f8e0-da41-5409-af44-04dde3457d5f",
+                                    "x": 2515,
+                                    "y": 945,
+                                    "offset": {
+                                        "x": 20,
+                                        "y": 20
+                                    },
+                                    "dir": "North"
+                                },
+                                {
+                                    "id": "17de0bb6-ee65-5516-b8eb-9a9a35e5fedd",
+                                    "x": 1913,
+                                    "y": 950,
+                                    "offset": {
+                                        "x": 20,
+                                        "y": 20
+                                    },
+                                    "dir": "North"
+                                }
+                            ]
+                        },
+                        "id": "3bb0e8c9-a831-581a-80a7-8cabe708fab6"
+                    },
+                    "faf080a2-97fb-5796-a95e-ba2b28d70546": {
+                        "BinaryUI": {
+                            "from": {
+                                "id": "56c5ed80-25e7-592e-ab36-a306c78ac58b",
+                                "x": 2418,
+                                "y": 1004,
+                                "offset": {
+                                    "x": -108,
+                                    "y": -28
+                                },
+                                "dir": "West"
+                            },
+                            "to": {
+                                "id": "952d24ad-ce6a-5812-8c6c-33ff9d2b424d",
+                                "x": 2379,
+                                "y": 1165,
+                                "offset": {
+                                    "x": 8,
+                                    "y": -22
+                                },
+                                "dir": "North"
+                            }
+                        },
+                        "id": "faf080a2-97fb-5796-a95e-ba2b28d70546"
+                    },
+                    "d6db1de0-4330-5dd6-9302-e37714ee90c6": {
+                        "BinaryUI": {
+                            "from": {
+                                "id": "56c5ed80-25e7-592e-ab36-a306c78ac58b",
+                                "x": 2707,
+                                "y": 1010,
+                                "offset": {
+                                    "x": 28,
+                                    "y": -13
+                                },
+                                "dir": "East"
+                            },
+                            "to": {
+                                "id": "9c75abf3-b77e-56ee-a19c-d812898b5eaa",
+                                "x": 2747,
+                                "y": 1165,
+                                "offset": {
+                                    "x": 12,
+                                    "y": -13
+                                },
+                                "dir": "North"
+                            }
+                        },
+                        "id": "d6db1de0-4330-5dd6-9302-e37714ee90c6"
+                    }
+                }
+            }
+        }
+    },
+    "objects": {
+        "ids": [
+            "469d77d1-9ede-5919-923d-b007d614af26",
+            "fae606a2-e37c-5f82-8754-1fc11c09fe4c",
+            "7178e7a4-5131-504b-a7b3-c2c0cfedf343",
+            "f3d5c0a4-850d-5071-a7e3-50e53389e3a8",
+            "63777957-b6bc-5253-b16b-6ff390f10dba",
+            "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f",
+            "9803e73c-4984-5179-8460-529fe4ef7921",
+            "04fbbc6c-a351-5e6d-b193-191f5510033e",
+            "0cbeeb50-21ce-5e83-9f2e-65d1410d553f",
+            "56c5ed80-25e7-592e-ab36-a306c78ac58b",
+            "952d24ad-ce6a-5812-8c6c-33ff9d2b424d",
+            "9c75abf3-b77e-56ee-a19c-d812898b5eaa",
+            "17de0bb6-ee65-5516-b8eb-9a9a35e5fedd"
+        ],
+        "entities": {
+            "469d77d1-9ede-5919-923d-b007d614af26": {
+                "id": "469d77d1-9ede-5919-923d-b007d614af26",
+                "name": "Relationship",
+                "attributes": {
+                    "319fe0cf-f599-5aa8-a0e7-a84a6f9a27d9": {
+                        "id": "319fe0cf-f599-5aa8-a0e7-a84a6f9a27d9",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            },
+            "fae606a2-e37c-5f82-8754-1fc11c09fe4c": {
+                "id": "fae606a2-e37c-5f82-8754-1fc11c09fe4c",
+                "name": "Integer",
+                "attributes": {
+                    "8f68cf57-fa3c-5964-affd-6964dbe7353b": {
+                        "id": "8f68cf57-fa3c-5964-affd-6964dbe7353b",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            },
+            "7178e7a4-5131-504b-a7b3-c2c0cfedf343": {
+                "id": "7178e7a4-5131-504b-a7b3-c2c0cfedf343",
+                "name": "Object",
+                "attributes": {
+                    "a37b26e0-49fb-5be8-95a8-fb563ab81cc4": {
+                        "id": "a37b26e0-49fb-5be8-95a8-fb563ab81cc4",
+                        "name": "id",
+                        "type": "Uuid"
+                    },
+                    "d01da69e-bf98-5825-a9f6-9ce0405417f1": {
+                        "id": "d01da69e-bf98-5825-a9f6-9ce0405417f1",
+                        "name": "name",
+                        "type": "String"
+                    }
+                }
+            },
+            "f3d5c0a4-850d-5071-a7e3-50e53389e3a8": {
+                "id": "f3d5c0a4-850d-5071-a7e3-50e53389e3a8",
+                "name": "Float",
+                "attributes": {
+                    "b8c0be8b-e2a8-54b5-a70e-2b9ed112397e": {
+                        "id": "b8c0be8b-e2a8-54b5-a70e-2b9ed112397e",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            },
+            "63777957-b6bc-5253-b16b-6ff390f10dba": {
+                "id": "63777957-b6bc-5253-b16b-6ff390f10dba",
+                "name": "Attribute",
+                "attributes": {
+                    "f08c70f0-eeb0-5269-9a0f-4a27e2143b3f": {
+                        "id": "f08c70f0-eeb0-5269-9a0f-4a27e2143b3f",
+                        "name": "name",
+                        "type": "String"
+                    },
+                    "49767001-d944-5907-b2ce-d1d87bfed750": {
+                        "id": "49767001-d944-5907-b2ce-d1d87bfed750",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            },
+            "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f": {
+                "id": "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f",
+                "name": "Type",
+                "attributes": {
+                    "52783e59-f28c-5a8b-8947-12d60c2d49d0": {
+                        "id": "52783e59-f28c-5a8b-8947-12d60c2d49d0",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            },
+            "9803e73c-4984-5179-8460-529fe4ef7921": {
+                "id": "9803e73c-4984-5179-8460-529fe4ef7921",
+                "name": "String",
+                "attributes": {
+                    "65e20da8-6e30-5b9b-8572-cbf3538bf55f": {
+                        "id": "65e20da8-6e30-5b9b-8572-cbf3538bf55f",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            },
+            "04fbbc6c-a351-5e6d-b193-191f5510033e": {
+                "id": "04fbbc6c-a351-5e6d-b193-191f5510033e",
+                "name": "Boolean",
+                "attributes": {
+                    "459d3145-9c90-5388-93b1-3626d99625de": {
+                        "id": "459d3145-9c90-5388-93b1-3626d99625de",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            },
+            "0cbeeb50-21ce-5e83-9f2e-65d1410d553f": {
+                "id": "0cbeeb50-21ce-5e83-9f2e-65d1410d553f",
+                "name": "Isa",
+                "attributes": {
+                    "4717289d-ed9c-5931-94ce-a73a66b88856": {
+                        "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
+                        "name": "id",
+                        "type": "Uuid"
+                    },
+                    "da88d452-73e4-5344-a0a9-ae0bac76b845": {
+                        "id": "da88d452-73e4-5344-a0a9-ae0bac76b845",
+                        "name": "number",
+                        "type": "Integer"
+                    }
+                }
+            },
+            "56c5ed80-25e7-592e-ab36-a306c78ac58b": {
+                "id": "56c5ed80-25e7-592e-ab36-a306c78ac58b",
+                "name": "Binary",
+                "attributes": {
+                    "6103bc32-cd25-5b9e-9461-b65a159e10fd": {
+                        "id": "6103bc32-cd25-5b9e-9461-b65a159e10fd",
+                        "name": "id",
+                        "type": "Uuid"
+                    },
+                    "50140f54-ad40-56f1-9853-05573248df1c": {
+                        "id": "50140f54-ad40-56f1-9853-05573248df1c",
+                        "name": "number",
+                        "type": "Integer"
+                    }
+                }
+            },
+            "952d24ad-ce6a-5812-8c6c-33ff9d2b424d": {
+                "id": "952d24ad-ce6a-5812-8c6c-33ff9d2b424d",
+                "name": "Dependent",
+                "attributes": {
+                    "4717289d-ed9c-5931-94ce-a73a66b88856": {
+                        "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
+                        "name": "id",
+                        "type": "Uuid"
+                    },
+                    "2aabbeab-a336-590b-99a4-98b949edeeab": {
+                        "id": "2aabbeab-a336-590b-99a4-98b949edeeab",
+                        "name": "description",
+                        "type": "String"
+                    }
+                }
+            },
+            "9c75abf3-b77e-56ee-a19c-d812898b5eaa": {
+                "id": "9c75abf3-b77e-56ee-a19c-d812898b5eaa",
+                "name": "Independent",
+                "attributes": {
+                    "4717289d-ed9c-5931-94ce-a73a66b88856": {
+                        "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
+                        "name": "id",
+                        "type": "Uuid"
+                    },
+                    "2aabbeab-a336-590b-99a4-98b949edeeab": {
+                        "id": "2aabbeab-a336-590b-99a4-98b949edeeab",
+                        "name": "description",
+                        "type": "String"
+                    },
+                    "3ae7ce01-4cb8-54ef-9ae9-fbff57ad68c1": {
+                        "id": "3ae7ce01-4cb8-54ef-9ae9-fbff57ad68c1",
+                        "name": "formalizing_attribute_name",
+                        "type": "String"
+                    }
+                }
+            },
+            "17de0bb6-ee65-5516-b8eb-9a9a35e5fedd": {
+                "id": "17de0bb6-ee65-5516-b8eb-9a9a35e5fedd",
+                "name": "Associative",
+                "attributes": {
+                    "4717289d-ed9c-5931-94ce-a73a66b88856": {
+                        "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
+                        "name": "id",
+                        "type": "Uuid"
+                    },
+                    "da88d452-73e4-5344-a0a9-ae0bac76b845": {
+                        "id": "da88d452-73e4-5344-a0a9-ae0bac76b845",
+                        "name": "number",
+                        "type": "Integer"
+                    }
+                }
+            }
+        }
+    },
+    "relationships": {
+        "ids": [
+            "a097f6f4-4d97-5ef6-b359-3021766ec90b",
+            "f084b6c4-b157-51a4-9cbe-e7aa85f372aa",
+            "d0348c92-0e70-5a59-8331-b3be93793409",
+            "3bb0e8c9-a831-581a-80a7-8cabe708fab6",
+            "faf080a2-97fb-5796-a95e-ba2b28d70546",
+            "d6db1de0-4330-5dd6-9302-e37714ee90c6"
+        ],
+        "entities": {
+            "a097f6f4-4d97-5ef6-b359-3021766ec90b": {
+                "Isa": {
+                    "id": "a097f6f4-4d97-5ef6-b359-3021766ec90b",
+                    "number": 3,
+                    "obj_id": "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f",
+                    "subtypes": [
+                        "fae606a2-e37c-5f82-8754-1fc11c09fe4c",
+                        "f3d5c0a4-850d-5071-a7e3-50e53389e3a8",
+                        "04fbbc6c-a351-5e6d-b193-191f5510033e",
+                        "9803e73c-4984-5179-8460-529fe4ef7921"
+                    ]
+                }
+            },
+            "f084b6c4-b157-51a4-9cbe-e7aa85f372aa": {
+                "Binary": {
+                    "id": "f084b6c4-b157-51a4-9cbe-e7aa85f372aa",
+                    "number": 1,
+                    "from": {
+                        "obj_id": "63777957-b6bc-5253-b16b-6ff390f10dba",
+                        "description": "lives in an",
+                        "cardinality": "Many",
+                        "conditionality": "Conditional",
+                        "formalizing_attribute_name": "obj_id"
+                    },
+                    "to": {
+                        "obj_id": "7178e7a4-5131-504b-a7b3-c2c0cfedf343",
+                        "description": "contains, and is defined by it's",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional"
+                    }
+                }
+            },
+            "d0348c92-0e70-5a59-8331-b3be93793409": {
+                "Binary": {
+                    "id": "d0348c92-0e70-5a59-8331-b3be93793409",
+                    "number": 2,
+                    "from": {
+                        "obj_id": "63777957-b6bc-5253-b16b-6ff390f10dba",
+                        "description": "has a",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional",
+                        "formalizing_attribute_name": "type"
+                    },
+                    "to": {
+                        "obj_id": "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f",
+                        "description": "describes the memory representation of",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional"
+                    }
+                }
+            },
+            "3bb0e8c9-a831-581a-80a7-8cabe708fab6": {
+                "Isa": {
+                    "id": "3bb0e8c9-a831-581a-80a7-8cabe708fab6",
+                    "number": 4,
+                    "obj_id": "469d77d1-9ede-5919-923d-b007d614af26",
+                    "subtypes": [
+                        "0cbeeb50-21ce-5e83-9f2e-65d1410d553f",
+                        "4337f8e0-da41-5409-af44-04dde3457d5f",
+                        "17de0bb6-ee65-5516-b8eb-9a9a35e5fedd"
+                    ]
+                }
+            },
+            "faf080a2-97fb-5796-a95e-ba2b28d70546": {
+                "Binary": {
+                    "id": "faf080a2-97fb-5796-a95e-ba2b28d70546",
+                    "number": 5,
+                    "from": {
+                        "obj_id": "56c5ed80-25e7-592e-ab36-a306c78ac58b",
+                        "description": "is attached to",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional",
+                        "formalizing_attribute_name": "dependent"
+                    },
+                    "to": {
+                        "obj_id": "952d24ad-ce6a-5812-8c6c-33ff9d2b424d",
+                        "description": "comprises half of a",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional"
+                    }
+                }
+            },
+            "d6db1de0-4330-5dd6-9302-e37714ee90c6": {
+                "Binary": {
+                    "id": "d6db1de0-4330-5dd6-9302-e37714ee90c6",
+                    "number": 6,
+                    "from": {
+                        "obj_id": "56c5ed80-25e7-592e-ab36-a306c78ac58b",
+                        "description": "is attached to",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional",
+                        "formalizing_attribute_name": "independent"
+                    },
+                    "to": {
+                        "obj_id": "9c75abf3-b77e-56ee-a19c-d812898b5eaa",
+                        "description": "comprises half of a",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional"
+                    }
+                }
+            }
+        }
+    }
+}
