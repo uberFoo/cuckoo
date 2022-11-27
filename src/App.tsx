@@ -4,6 +4,7 @@ import { listen } from '@tauri-apps/api/event';
 import { open, save } from '@tauri-apps/api/dialog';
 import { readTextFile, writeFile } from '@tauri-apps/api/fs';
 import React, { useEffect, useState } from 'react';
+
 import { Paper } from './features/paper/Paper';
 import { selectPaperSingleton } from './features/paper/paperSlice';
 import { useAppSelector } from './app/hooks';
