@@ -31,7 +31,7 @@ export function ObjectWidget(props: ObjectProps) {
     let attributeInstances = { ...object!.attributes };
 
     let relationships: Array<RelationshipStore> = useAppSelector((state) => selectRelationships(state));
-    let relAttrs = relationships.filter(r => {
+    relationships.filter(r => {
         // @ts-ignore
         if (r.Binary !== undefined) {
             // @ts-ignore

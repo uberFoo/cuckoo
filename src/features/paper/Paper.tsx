@@ -241,8 +241,7 @@ export function Paper(props: PaperProps) {
                 } else if (event.ctrlKey) {
                     // Delete
                     dispatch(removeObjectFromPaper({ id }));
-                    // @ts-ignore
-                    dispatch(removeObject({ id }));
+                    dispatch(removeObject(id));
                 } else {
                     // Default dragging
                     let dir = target.id as Direction;
@@ -284,8 +283,7 @@ export function Paper(props: PaperProps) {
                 if (event.ctrlKey) {
                     // Delete
                     dispatch(removeRelationshipFromPaper({ id }));
-                    // @ts-ignore
-                    dispatch(removeRelationship({ id }));
+                    dispatch(removeRelationship(id));
                     return;
                 } else if (event.altKey) {
                     // This brings up the relationship editor.
