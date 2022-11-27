@@ -70,8 +70,13 @@ function App() {
         let state = store.getState();
         // Yank out the paper, since it's not really part of the schema.
         let { objects, relationships } = state.present;
+
+        // Need to un-normalize it.
+        let obj = objects.ids.map(id => { return { Object: objects.entities[id] }; });
+        let rel = relationships.ids.map(id => { return { Relationship: relationships.entities[id] }; });
+
         // Make it pretty too.
-        let json = JSON.stringify({ objects, relationships }, null, 4);
+        let json = JSON.stringify({ Objects: obj, Relationships: rel }, null, 4);
 
         let path = await save({
             title: 'Export Schema',
