@@ -77,6 +77,11 @@ function App() {
             title: 'Export Schema',
             filters: [{ name: 'Schema', extensions: ['json'] }]
         });
+
+        if (path?.split('.json').length !== 2) {
+            path! += '.json';
+        }
+
         await writeFile({ contents: json, path: path! });
     };
 
@@ -92,6 +97,11 @@ function App() {
             title: 'Save Model',
             filters: [{ name: 'Schema', extensions: ['json'] }]
         });
+
+        if (path?.split('.json').length !== 2) {
+            path! += '.json';
+        }
+
         await writeFile({ contents: json, path: path! });
     };
 
