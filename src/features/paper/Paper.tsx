@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Menu, MenuItem } from '@mui/material';
 import { ActionCreators as UndoActionCreators } from 'redux-undo';
+import storage from 'redux-persist/lib/storage';
 
 import { ObjectWidget } from '../object/Object';
 import {
@@ -155,6 +156,11 @@ export function Paper(props: PaperProps) {
         switch (type) {
             case 'Paper': {
                 let { paper } = move;
+
+                // The Nuclear Option. Delete local storage.
+                if (event.altKey && event.metaKey && event.shiftKey && event.ctrlKey) {
+                    storage.removeItem('persist:root');
+                }
 
                 if (event.altKey) {
                     // Start an undo
