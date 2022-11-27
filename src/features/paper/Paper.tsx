@@ -160,6 +160,8 @@ export function Paper(props: PaperProps) {
                 // The Nuclear Option. Delete local storage.
                 if (event.altKey && event.metaKey && event.shiftKey && event.ctrlKey) {
                     storage.removeItem('persist:root');
+                    window.location.reload();
+                    return;
                 }
 
                 if (event.altKey) {
