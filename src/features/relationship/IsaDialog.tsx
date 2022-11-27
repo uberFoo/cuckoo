@@ -1,16 +1,27 @@
 import React, { FormEvent } from 'react';
 import { useFormik } from 'formik';
 import {
-    Dialog, DialogTitle, TextField, DialogContent, DialogActions, Button, FormGroup, FormLabel,
-    List, ListItemButton, ListItemText, ListItemSecondaryAction, IconButton, FormControl,
-    InputLabel, Select, MenuItem, SelectChangeEvent, Divider, RadioGroup, Radio, FormControlLabel
+    Dialog, DialogTitle, TextField, DialogContent, DialogActions, Button, FormGroup,
+    FormControl, PaperProps, Paper
 } from '@mui/material';
+import Draggable from 'react-draggable';
 import { v5 as uuid } from 'uuid';
 
 import { Isa } from '../../app/store';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { addRelationship, removeRelationship, updateRelationship, selectRelationshipsById } from './relationshipSlice';
 import { relationshipChangeId } from '../paper/paperSlice';
+
+function PaperComponent(props: PaperProps) {
+    return (
+        <Draggable
+            handle="#draggable-dialog-title"
+            cancel={'[class*="MuiDialogContent-root"]'}
+        >
+            <Paper {...props} />
+        </Draggable>
+    );
+}
 
 interface Props {
     id: string,
@@ -80,9 +91,12 @@ const IsaEditor = (props: Props) => {
 
     return (
         <div>
-            <Dialog open={true} fullWidth maxWidth={"sm"}>
+            <Dialog open={true} fullWidth maxWidth={"sm"} PaperComponent={PaperComponent}
+                aria-labelledby="draggable-dialog-title">
                 <FormControl>
-                    <DialogTitle>Isa Relationship Editor</DialogTitle>
+                    <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
+                        Isa Relationship Editor
+                    </DialogTitle>
                     <DialogContent dividers>
                         <FormGroup>
                             <TextField autoFocus required id="rel_num" label="Relationship Number"
