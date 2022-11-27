@@ -4,7 +4,7 @@ import {
     Dialog, DialogTitle, TextField, DialogContent, DialogActions, Button, FormGroup, FormLabel,
     List, ListItemButton, ListItemText, ListItemSecondaryAction, IconButton, FormControl,
     InputLabel, Select, MenuItem, SelectChangeEvent, Divider, RadioGroup, Radio, FormControlLabel,
-    PaperProps, Paper
+    PaperProps, Paper, Box
 } from '@mui/material';
 import Draggable from 'react-draggable';
 import { v5 as uuid } from 'uuid';
@@ -142,11 +142,12 @@ const BinaryEditor = (props: Props) => {
         <div>
             <Dialog open={true} fullWidth maxWidth={"sm"} PaperComponent={PaperComponent}
                 aria-labelledby="draggable-dialog-title">
-                <FormControl>
-                    <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
-                        Binary Relationship Editor
-                    </DialogTitle>
-                    <DialogContent dividers>
+                <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
+                    Binary Relationship Editor
+                </DialogTitle>
+                <DialogContent dividers>
+                    <Box component={"form"} sx={{ '& .MuiTextField-root': { m: 1, width: '50ch' } }}
+                        noValidate autoComplete={'off'}>
                         <FormGroup>
                             <TextField autoFocus required id="rel_num" label="Relationship Number"
                                 value={formik.values.rel_num} onChange={formik.handleChange}
@@ -193,12 +194,12 @@ const BinaryEditor = (props: Props) => {
                                 <FormControlLabel value='Conditional' control={<Radio />} label='Conditional' />
                             </RadioGroup>
                         </FormGroup>
-                    </DialogContent >
-                    <DialogActions>
-                        <Button onClick={cancel}>Cancel</Button>
-                        <Button onClick={handleSubmit}>Save</Button>
-                    </DialogActions>
-                </FormControl>
+                    </Box>
+                </DialogContent >
+                <DialogActions>
+                    <Button onClick={cancel}>Cancel</Button>
+                    <Button onClick={handleSubmit}>Save</Button>
+                </DialogActions>
             </Dialog>
         </div >
     )
