@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Menu, MenuItem } from '@mui/material';
 import { ActionCreators as UndoActionCreators } from 'redux-undo';
+import storage from 'redux-persist/lib/storage';
+import { ErrorBoundary } from 'react-error-boundary';
 
 import { ObjectWidget } from '../object/Object';
 import {
@@ -24,6 +26,15 @@ import { addRelationship, removeRelationship, addTargetToIsa } from '../relation
 
 import styles from './Paper.module.css';
 
+function ErrorFallback({ error, resetErrorBoundary }: any) {
+    return (
+        <div role="alert">
+            <p>Something went wrong:</p>
+            <pre style={{ color: 'red' }}>{error.message}</pre>
+            <button onClick={resetErrorBoundary}>Undo</button>
+        </div>
+    )
+}
 
 const defaultGridSize = 25;
 const defaultScale = 1.0;
@@ -156,6 +167,13 @@ export function Paper(props: PaperProps) {
             case 'Paper': {
                 let { paper } = move;
 
+                // The Nuclear Option. Delete local storage.
+                if (event.altKey && event.metaKey && event.shiftKey && event.ctrlKey) {
+                    storage.removeItem('persist:root');
+                    window.location.reload();
+                    return;
+                }
+
                 if (event.altKey) {
                     // Start an undo
                     setMove({
@@ -241,8 +259,7 @@ export function Paper(props: PaperProps) {
                 } else if (event.ctrlKey) {
                     // Delete
                     dispatch(removeObjectFromPaper({ id }));
-                    // @ts-ignore
-                    dispatch(removeObject({ id }));
+                    dispatch(removeObject(id));
                 } else {
                     // Default dragging
                     let dir = target.id as Direction;
@@ -284,8 +301,7 @@ export function Paper(props: PaperProps) {
                 if (event.ctrlKey) {
                     // Delete
                     dispatch(removeRelationshipFromPaper({ id }));
-                    // @ts-ignore
-                    dispatch(removeRelationship({ id }));
+                    dispatch(removeRelationship(id));
                     return;
                 } else if (event.altKey) {
                     // This brings up the relationship editor.
@@ -376,6 +392,8 @@ export function Paper(props: PaperProps) {
     };
 
     let onMouseUpHandler = (event: React.MouseEvent) => {
+        event.preventDefault();
+
         let { mouseDown } = move;
 
         if (mouseDown) {
@@ -816,6 +834,8 @@ export function Paper(props: PaperProps) {
     };
 
     let onMouseMoveHandler = (event: React.MouseEvent) => {
+        event.preventDefault();
+
         let { mouseDown } = move;
 
         if (mouseDown) {
@@ -1021,7 +1041,10 @@ export function Paper(props: PaperProps) {
         return ReactDOM.createPortal(contextMenuContent, document.getElementById('root'));
     } else {
         return (
-            <>
+            <ErrorBoundary
+                FallbackComponent={ErrorFallback}
+                onReset={() => dispatch(UndoActionCreators.undo())}
+            >
                 {object.object_dialog &&
                     // @ts-ignore
                     <ObjectEditor enabled={true} obj_id={move.object.id} ns={props.domain_ns}
@@ -1074,7 +1097,7 @@ export function Paper(props: PaperProps) {
                         </g>
                     </g >
                 </svg>
-            </>
+            </ErrorBoundary>
         )
     }
 }

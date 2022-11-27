@@ -4,6 +4,7 @@ import { listen } from '@tauri-apps/api/event';
 import { open, save } from '@tauri-apps/api/dialog';
 import { readTextFile, writeFile } from '@tauri-apps/api/fs';
 import React, { useEffect, useState } from 'react';
+
 import { Paper } from './features/paper/Paper';
 import { selectPaperSingleton } from './features/paper/paperSlice';
 import { useAppSelector } from './app/hooks';
@@ -70,10 +71,23 @@ function App() {
         let state = store.getState();
         // Yank out the paper, since it's not really part of the schema.
         let { objects, relationships } = state.present;
-        // Make it pretty too.
-        let json = JSON.stringify({ objects, relationships }, null, 4);
 
-        let path = await save();
+        // Need to un-normalize it.
+        let obj = objects.ids.map(id => { return { Object: objects.entities[id] }; });
+        let rel = relationships.ids.map(id => { return { Relationship: relationships.entities[id] }; });
+
+        // Make it pretty too.
+        let json = JSON.stringify({ Objects: obj, Relationships: rel }, null, 4);
+
+        let path = await save({
+            title: 'Export Schema',
+            filters: [{ name: 'Schema', extensions: ['json'] }]
+        });
+
+        if (path?.split('.json').length !== 2) {
+            path! += '.json';
+        }
+
         await writeFile({ contents: json, path: path! });
     };
 
@@ -85,7 +99,15 @@ function App() {
         let { present } = state;
         let json = JSON.stringify(present);
 
-        let path = await save();
+        let path = await save({
+            title: 'Save Model',
+            filters: [{ name: 'Schema', extensions: ['json'] }]
+        });
+
+        if (path?.split('.json').length !== 2) {
+            path! += '.json';
+        }
+
         await writeFile({ contents: json, path: path! });
     };
 

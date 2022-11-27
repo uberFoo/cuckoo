@@ -3,8 +3,9 @@ import { useFormik } from 'formik';
 import {
     Dialog, DialogTitle, TextField, DialogContent, DialogActions, Button, FormGroup, FormLabel,
     List, ListItemButton, ListItemText, ListItemSecondaryAction, IconButton, FormControl,
-    InputLabel, Select, MenuItem, SelectChangeEvent, Divider
+    InputLabel, Select, MenuItem, SelectChangeEvent, Divider, PaperProps, Paper
 } from '@mui/material';
+import Draggable from 'react-draggable';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { v5 as uuid } from 'uuid';
 
@@ -12,6 +13,17 @@ import { AttributeStore, Type } from '../../app/store';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { removeAttribute, addAttribute, replaceObject, selectObjectById } from './objectSlice';
 import { objectChangeId } from '../paper/paperSlice';
+
+function PaperComponent(props: PaperProps) {
+    return (
+        <Draggable
+            handle="#draggable-dialog-title"
+            cancel={'[class*="MuiDialogContent-root"]'}
+        >
+            <Paper {...props} />
+        </Draggable>
+    );
+}
 
 interface Props {
     enabled: boolean,
@@ -133,8 +145,12 @@ const ObjectEditor = (props: Props) => {
 
     return (
         <div>
-            <Dialog open={true}>
-                <DialogTitle>Object Editor</DialogTitle>
+            <Dialog open={true} PaperComponent={PaperComponent}
+                aria-labelledby="draggable-dialog-title">
+                {/* @ts-ignore */}
+                <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
+                    Object Editor
+                </DialogTitle>
                 <DialogContent dividers>
                     <FormGroup>
                         <TextField autoFocus required id="objectName" label="Object Name"

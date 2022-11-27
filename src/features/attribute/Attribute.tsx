@@ -25,6 +25,9 @@ export function Attribute(props: AttributeProps) {
     //      ⦿: \u29bf
     //      ◦: \u25e6
     let bullet = props.is_ref ? '\u2023 ' : '\u2043 ';
+    if (props.name === 'id') {
+        bullet = '\u25e6';
+    }
 
     return (
         <text className={styles.attribute} x={0} y={y} >
