@@ -73,7 +73,10 @@ function App() {
         // Make it pretty too.
         let json = JSON.stringify({ objects, relationships }, null, 4);
 
-        let path = await save();
+        let path = await save({
+            title: 'Export Schema',
+            filters: [{ name: 'Schema', extensions: ['json'] }]
+        });
         await writeFile({ contents: json, path: path! });
     };
 
@@ -85,7 +88,10 @@ function App() {
         let { present } = state;
         let json = JSON.stringify(present);
 
-        let path = await save();
+        let path = await save({
+            title: 'Save Model',
+            filters: [{ name: 'Schema', extensions: ['json'] }]
+        });
         await writeFile({ contents: json, path: path! });
     };
 
