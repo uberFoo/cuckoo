@@ -45,6 +45,9 @@ function App() {
                 case "import-model-event":
                     ImportModel();
                     break;
+                case 'save-model-event':
+                    SaveModel();
+                    break;
 
                 default:
                     break;
@@ -92,6 +95,25 @@ function App() {
     };
 
     const ExportModel = async () => {
+        let state = store.getState();
+        // If we export with history, and import later, for some reason our state doesn't
+        // persist from then forward. I.e., reloading the page brings up the state from
+        // disk.
+        let json = JSON.stringify(state);
+
+        let path = await save({
+            title: 'Save Model',
+            filters: [{ name: 'Schema', extensions: ['json'] }]
+        });
+
+        if (path?.split('.json').length !== 2) {
+            path! += '.json';
+        }
+
+        await writeFile({ contents: json, path: path! });
+    };
+
+    const SaveModel = async () => {
         let state = store.getState();
         // If we export with history, and import later, for some reason our state doesn't
         // persist from then forward. I.e., reloading the page brings up the state from
