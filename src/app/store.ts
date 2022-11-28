@@ -85,15 +85,15 @@ export interface AttributeStore {
 export type RelationshipStore = Binary | Isa | Associative;
 
 export function isBinary(arg: any): arg is Binary {
-    return arg.to !== undefined;
+    return arg.Binary !== undefined;
 }
 
 export function isIsa(arg: any): arg is Isa {
-    return arg.subtypes !== undefined;
+    return arg.Isa !== undefined;
 }
 
 export function isAssociative(arg: any): arg is Associative {
-    return arg.one !== undefined;
+    return arg.Associative !== undefined;
 }
 
 export interface Binary {
