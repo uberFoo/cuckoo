@@ -597,7 +597,10 @@ export function Paper(props: PaperProps) {
 
                                 new_obj = true;
 
-                                dispatch(addObject({ id: "fubar", name: "New Object", attributes: {} }));
+                                dispatch(addObject({
+                                    id: "fubar", name: "New Object",
+                                    description: "", attributes: {}
+                                }));
                                 dispatch(addObjectToPaper(obj_ui));
                             }
                         } else {
