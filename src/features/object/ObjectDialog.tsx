@@ -235,7 +235,7 @@ const ObjectEditor = (props: Props) => {
                 </DialogContent >
                 <DialogActions>
                     <Button variant={"outlined"} onClick={cancel}>Cancel</Button>
-                    <Button variant={"outlined"} onClick={handleSubmit}>Done</Button>
+                    <Button variant={"outlined"} onClick={handleSubmit}>Save</Button>
                 </DialogActions>
             </Dialog>
         </div >
