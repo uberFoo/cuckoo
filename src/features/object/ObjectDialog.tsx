@@ -3,7 +3,7 @@ import { useFormik } from 'formik';
 import {
     Dialog, DialogTitle, TextField, DialogContent, DialogActions, Button, FormGroup, FormLabel,
     List, ListItemButton, ListItemText, ListItemSecondaryAction, IconButton, FormControl,
-    InputLabel, Select, MenuItem, SelectChangeEvent, Divider, PaperProps, Paper
+    InputLabel, Select, MenuItem, SelectChangeEvent, Divider, PaperProps, Paper, Box
 } from '@mui/material';
 import Draggable from 'react-draggable';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
@@ -11,7 +11,7 @@ import { v5 as uuid } from 'uuid';
 
 import { AttributeStore, Type } from '../../app/store';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { removeAttribute, addAttribute, replaceObject, selectObjectById } from './objectSlice';
+import { removeAttribute, addAttribute, replaceObject, selectObjectById, objectUpdateDescription } from './objectSlice';
 import { objectChangeId } from '../paper/paperSlice';
 
 function PaperComponent(props: PaperProps) {
@@ -44,6 +44,8 @@ const ObjectEditor = (props: Props) => {
         initialValues: {
             // @ts-ignore
             objectName: object.name,
+            // @ts-ignore
+            object_desc: object.description
         },
         onSubmit: (values) => save(values)
     });
@@ -54,14 +56,34 @@ const ObjectEditor = (props: Props) => {
         return;
     }
 
-    let save = (values: { objectName: string }) => {
-        // @ts-ignore
-        if (values.objectName !== object.name) {
-            let new_id = uuid(values.objectName, props.ns);
-            let new_obj = { ...object, id: new_id, name: values.objectName };
+    let save = (values: { objectName: string, object_desc: string }) => {
+        let dirty = false;
+        let id = props.obj_id;
+        let name = object?.name;
+        let description = object?.description;
 
-            dispatch(objectChangeId({ id: new_id, old_id: props.obj_id }));
-            dispatch(replaceObject({ object: new_obj, old_id: props.obj_id }));
+        // @ts-ignore
+        if (values.objectName !== name) {
+            id = uuid(values.objectName, props.ns);
+            name = values.objectName;
+            dirty = true;
+        }
+
+        if (values.object_desc !== object?.description) {
+            description = values.object_desc;
+            dirty = true;
+        }
+
+        if (dirty) {
+            let new_obj = { ...object, id, name, description };
+
+            // all that work with dirty flags and look what I'm doing.
+            if (id !== props.obj_id) {
+                dispatch(objectChangeId({ id, old_id: props.obj_id }));
+                dispatch(replaceObject({ object: new_obj, old_id: props.obj_id }));
+            } else {
+                dispatch(objectUpdateDescription({ id, payload: description }));
+            }
         }
 
         props.done();
@@ -145,55 +167,75 @@ const ObjectEditor = (props: Props) => {
 
     return (
         <div>
-            <Dialog open={true} PaperComponent={PaperComponent}
+            <Dialog open={true} fullWidth maxWidth={"sm"} PaperComponent={PaperComponent}
                 aria-labelledby="draggable-dialog-title">
                 {/* @ts-ignore */}
                 <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
                     Object Editor
                 </DialogTitle>
                 <DialogContent dividers>
-                    <FormGroup>
-                        <TextField autoFocus required id="objectName" label="Object Name"
-                            value={formik.values.objectName} onChange={formik.handleChange}
-                            variant="outlined" />
-                    </FormGroup>
-                    <Divider />
-                    <FormGroup>
-                        <FormLabel>Attributes</FormLabel>
-                        <List>
-                            {listItems.map(({ id, name, type }) =>
-                                <ListItemButton key={id} id={id} divider onClick={handleAttrSelect} >
-                                    {/* <ListItemText primary={name} secondary={type} /> */}
-                                    <ListItemText primary={`${name}: ${type}`} />
-                                    <ListItemSecondaryAction>
-                                        <div id={id} onClick={handleDeleteAttribute}>
-                                            <IconButton edge='end' >
-                                                <DeleteForeverIcon />
-                                            </IconButton>
-                                        </div>
-                                    </ListItemSecondaryAction>
-                                </ListItemButton>
-                            )}
-                        </List>
-                        <DialogActions id="editAttrCtls">
-                            <TextField id="attributeName" variant='outlined' label='Attribute Name' InputLabelProps={{ shrink: true }} />
-                            <FormControl>
-                                <InputLabel id="attr-type">Type</InputLabel>
-                                {/* @ts-ignore */}
-                                <Select sx={{ m: 1, minWidth: 120 }} labelId='attr-type' value={attrType}
-                                    id='attr-select' label='Type' onChange={handleAttrTypeChange}>
-                                    {TYPES.map(t =>
-                                        <MenuItem key={t} value={t}>{t}</MenuItem>
-                                    )}
-                                </Select>
-                            </FormControl>
-                            <Button onClick={handleAddAttr}>Add</Button>
-                        </DialogActions>
-                    </FormGroup>
+                    <Box component={"form"} sx={{ '& .MuiTextField-root': { m: 1, width: '60ch' } }}
+                        noValidate autoComplete={'off'}>
+                        <FormGroup>
+                            <TextField autoFocus required id="objectName" label="Object Name"
+                                value={formik.values.objectName} onChange={formik.handleChange}
+                                variant="outlined" />
+                            <TextField autoFocus required id="object_desc" label="Object Description"
+                                value={formik.values.object_desc} onChange={formik.handleChange}
+                                variant="outlined" multiline />
+                        </FormGroup>
+                        <Divider />
+                        <FormGroup>
+                            <FormLabel>Attributes</FormLabel>
+                            <List>
+                                {listItems.map(({ id, name, type }) =>
+                                    <ListItemButton key={id} id={id} sx={{ width: '50ch' }}
+                                        divider onClick={handleAttrSelect} >
+                                        {/* <ListItemText primary={name} secondary={type} /> */}
+                                        <ListItemText primary={`${name}: ${type}`} />
+                                        <ListItemSecondaryAction>
+                                            <div id={id} onClick={handleDeleteAttribute}>
+                                                <IconButton edge='end' >
+                                                    <DeleteForeverIcon />
+                                                </IconButton>
+                                            </div>
+                                        </ListItemSecondaryAction>
+                                    </ListItemButton>
+                                )}
+                            </List>
+                            <Box
+                                component="form"
+                                sx={{
+                                    display: 'flex', alignItems: 'flex-end',
+                                    '& .MuiTextField-root': { m: 1, width: '35ch' },
+                                }}
+                                noValidate
+                                autoComplete="off"
+                            >
+                                <DialogActions id="editAttrCtls">
+                                    <TextField id="attributeName" variant='outlined'
+                                        label='Attribute Name' InputLabelProps={{ shrink: true }}
+                                        sx={{ '& .MuiTextField-root': { m: 1, width: '40ch' } }}
+                                    />
+                                    <FormControl>
+                                        <InputLabel id="attr-type">Type</InputLabel>
+                                        {/* @ts-ignore */}
+                                        <Select sx={{ m: 1, minWidth: '10ch' }} labelId='attr-type' value={attrType}
+                                            id='attr-select' label='Type' onChange={handleAttrTypeChange}>
+                                            {TYPES.map(t =>
+                                                <MenuItem key={t} value={t}>{t}</MenuItem>
+                                            )}
+                                        </Select>
+                                    </FormControl>
+                                    <Button variant={"outlined"} onClick={handleAddAttr}>Add</Button>
+                                </DialogActions>
+                            </Box>
+                        </FormGroup>
+                    </Box>
                 </DialogContent >
                 <DialogActions>
-                    <Button onClick={cancel}>Cancel</Button>
-                    <Button onClick={handleSubmit}>Done</Button>
+                    <Button variant={"outlined"} onClick={cancel}>Cancel</Button>
+                    <Button variant={"outlined"} onClick={handleSubmit}>Save</Button>
                 </DialogActions>
             </Dialog>
         </div >

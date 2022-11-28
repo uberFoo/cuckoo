@@ -21,6 +21,11 @@ export let objectSlice = createSlice({
             let object = state.entities[id];
             object!.name = name;
         },
+        objectUpdateDescription: (state, action) => {
+            let { id, payload } = action.payload;
+            let object = state.entities[id];
+            object!.description = payload;
+        },
         addAttribute: (state, action) => {
             let { id, attr } = action.payload;
             let object = state.entities[id];
@@ -36,7 +41,9 @@ export let objectSlice = createSlice({
     }
 });
 
-export let { addObject, removeObject, replaceObject, rename, addAttribute, removeAttribute } = objectSlice.actions;
+export let { addObject, removeObject, replaceObject, rename, addAttribute, removeAttribute,
+    objectUpdateDescription
+} = objectSlice.actions;
 
 // export const selectName = (state: RootState) => state.objects.name;
 export let {

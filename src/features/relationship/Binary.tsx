@@ -21,10 +21,10 @@ export function Binary(props: BinaryProps) {
     let fromObj = useAppSelector((state) => selectObjectById(state, binary.from.obj_id));
     let toObj = useAppSelector((state) => selectObjectById(state, binary.to.obj_id));
 
-    let id_from = `${binary.id}:${fromObj!.id}:${ui.from.dir}:from`;
-    let id_to = `${binary.id}:${toObj!.id}:${ui.to.dir}:to`;
-    let line_id = `${binary.id}:${id_from}:${id_to}`;
-    let name_id = `${binary.id}:name`;
+    let id_from = `_${binary.id}:${fromObj!.id}:binary:${ui.from.dir}:from`;
+    let id_to = `_${binary.id}:${toObj!.id}:binary:${ui.to.dir}:to`;
+    let line_id = `_${binary.id}:${id_from}:${id_to}`;
+    let name_id = `_${binary.id}:name`;
 
     let from_rotation = getRotation(ui.from.dir);
     let to_rotation = getRotation(ui.to.dir);
