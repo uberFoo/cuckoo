@@ -419,21 +419,7 @@ export function Paper(props: PaperProps) {
                 let { x, y } = relationship;
 
                 let root = target.parentNode as SVGGElement;
-                // if (root.id) {
-                //     let [id, obj_id, dir, end] = getId(root)?.split(':')!;
-                // }
-
                 let rel_type = target.className.baseVal.split('_')[1];
-                // console.log(type);
-
-                // if (obj_id === undefined) {
-                //     // We aren't embedded in a <g> element, so we need to get the relationship id
-                //     // from the target itself. The other stuff won't be there.  Probably I should
-                //     // do something smarter than this. Switch on the type of element I have, I think.
-                //     // Yeah, switch on className I think. Then depending on what they need they can
-                //     // get it and then each do their own setMove.
-                //     [id,] = getId(target).split(':');
-                // }
 
                 if (event.ctrlKey) {
                     // Delete
@@ -491,7 +477,7 @@ export function Paper(props: PaperProps) {
                     return;
 
                 } else if (rel_type === 'relGlyph' || rel_type === 'relBoxAssist') {
-                    let [id, obj_id, dir, end] = getId(root)?.split(':')!;
+                    let [id, obj_id, _type, dir, end] = getId(root)?.split(':')!;
 
                     // Dragging the relationship arrows
                     let ui = paper_obj!.relationships[id] as RelationshipUI;
@@ -546,10 +532,11 @@ export function Paper(props: PaperProps) {
                             relationship_dialog: false
                         }
                     });
+                    return;
                 }
             }
 
-                console.log("you can't see this");
+                console.error("you can't see this");
                 break;
 
             default:
@@ -667,7 +654,7 @@ export function Paper(props: PaperProps) {
                                 let t = o.target;
                                 let type = o.type;
 
-                                let [id, obj_id, dir, end] = getId(t)?.split(':')!;
+                                let [id, obj_id, _type, dir, end] = getId(t)?.split(':')!;
                                 let ui = paper_obj?.relationships[id];
 
                                 let xform = t.transform.baseVal.getItem(0);
@@ -947,13 +934,15 @@ export function Paper(props: PaperProps) {
                                         id,
                                         from: { ...from, id: obj_id, x, y, dir }
                                     }));
-                                } else {
+                                } else if (end === 'to') {
                                     // @ts-ignore
                                     let to = ui!.BinaryUI.to;
                                     dispatch(relationshipUpdateBinaryTo({
                                         id,
                                         to: { ...to, id: obj_id, x, y, dir }
                                     }));
+                                } else {
+                                    console.error('unknown end', end);
                                 }
                                 break;
                             case 'IsaUI': {
@@ -964,7 +953,7 @@ export function Paper(props: PaperProps) {
                                     dispatch(relationshipUpdateIsaFrom({
                                         id, new_from: { ...isa_ui.from, x, y, dir }
                                     }));
-                                } else {
+                                } else if (end === 'to') {
                                     isa_ui.to.forEach((to_ui: BinaryEnd, index: number) => {
                                         if (to_ui.id === obj_id) {
                                             dispatch(relationshipUpdateIsaTo({
@@ -972,7 +961,8 @@ export function Paper(props: PaperProps) {
                                             }))
                                         }
                                     })
-
+                                } else {
+                                    console.error('unknown end', end);
                                 }
                             }
                                 break;

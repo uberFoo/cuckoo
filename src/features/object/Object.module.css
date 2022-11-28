@@ -6,6 +6,15 @@
     cursor: move;
 }
 
+.shadowObjectRect {
+    fill: #FFFDE080;
+    stroke: black;
+    stroke-dasharray: 2.5, 2.5;
+    stroke-width: 1;
+    pointer-events: all;
+    cursor: move;
+}
+
 .objectBisectLine {
     stroke: black;
     stroke-width: 1;

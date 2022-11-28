@@ -151,27 +151,34 @@ export function handleObjectMove(paper_obj: PaperStore, move: MoveStruct, event:
                         let to_id = r!.to.id;
 
                         // id is the Object.id
-                        // We call makeGlyph with the x, y coordinates from the other end of the relationship
+                        // We call makeGlyph with the x, y coordinates from the other end of the
+                        // relationship.
                         if (from_id === obj_id) {
                             let dir = r!.from.dir;
                             // @ts-ignore
-                            let glyph = document.getElementById(`_${r_id}:${from_id}:${dir}:from`) as SVGGElement;
+                            let glyph = document.getElementById(
+                                `_${r_id}:${from_id}:binary:${dir}:from`) as SVGGElement;
                             let x0 = r!.from.x;
                             let y0 = r!.from.y;
 
-                            moveGlyph(x, y, glyph, paper_obj!, { x0: x0, y0: y0, x1: x + width, y1: y + height });
+                            moveGlyph(x, y, glyph, paper_obj!, {
+                                x0: x0, y0: y0, x1: x + width, y1: y + height
+                            });
                             rels.push({ target: glyph, x: x0, y: y0, type: 'binary' });
                         } else if (to_id === obj_id) {
                             // @ts-ignore
                             let dir = r!.to.dir;
                             // @ts-ignore
-                            let glyph = document.getElementById(`_${r_id}:${to_id}:${dir}:to`) as SVGGElement;
+                            let glyph = document.getElementById(
+                                `_${r_id}:${to_id}:binary:${dir}:to`) as SVGGElement;
                             // @ts-ignore
                             let x0 = r!.to.x;
                             // @ts-ignore
                             let y0 = r!.to.y;
 
-                            moveGlyph(x, y, glyph, paper_obj!, { x0: x0, y0: y0, x1: x + width, y1: y + height });
+                            moveGlyph(x, y, glyph, paper_obj!, {
+                                x0: x0, y0: y0, x1: x + width, y1: y + height
+                            });
                             rels.push({ target: glyph, x: x0, y: y0, type: 'binary' });
                         }
                     }
@@ -185,12 +192,15 @@ export function handleObjectMove(paper_obj: PaperStore, move: MoveStruct, event:
                             let dir = r!.from.dir;
 
                             // @ts-ignore
-                            let glyph = document.getElementById(`_${r_id}:${from_id}:${dir}:from`) as SVGGElement;
+                            let glyph = document.getElementById(
+                                `_${r_id}:${from_id}:isa:${dir}:from`) as SVGGElement;
 
                             let x0 = r!.from.x;
                             let y0 = r!.from.y;
 
-                            moveGlyph(x, y, glyph, paper_obj!, { x0: x0, y0: y0, x1: x + width, y1: y + height });
+                            moveGlyph(x, y, glyph, paper_obj!, {
+                                x0: x0, y0: y0, x1: x + width, y1: y + height
+                            });
                             rels.push({ target: glyph, x: x0, y: y0, type: 'isa' });
                         } else {
                             // @ts-ignore
@@ -199,12 +209,15 @@ export function handleObjectMove(paper_obj: PaperStore, move: MoveStruct, event:
                                     let dir = rel_ui.dir;
 
                                     // @ts-ignore
-                                    let glyph = document.getElementById(`_${r_id}:${rel_ui.id}:${dir}:to`) as SVGGElement;
+                                    let glyph = document.getElementById(
+                                        `_${r_id}:${rel_ui.id}:isa:${dir}:to`) as SVGGElement;
 
                                     let x0 = rel_ui.x;
                                     let y0 = rel_ui.y;
 
-                                    moveGlyph(x, y, glyph, paper_obj!, { x0: x0, y0: y0, x1: x + width, y1: y + height });
+                                    moveGlyph(x, y, glyph, paper_obj!, {
+                                        x0: x0, y0: y0, x1: x + width, y1: y + height
+                                    });
                                     rels.push({ target: glyph, x: x0, y: y0, type: 'isa' });
                                 }
                             }
@@ -220,7 +233,9 @@ export function handleObjectMove(paper_obj: PaperStore, move: MoveStruct, event:
     } else {
         // Use the cached result. Note that it's using the location of the top left corner of the
         // object, and not the other end of the relationship. I guess this works.
-        rels.map((r) => moveGlyph(r.x, r.y, r.target, paper_obj!, { x0: x, y0: y, x1: x + width, y1: y + height }));
+        rels.map((r) => moveGlyph(r.x, r.y, r.target, paper_obj!, {
+            x0: x, y0: y, x1: x + width, y1: y + height
+        }));
     }
 
     return { ...move, object: { ...object, x, y, dirty_m: true, rels } };
@@ -229,7 +244,7 @@ export function handleObjectMove(paper_obj: PaperStore, move: MoveStruct, event:
 export function moveGlyph(x: number, y: number, target: SVGGElement, paper: PaperStore, box?: Rect):
     [number, number, string] {
 
-    let [id, obj_id, dir, end] = getId(target!)?.split(':')!;
+    let [id, obj_id, _type, dir, end] = getId(target!)?.split(':')!;
     let orig_dir = dir;
 
     let obj_ui = paper.objects[obj_id];
