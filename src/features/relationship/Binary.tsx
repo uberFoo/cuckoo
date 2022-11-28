@@ -35,9 +35,9 @@ export function Binary(props: BinaryProps) {
     let from_cond = getConditionality(props.rel.from.conditionality, ui.from.dir);
     let to_cond = getConditionality(props.rel.to.conditionality, ui.to.dir);
 
-    let from_phrase = makeRelPhrase(`${props.id}:from`, props.rel.from.description, ui.from.x,
+    let from_phrase = makeRelPhrase(`_${props.id}:from`, props.rel.from.description, ui.from.x,
         ui.from.y, ui.from.offset);
-    let to_phrase = makeRelPhrase(`${props.id}:to`, props.rel.to.description, ui.to.x, ui.to.y,
+    let to_phrase = makeRelPhrase(`_${props.id}:to`, props.rel.to.description, ui.to.x, ui.to.y,
         ui.to.offset);
 
     return (

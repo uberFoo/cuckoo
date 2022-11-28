@@ -452,20 +452,20 @@ export function Paper(props: PaperProps) {
                     return;
 
                 } else if (rel_type === 'relPhrase') {
-                    let [id, obj_id, dir, end] = getId(root)?.split(':')!;
+                    let [id, end] = getId(target)?.split(':')!;
 
                     x = Number(target.getAttribute('x'));
                     y = Number(target.getAttribute('y'));
 
                     setMove({
-                        ...move,
+                        ...move, mouseDown: true,
                         target: { node: target, type },
                         relationship: {
                             id: id,
-                            obj_id,
+                            obj_id: '',
                             parent: root,
                             end,
-                            dir,
+                            dir: '',
                             x,
                             y,
                             dx: 0,
@@ -1352,7 +1352,8 @@ export function Paper(props: PaperProps) {
                         <g id="canvas">
                             {move.paper.new_object !== null && newObject}
                             {line &&
-                                <line className={styles.antLine} x1={line.x0} y1={line.y0} x2={line.x1} y2={line.y1} />
+                                <line className={styles.antLine} x1={line.x0} y1={line.y0}
+                                    x2={line.x1} y2={line.y1} />
                             }
                             <g id="objects">
                                 {objectInstances}
