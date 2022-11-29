@@ -42,6 +42,7 @@ export function Binary(props: BinaryProps) {
 
     return (
         <>
+            {/* From g */}
             <g id={id_from} key={id_from} className={styles.relAnchor}
                 transform={"translate(" + ui.from.x + "," + ui.from.y + ")" +
                     "rotate(" + from_rotation + ")"}
@@ -53,17 +54,21 @@ export function Binary(props: BinaryProps) {
                 {from_cond}
             </g>
             {from_phrase}
+            {/* The 'to' g */}
             <g id={id_to} key={id_to} className={styles.relAnchor}
                 transform={"translate(" + ui.to.x + "," + ui.to.y + ")" +
                     " rotate(" + to_rotation + ")"}
             >
+                {/* This makes the arrows easier to drag. */}
                 <rect className={styles.relBoxAssist} x={0} y={-25} width={50} height={50} />
                 <path className={styles.relGlyph} d={to_card} />
                 {to_cond}
             </g>
             {to_phrase}
+            {/* The relationship number */}
             <text id={name_id} className={styles.relName} x={(ui.to.x + ui.from.x) / 2}
                 y={(ui.to.y + ui.from.y) / 2}>{"R" + binary.number}</text>
+            {/* The line. */}
             <path id={line_id} key={line_id} className={styles.relLine}
                 d={makeLine(ui.from, ui.to)}
             />
