@@ -21,7 +21,7 @@ import IsaEditor from '../relationship/IsaDialog';
 import { removeObject, addObject } from '../object/objectSlice';
 import {
     handleObjectMove, handleObjectResize, moveGlyph, selectWidgetGElements, getId,
-    parseTransform, makeTransform, makeTransform2
+    parseTransform, makeTransform2, get_parent_with_id
 }
     from '../../app/utils';
 import { addRelationship, removeRelationship, addTargetToIsa } from '../relationship/relationshipSlice';
@@ -229,8 +229,10 @@ export function Paper(props: PaperProps) {
                         let { x0, y0, x1, y1 } = paper.selection;
                         let selected = paper.selected_g;
 
+                        //
+                        // Clicked outside the selection area. Persist changes.
+                        //
                         if (x < x0 || x > x1 || y < y0 || y > y1) {
-                            // Clicked outside the selection area. Persist changes.
                             selected?.forEach(g => {
                                 let xform = g?.transform.baseVal.getItem(0);
                                 console.assert(xform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE);
@@ -255,14 +257,16 @@ export function Paper(props: PaperProps) {
                                                 let from = ui!.BinaryUI.from;
                                                 dispatch(relationshipUpdateBinaryFrom({
                                                     id,
-                                                    from: { ...from, id: obj_id, x, y, dir }
+                                                    from: { ...from, id: obj_id, x, y, dir },
+                                                    tag: 'uberFoo'
                                                 }));
                                             } else {
                                                 // @ts-ignore
                                                 let to = ui!.BinaryUI.to;
                                                 dispatch(relationshipUpdateBinaryTo({
                                                     id,
-                                                    to: { ...to, id: obj_id, x, y, dir }
+                                                    to: { ...to, id: obj_id, x, y, dir },
+                                                    tag: 'uberFoo'
                                                 }));
                                             }
                                         } else if (type === 'isa') {
@@ -272,7 +276,8 @@ export function Paper(props: PaperProps) {
                                                 let from = isa_ui?.from;
 
                                                 dispatch(relationshipUpdateIsaFrom({
-                                                    id, new_from: { ...from, x, y, dir }
+                                                    id, new_from: { ...from, x, y, dir },
+                                                    tag: 'uberFoo'
                                                 }));
                                             } else {
                                                 // @ts-ignore
@@ -281,7 +286,8 @@ export function Paper(props: PaperProps) {
                                                 isa_ui.to.forEach((rel_ui: BinaryEnd, index: number) => {
                                                     if (rel_ui.id === obj_id) {
                                                         dispatch(relationshipUpdateIsaTo({
-                                                            id, index, new_to: { ...rel_ui, x, y, dir }
+                                                            id, index, new_to: { ...rel_ui, x, y, dir },
+                                                            tag: 'uberFoo'
                                                         }
                                                         ));
                                                     }
@@ -294,7 +300,10 @@ export function Paper(props: PaperProps) {
                                             break;
                                         }
 
-                                        dispatch(objectMoveTo({ id: getId(g), x, y }));
+                                        dispatch(objectMoveTo({
+                                            id: getId(g), x, y,
+                                            tag: 'uberFoo'
+                                        }));
                                         break;
 
                                     default:
@@ -433,9 +442,7 @@ export function Paper(props: PaperProps) {
 
                 } else if (event.altKey) {
                     // This brings up the relationship editor.
-                    while (target.id === "") {
-                        target = target.parentNode as SVGGElement;
-                    }
+                    target = get_parent_with_id(target);
                     let rel_id = getId(target)?.split(':')[0]!;
                     let rel = paper_obj!.relationships[rel_id];
                     let type = Object.keys(rel!)[0];
@@ -825,9 +832,7 @@ export function Paper(props: PaperProps) {
                                 type === 'relName') {
                                 // We must be adding a to object to an Isa relationship
                                 // @ts-ignore
-                                while (target.id === "") {
-                                    target = target.parentNode as SVGGElement;
-                                }
+                                target = get_parent_with_id(target);
                                 let [rel_id, to_obj, ...foo] = getId(target)?.split(':')!;
                                 // @ts-ignore
                                 // let rel_ui = paper_obj!.relationships[rel_id].IsaUI as IsaUI;
@@ -1208,6 +1213,43 @@ export function Paper(props: PaperProps) {
         }
     };
 
+    let doubleClickHandler = (event: React.MouseEvent) => {
+        event.preventDefault();
+
+        let target = event.target as SVGElement;
+        let type = target.className.baseVal.split('_')[0];
+
+        switch (type) {
+            case 'Paper':
+                window.location.reload()
+                break;
+            case 'Object':
+                // This brings up the object editor.
+                setMove({
+                    ...move, object: { ...move.object, object_dialog: true }
+                });
+                break;
+            case 'Relationship': {
+                target = get_parent_with_id(target);
+                let rel_id = getId(target)?.split(':')[0]!;
+                let rel = paper_obj!.relationships[rel_id];
+                let type = Object.keys(rel!)[0];
+                setMove({
+                    ...move, relationship: {
+                        ...move.relationship,
+                        relationship_dialog: true,
+                        relationship_type: type
+                    }
+                });
+            }
+                break;
+            default:
+                console.error('unknown double click target', type);
+                break;
+        }
+
+    };
+
     let contextMenuHandler = (event: React.MouseEvent) => {
         event.preventDefault();
         let { origin_x, origin_y } = move;
@@ -1330,14 +1372,20 @@ export function Paper(props: PaperProps) {
                 <svg id="svg-root" width={paper_obj!.width} height={paper_obj!.height}
                     xmlns='http://www.w3.org/2000/svg'
                 >
+
+                    {/* I guess there's a portal for the context menu. Makes sense, it was just
+                    difficult to notice.
+                     */}
                     {/* @ts-ignore */}
                     {ReactDOM.createPortal(contextMenuContent, document.getElementById('root'))}
+
                     <g id="paper" pointerEvents="all"
                         transform={"translate(" + origin_x + "," + origin_y + ") scale(" +
                             defaultScale + ")"}
                         onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler}
                         onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler}
                         onContextMenu={e => e.preventDefault()}
+                        onDoubleClick={doubleClickHandler}
                     // onContextMenu={contextMenuHandler}
                     >
                         <rect id="background" width={paper_obj!.width} height={paper_obj!.height}

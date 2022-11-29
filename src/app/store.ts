@@ -173,14 +173,24 @@ const rootReducer = undoable(combineReducers({
             case "objects/addObject":
                 return action.payload.id;
             case "paper/objectMoveTo":
+                if (action.payload.tag)
+                    return action.payload.tag;
                 return action.payload.id;
             case "paper/relationshipUpdateBinaryFrom":
+                if (action.payload.tag)
+                    return action.payload.tag;
                 return action.payload.from.id;
             case "paper/relationshipUpdateBinaryTo":
+                if (action.payload.tag)
+                    return action.payload.tag;
                 return action.payload.to.id;
             case "paper/relationshipUpdateIsaFrom":
+                if (action.payload.tag)
+                    return action.payload.tag;
                 return action.payload.new_from.id;
             case "paper/relationshipUpdateIsaTo":
+                if (action.payload.tag)
+                    return action.payload.tag;
                 return action.payload.new_to.id;
             case "relationship/addRelationship":
                 return action.payload.id;

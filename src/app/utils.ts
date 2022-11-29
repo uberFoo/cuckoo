@@ -566,3 +566,11 @@ export function parseTransform(a: any) {
     }
     return b;
 }
+
+export function get_parent_with_id(element: SVGElement): SVGElement {
+    while (element.id === "") {
+        element = element.parentNode as SVGGElement;
+    }
+
+    return element;
+}

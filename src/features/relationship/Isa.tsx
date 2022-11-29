@@ -53,6 +53,7 @@ export function Isa(props: IsaProps) {
     )
 }
 
+// I'm hacking these to look better with no guide as to why. See Binary.tsx::getRelPosition.
 let makeName = (number: number, dir: string) => {
     switch (dir) {
         case 'North':
@@ -63,13 +64,13 @@ let makeName = (number: number, dir: string) => {
             );
         case 'West':
             return (
-                <g transform={"translate(40, 40) rotate(180)"}>
+                <g transform={"translate(40, 25) rotate(180)"}>
                     <text className={styles.relName}>{"R" + number}</text>
                 </g>
             );
         case 'South':
             return (
-                <g transform={"translate(40, 40) rotate(270)"}>
+                <g transform={"translate(40, 55) rotate(270)"}>
                     <text className={styles.relName}>{"R" + number}</text>
                 </g>
             );

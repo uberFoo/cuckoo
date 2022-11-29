@@ -40,6 +40,8 @@ export function Binary(props: BinaryProps) {
     let to_phrase = makeRelPhrase(`_${props.id}:to`, props.rel.to.description, ui.to.x, ui.to.y,
         ui.to.offset);
 
+    let rel_num_offset = getRelPosition(ui.from, ui.to);
+
     return (
         <>
             {/* From g */}
@@ -66,8 +68,8 @@ export function Binary(props: BinaryProps) {
             </g>
             {to_phrase}
             {/* The relationship number */}
-            <text id={name_id} className={styles.relName} x={(ui.to.x + ui.from.x) / 2}
-                y={(ui.to.y + ui.from.y) / 2}>{"R" + binary.number}</text>
+            <text id={name_id} className={styles.relName} x={rel_num_offset.x}
+                y={rel_num_offset.y}>{"R" + binary.number}</text>
             {/* The line. */}
             <path id={line_id} key={line_id} className={styles.relLine}
                 d={makeLine(ui.from, ui.to)}
@@ -75,6 +77,34 @@ export function Binary(props: BinaryProps) {
         </>
     );
 };
+
+// I don't really know the rules, I'm just hand editing positions like this until it looks good.
+// I could just make them draggable...
+let getRelPosition = (from: BinaryEnd, to: BinaryEnd) => {
+    let x = (from.x + to.x) / 2;
+    let y = (from.y + to.y) / 2;
+
+    if (from.dir === 'South' && to.dir === 'South') {
+        y += 35;
+    } else if (from.dir === 'South' && to.dir === 'North') {
+        x += 10;
+    } else if (from.dir === 'North' && to.dir === 'North') {
+        y -= 20;
+    } else if (from.dir === 'East' && to.dir === 'North') {
+        x += 25;
+        y += 15;
+    } else if (from.dir === 'West' && to.dir === 'North') {
+        x -= 10;
+        y += 15;
+    } else if (from.dir === 'South' && to.dir === 'East') {
+        x -= 10;
+        y += 10;
+    } else if (from.dir === 'South' && to.dir === 'West') {
+        x -= 25;
+    }
+
+    return { x, y };
+}
 
 let getGlyph = (card: Cardinality) => {
     switch (card) {

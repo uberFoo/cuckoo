@@ -2,9 +2,7 @@ import React, { FormEvent } from 'react';
 import { useFormik } from 'formik';
 import {
     Dialog, DialogTitle, TextField, DialogContent, DialogActions, Button, FormGroup, FormLabel,
-    List, ListItemButton, ListItemText, ListItemSecondaryAction, IconButton, FormControl,
-    InputLabel, Select, MenuItem, SelectChangeEvent, Divider, RadioGroup, Radio, FormControlLabel,
-    PaperProps, Paper, Box
+    Divider, RadioGroup, Radio, FormControlLabel, PaperProps, Paper, Box
 } from '@mui/material';
 import Draggable from 'react-draggable';
 import { v5 as uuid } from 'uuid';
