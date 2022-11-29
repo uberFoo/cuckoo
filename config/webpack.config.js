@@ -28,6 +28,8 @@ const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin'
 
 const createEnvironmentHash = require('./webpack/persistentCache/createEnvironmentHash');
 
+const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin');
+
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
 
@@ -326,14 +328,14 @@ module.exports = function (webpackEnv) {
         // To fix this, we prevent you from importing files out of src/ -- if you'd like to,
         // please link the files into your node_modules/ and let module-resolution kick in.
         // Make sure your source files are compiled, as they will not be processed in any way.
-        new ModuleScopePlugin(paths.appSrc, [
-          paths.appPackageJson,
-          reactRefreshRuntimeEntry,
-          reactRefreshWebpackPluginRuntimeEntry,
-          babelRuntimeEntry,
-          babelRuntimeEntryHelpers,
-          babelRuntimeRegenerator,
-        ]),
+        // new ModuleScopePlugin(paths.appSrc, [
+        //   paths.appPackageJson,
+        //   reactRefreshRuntimeEntry,
+        //   reactRefreshWebpackPluginRuntimeEntry,
+        //   babelRuntimeEntry,
+        //   babelRuntimeEntryHelpers,
+        //   babelRuntimeRegenerator,
+        // ]),
       ],
     },
     module: {
@@ -419,7 +421,7 @@ module.exports = function (webpackEnv) {
                     },
                   ],
                 ],
-                
+
                 plugins: [
                   isEnvDevelopment &&
                   shouldUseReactRefresh &&
@@ -453,7 +455,7 @@ module.exports = function (webpackEnv) {
                 cacheDirectory: true,
                 // See #6846 for context on why cacheCompression is disabled
                 cacheCompression: false,
-                
+
                 // Babel sourcemaps are needed for debugging into node_modules
                 // code.  Without the options below, debuggers like VSCode
                 // show incorrect code and set breakpoints on the wrong lines.
@@ -553,7 +555,7 @@ module.exports = function (webpackEnv) {
               // its runtime that would otherwise be processed through "file" loader.
               // Also exclude `html` and `json` extensions so they get processed
               // by webpacks internal loaders.
-              exclude: [/^$/, /\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
+              exclude: [/^$/, /\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/, /\.wasm$/],
               type: 'asset/resource',
             },
             // ** STOP ** Are you adding a new loader?
@@ -589,6 +591,16 @@ module.exports = function (webpackEnv) {
             : undefined
         )
       ),
+      new WasmPackPlugin({
+        crateDirectory: path.resolve(__dirname, '../../xuder'),
+        args: '--log-level warn',
+        outDir: "xuder",
+        outName: 'xuder',
+        // watchDirectories: [
+        //   path.resolve(__dirname, '../../xuder')
+        // ],
+        pluginLogLevel: 'info'
+      }),
       // Inlines the webpack runtime script. This script is too small to warrant
       // a network request.
       // https://github.com/facebook/create-react-app/issues/5358
@@ -751,5 +763,8 @@ module.exports = function (webpackEnv) {
     // Turn off performance processing because we utilize
     // our own hints via the FileSizeReporter
     performance: false,
+    experiments: {
+      asyncWebAssembly: true
+    }
   };
 };

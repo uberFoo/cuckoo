@@ -7,14 +7,25 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { ErrorBoundary } from 'react-error-boundary';
 import storage from 'redux-persist/lib/storage';
 import reportWebVitals from './reportWebVitals';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { store, persistor } from './app/store';
-
-
 import App from './App';
 
 import './index.css';
-import CircularProgress from '@mui/material/CircularProgress';
+
+// import { greet } from '../pkg';
+const greet = import('../xuder');
+
+// async function run() {
+//     await fetch('../pkg/xuder_bg.wasm');
+//     greet('World!');
+// }
+// run();
+
+greet
+    .then(m => m.greet("World!"))
+    .catch(console.error);
 
 let container = document.getElementById('root')!;
 let root = createRoot(container);
