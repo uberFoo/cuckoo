@@ -29,6 +29,7 @@ const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin'
 const createEnvironmentHash = require('./webpack/persistentCache/createEnvironmentHash');
 
 const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin');
+const FileManagerPlugin = require('filemanager-webpack-plugin');
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
@@ -596,10 +597,20 @@ module.exports = function (webpackEnv) {
         args: '--log-level warn',
         outDir: "xuder",
         outName: 'xuder',
-        // watchDirectories: [
-        //   path.resolve(__dirname, '../../xuder')
-        // ],
+        forceWatch: true,
         pluginLogLevel: 'info'
+      }),
+      new FileManagerPlugin({
+        events: {
+          onEnd: {
+            copy: [
+              {
+                source: path.resolve(__dirname, '../../xuder/xuder/'),
+                destination: path.resolve(__dirname, '../xuder')
+              }
+            ]
+          }
+        }
       }),
       // Inlines the webpack runtime script. This script is too small to warrant
       // a network request.

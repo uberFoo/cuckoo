@@ -14,18 +14,11 @@ import App from './App';
 
 import './index.css';
 
-// import { greet } from '../pkg';
-const greet = import('../xuder');
+// @ts-ignore
+import { greet } from '../xuder';
 
-// async function run() {
-//     await fetch('../pkg/xuder_bg.wasm');
-//     greet('World!');
-// }
-// run();
+greet('World!!!!');
 
-greet
-    .then(m => m.greet("World!"))
-    .catch(console.error);
 
 let container = document.getElementById('root')!;
 let root = createRoot(container);
