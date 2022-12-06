@@ -15,9 +15,9 @@ import App from './App';
 import './index.css';
 
 // @ts-ignore
-import { greet } from '../xuder';
+// import { greet } from '../xuder';
 
-greet('World!!!!');
+// greet('World!!!!');
 
 
 let container = document.getElementById('root')!;
