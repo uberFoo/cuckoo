@@ -38,6 +38,8 @@ function ErrorFallback({ error }: any) {
         <div role="alert">
             <p>Something went wrong:</p>
             <pre style={{ color: 'red' }}>{error.message}</pre>
+            {/* This doesn't do anything. :-( */}
+            <pre style={{ color: 'purple' }}>{error}</pre>
             <p>Click the button to clear the model, and reload from last save.</p>
             <button onClick={reset}>Hard Reset</button>
         </div>
