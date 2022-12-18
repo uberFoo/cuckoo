@@ -68,6 +68,7 @@ export interface MoveStruct {
         new_object: NewObject,
         selection: NewObject,
         selected_g: Array<SVGGElement> | null
+        dirty: boolean,
     },
     object: {
         id: string,
@@ -128,6 +129,7 @@ export function Paper(props: PaperProps) {
             new_object: null,
             selection: null,
             selected_g: null,
+            dirty: false,
         },
         object: {
             id: '',
@@ -349,8 +351,9 @@ export function Paper(props: PaperProps) {
                 } else {
                     // No modifier keys means that we are panning.
                     // At a minimum we need to record that the mouse was down. And the target too!
+                    // And position to ignore spurious pan events
                     setMove({
-                        ...move, mouseDown: true, target: { node: target, type }
+                        ...move, mouseDown: true, target: { node: target, type }, paper: { ...paper, dirty: false }
                     });
                 }
             }
@@ -611,9 +614,11 @@ export function Paper(props: PaperProps) {
                                 dispatch(addObjectToPaper(obj_ui));
                             }
                         } else {
-                            let { origin_x, origin_y } = move;
+                            let { origin_x, origin_y, paper } = move;
                             // Presumably we are panning
-                            dispatch(savePaperOffset({ x: origin_x, y: origin_y }));
+                            if (paper.dirty) {
+                                dispatch(savePaperOffset({ x: origin_x, y: origin_y }));
+                            }
                         }
                     }
 
@@ -639,7 +644,7 @@ export function Paper(props: PaperProps) {
                             ctrl: false,
                             shift: false,
                             target: { node: null, type: '' },
-                            paper: { ...paper, new_object: null }
+                            paper: { ...paper, dirty: false, new_object: null }
                         });
                     }
                 }
@@ -1088,7 +1093,7 @@ export function Paper(props: PaperProps) {
                                     origin_y += event.movementY;
 
                                     // This forces an update -- good here.
-                                    setMove({ ...move, origin_x, origin_y });
+                                    setMove({ ...move, origin_x, origin_y, paper: { ...paper, dirty: true } });
                                     return;
                                 }
 
@@ -1127,13 +1132,13 @@ export function Paper(props: PaperProps) {
                                 });
                             } else {
                                 // Panning -- super important. We are maintaining our origin
-                                let { origin_x, origin_y } = move;
+                                let { origin_x, origin_y, paper } = move;
 
                                 origin_x += event.movementX;
                                 origin_y += event.movementY;
 
                                 // This forces an update -- good here.
-                                setMove({ ...move, origin_x, origin_y });
+                                setMove({ ...move, origin_x, origin_y, paper: { ...paper, dirty: true } });
                             }
                         }
                     }
