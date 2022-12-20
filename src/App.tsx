@@ -17,15 +17,6 @@ function App() {
     const [menuOpen, setMenuOpen] = useState(false);
 
     useEffect(() => {
-        invoke('greet', { name: 'uberFoo' })
-            .then((result) => {
-                let title = result;
-                console.log(title);
-            })
-            .catch(console.error)
-    }, []);
-
-    useEffect(() => {
         listen("menu-event", (e) => {
             // @ts-ignore
             setMenuPayload(e.payload);

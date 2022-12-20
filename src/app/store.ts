@@ -8,7 +8,7 @@ import paperReducer from '../features/paper/paperSlice';
 import objectReducer from '../features/object/objectSlice';
 import relationshipReducer from '../features/relationship/relationshipSlice';
 
-import model from '../sarzak_ooa_model.json';
+import model from '../../sarzak_ooa_model.json';
 
 export interface PaperStore {
     id: string,
@@ -173,14 +173,24 @@ const rootReducer = undoable(combineReducers({
             case "objects/addObject":
                 return action.payload.id;
             case "paper/objectMoveTo":
+                if (action.payload.tag)
+                    return action.payload.tag;
                 return action.payload.id;
             case "paper/relationshipUpdateBinaryFrom":
+                if (action.payload.tag)
+                    return action.payload.tag;
                 return action.payload.from.id;
             case "paper/relationshipUpdateBinaryTo":
+                if (action.payload.tag)
+                    return action.payload.tag;
                 return action.payload.to.id;
             case "paper/relationshipUpdateIsaFrom":
+                if (action.payload.tag)
+                    return action.payload.tag;
                 return action.payload.new_from.id;
             case "paper/relationshipUpdateIsaTo":
+                if (action.payload.tag)
+                    return action.payload.tag;
                 return action.payload.new_to.id;
             case "relationship/addRelationship":
                 return action.payload.id;
