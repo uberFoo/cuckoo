@@ -1,0 +1,680 @@
+{
+    "Objects": [
+        {
+            "Object": {
+                "id": "469d77d1-9ede-5919-923d-b007d614af26",
+                "name": "Relationship",
+                "description": "A `Relationship` indicates that a set of objects are connected to each other in some manner. Typically it is a _real world_ relationship. In the \ncase of this model it is strictly an abstraction.\n\nThere are three types of `Relationship`: [`Isa`], [`Binary`], and [`Associative`]. Thus `Relationship` is itself the *supertype* in an [`Isa`] relationship. It is a partitioning *supertype-subtype* relationship, rather one of inheritance. As such, it’s  perfectly suited to a rust `enum`! 😃",
+                "attributes": {
+                    "319fe0cf-f599-5aa8-a0e7-a84a6f9a27d9": {
+                        "id": "319fe0cf-f599-5aa8-a0e7-a84a6f9a27d9",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "fae606a2-e37c-5f82-8754-1fc11c09fe4c",
+                "name": "Integer",
+                "description": "",
+                "attributes": {
+                    "8f68cf57-fa3c-5964-affd-6964dbe7353b": {
+                        "id": "8f68cf57-fa3c-5964-affd-6964dbe7353b",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "7178e7a4-5131-504b-a7b3-c2c0cfedf343",
+                "name": "Object",
+                "description": "An `Object` is a collection of related data. By creating `Object`s, and \nconnecting them with `Relationships` we build a powerful abstraction.\n\n`Object`s contain [`Attribute`]s that represent the data that the \n`Object`encapsulates. All `Object`s have an attribute called `id`, which \nis a unique idenifier for each class of `Object`. The `id` attribute is a\nversion 5 UUID.",
+                "attributes": {
+                    "a37b26e0-49fb-5be8-95a8-fb563ab81cc4": {
+                        "id": "a37b26e0-49fb-5be8-95a8-fb563ab81cc4",
+                        "name": "id",
+                        "type": "Uuid"
+                    },
+                    "d01da69e-bf98-5825-a9f6-9ce0405417f1": {
+                        "id": "d01da69e-bf98-5825-a9f6-9ce0405417f1",
+                        "name": "name",
+                        "type": "String"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "f3d5c0a4-850d-5071-a7e3-50e53389e3a8",
+                "name": "Float",
+                "description": "",
+                "attributes": {
+                    "b8c0be8b-e2a8-54b5-a70e-2b9ed112397e": {
+                        "id": "b8c0be8b-e2a8-54b5-a70e-2b9ed112397e",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "63777957-b6bc-5253-b16b-6ff390f10dba",
+                "name": "Attribute",
+                "description": "An `Attribute` represents a single value. Each value must have a \n[`Type`], which constrains the values of data that may be assigned to\nan `Attribute`.",
+                "attributes": {
+                    "f08c70f0-eeb0-5269-9a0f-4a27e2143b3f": {
+                        "id": "f08c70f0-eeb0-5269-9a0f-4a27e2143b3f",
+                        "name": "name",
+                        "type": "String"
+                    },
+                    "49767001-d944-5907-b2ce-d1d87bfed750": {
+                        "id": "49767001-d944-5907-b2ce-d1d87bfed750",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f",
+                "name": "Type",
+                "description": "",
+                "attributes": {
+                    "52783e59-f28c-5a8b-8947-12d60c2d49d0": {
+                        "id": "52783e59-f28c-5a8b-8947-12d60c2d49d0",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "9803e73c-4984-5179-8460-529fe4ef7921",
+                "name": "String",
+                "description": "",
+                "attributes": {
+                    "65e20da8-6e30-5b9b-8572-cbf3538bf55f": {
+                        "id": "65e20da8-6e30-5b9b-8572-cbf3538bf55f",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "04fbbc6c-a351-5e6d-b193-191f5510033e",
+                "name": "Boolean",
+                "description": "",
+                "attributes": {
+                    "459d3145-9c90-5388-93b1-3626d99625de": {
+                        "id": "459d3145-9c90-5388-93b1-3626d99625de",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "0cbeeb50-21ce-5e83-9f2e-65d1410d553f",
+                "name": "Isa",
+                "description": "",
+                "attributes": {
+                    "4717289d-ed9c-5931-94ce-a73a66b88856": {
+                        "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
+                        "name": "id",
+                        "type": "Uuid"
+                    },
+                    "da88d452-73e4-5344-a0a9-ae0bac76b845": {
+                        "id": "da88d452-73e4-5344-a0a9-ae0bac76b845",
+                        "name": "number",
+                        "type": "Integer"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "56c5ed80-25e7-592e-ab36-a306c78ac58b",
+                "name": "Binary",
+                "description": "A `Binary` relationship, as it’s name implies, is a relationship between\ntwo objects. It consists of two parts, the `Dependent` end of the \nrelationship and the `Independent` end.\n\nThe former is so named because it has the job of formalizing the\nrelationship by storing a pointer to the object (as an attribute) on the \nother side of the relationship.\n\nThe latter is aware of the relationship, but it does not store any \ninformation about the relationship. That said, there are means of\ntraversing the relationship from the `Independent` object. ",
+                "attributes": {
+                    "6103bc32-cd25-5b9e-9461-b65a159e10fd": {
+                        "id": "6103bc32-cd25-5b9e-9461-b65a159e10fd",
+                        "name": "id",
+                        "type": "Uuid"
+                    },
+                    "50140f54-ad40-56f1-9853-05573248df1c": {
+                        "id": "50140f54-ad40-56f1-9853-05573248df1c",
+                        "name": "number",
+                        "type": "Integer"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "952d24ad-ce6a-5812-8c6c-33ff9d2b424d",
+                "name": "Dependent",
+                "description": "",
+                "attributes": {
+                    "4717289d-ed9c-5931-94ce-a73a66b88856": {
+                        "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
+                        "name": "id",
+                        "type": "Uuid"
+                    },
+                    "2aabbeab-a336-590b-99a4-98b949edeeab": {
+                        "id": "2aabbeab-a336-590b-99a4-98b949edeeab",
+                        "name": "description",
+                        "type": "String"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "9c75abf3-b77e-56ee-a19c-d812898b5eaa",
+                "name": "Independent",
+                "description": "",
+                "attributes": {
+                    "4717289d-ed9c-5931-94ce-a73a66b88856": {
+                        "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
+                        "name": "id",
+                        "type": "Uuid"
+                    },
+                    "2aabbeab-a336-590b-99a4-98b949edeeab": {
+                        "id": "2aabbeab-a336-590b-99a4-98b949edeeab",
+                        "name": "description",
+                        "type": "String"
+                    },
+                    "3ae7ce01-4cb8-54ef-9ae9-fbff57ad68c1": {
+                        "id": "3ae7ce01-4cb8-54ef-9ae9-fbff57ad68c1",
+                        "name": "formalizing_attribute_name",
+                        "type": "String"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "17de0bb6-ee65-5516-b8eb-9a9a35e5fedd",
+                "name": "Associative",
+                "description": "",
+                "attributes": {
+                    "4717289d-ed9c-5931-94ce-a73a66b88856": {
+                        "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
+                        "name": "id",
+                        "type": "Uuid"
+                    },
+                    "da88d452-73e4-5344-a0a9-ae0bac76b845": {
+                        "id": "da88d452-73e4-5344-a0a9-ae0bac76b845",
+                        "name": "number",
+                        "type": "Integer"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "d1b45eb7-b9fb-5fbc-90a5-f48473675fdb",
+                "name": "Cardinality",
+                "description": "",
+                "attributes": {
+                    "4717289d-ed9c-5931-94ce-a73a66b88856": {
+                        "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "696b0652-8c4d-56d9-b4dc-0490cd4b2ea0",
+                "name": "One",
+                "description": "",
+                "attributes": {
+                    "c44f09a5-ef22-56c7-a440-ce94d33fe961": {
+                        "id": "c44f09a5-ef22-56c7-a440-ce94d33fe961",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "a549f635-38bd-5016-b79f-b03125fbfc02",
+                "name": "Many",
+                "description": "",
+                "attributes": {
+                    "4717289d-ed9c-5931-94ce-a73a66b88856": {
+                        "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "438b6783-15d1-5767-af60-900b3738fc9e",
+                "name": "Conditionality",
+                "description": "",
+                "attributes": {
+                    "4717289d-ed9c-5931-94ce-a73a66b88856": {
+                        "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "ab790409-b7ca-58d0-bb97-7c2ddd7b786f",
+                "name": "Unconditional",
+                "description": "",
+                "attributes": {
+                    "4717289d-ed9c-5931-94ce-a73a66b88856": {
+                        "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "cbd5902d-d04b-537f-9d6a-547a3b88f9a2",
+                "name": "Conditional",
+                "description": "",
+                "attributes": {
+                    "4717289d-ed9c-5931-94ce-a73a66b88856": {
+                        "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "a9cc5d3e-8431-5302-9296-1fbd789acf73",
+                "name": "Supertype",
+                "description": "This object represents the *supertype* in a *supertype-subtype* \nrelationship.",
+                "attributes": {
+                    "c34bedbf-9d5a-5ad4-b9b2-5d7e8f213021": {
+                        "id": "c34bedbf-9d5a-5ad4-b9b2-5d7e8f213021",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "e359fe3a-f5d9-5b45-af88-c5c6a34f08f3",
+                "name": "SubType",
+                "description": "The *subtype* in a *supertype-subtype* relationship.",
+                "attributes": {
+                    "4717289d-ed9c-5931-94ce-a73a66b88856": {
+                        "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
+                        "name": "id",
+                        "type": "Uuid"
+                    }
+                }
+            }
+        },
+        {
+            "Object": {
+                "id": "9fcf72a7-a28e-5544-be44-af4de72db6e4",
+                "name": "UUID",
+                "description": "This UUID is expected to be version 5. Generally we produce input\nto the hash function from other UUIDs, coupled with additional \ninformation from the creator to ensure a unique UUID.\n\nThe `ns` attribute is the namespace used to generate generate UUIDs\ngiven a particular instance of `UUID`.",
+                "attributes": {
+                    "4717289d-ed9c-5931-94ce-a73a66b88856": {
+                        "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
+                        "name": "id",
+                        "type": "Uuid"
+                    },
+                    "6c91295e-e7f9-58b6-a426-ad921a0ca431": {
+                        "id": "6c91295e-e7f9-58b6-a426-ad921a0ca431",
+                        "name": "ns",
+                        "type": "Uuid"
+                    }
+                }
+            }
+        }
+    ],
+    "Relationships": [
+        {
+            "Relationship": {
+                "Isa": {
+                    "id": "a097f6f4-4d97-5ef6-b359-3021766ec90b",
+                    "number": 3,
+                    "obj_id": "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f",
+                    "subtypes": [
+                        "fae606a2-e37c-5f82-8754-1fc11c09fe4c",
+                        "f3d5c0a4-850d-5071-a7e3-50e53389e3a8",
+                        "04fbbc6c-a351-5e6d-b193-191f5510033e",
+                        "9803e73c-4984-5179-8460-529fe4ef7921",
+                        "9fcf72a7-a28e-5544-be44-af4de72db6e4"
+                    ]
+                }
+            }
+        },
+        {
+            "Relationship": {
+                "Binary": {
+                    "id": "f084b6c4-b157-51a4-9cbe-e7aa85f372aa",
+                    "number": 1,
+                    "from": {
+                        "obj_id": "63777957-b6bc-5253-b16b-6ff390f10dba",
+                        "description": "lives in an",
+                        "cardinality": "Many",
+                        "conditionality": "Conditional",
+                        "formalizing_attribute_name": "obj_id"
+                    },
+                    "to": {
+                        "obj_id": "7178e7a4-5131-504b-a7b3-c2c0cfedf343",
+                        "description": "contains, and is defined by it's",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional"
+                    }
+                }
+            }
+        },
+        {
+            "Relationship": {
+                "Binary": {
+                    "id": "d0348c92-0e70-5a59-8331-b3be93793409",
+                    "number": 2,
+                    "from": {
+                        "obj_id": "63777957-b6bc-5253-b16b-6ff390f10dba",
+                        "description": "has a",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional",
+                        "formalizing_attribute_name": "type"
+                    },
+                    "to": {
+                        "obj_id": "b8ec6afc-ddbd-53d6-9be3-e4b738941c2f",
+                        "description": "describes the memory representation of",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional"
+                    }
+                }
+            }
+        },
+        {
+            "Relationship": {
+                "Isa": {
+                    "id": "3bb0e8c9-a831-581a-80a7-8cabe708fab6",
+                    "number": 4,
+                    "obj_id": "469d77d1-9ede-5919-923d-b007d614af26",
+                    "subtypes": [
+                        "0cbeeb50-21ce-5e83-9f2e-65d1410d553f",
+                        "56c5ed80-25e7-592e-ab36-a306c78ac58b",
+                        "17de0bb6-ee65-5516-b8eb-9a9a35e5fedd"
+                    ]
+                }
+            }
+        },
+        {
+            "Relationship": {
+                "Binary": {
+                    "id": "faf080a2-97fb-5796-a95e-ba2b28d70546",
+                    "number": 5,
+                    "from": {
+                        "obj_id": "56c5ed80-25e7-592e-ab36-a306c78ac58b",
+                        "description": "is attached to",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional",
+                        "formalizing_attribute_name": "dependent"
+                    },
+                    "to": {
+                        "obj_id": "952d24ad-ce6a-5812-8c6c-33ff9d2b424d",
+                        "description": "comprises half of a",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional"
+                    }
+                }
+            }
+        },
+        {
+            "Relationship": {
+                "Binary": {
+                    "id": "d6db1de0-4330-5dd6-9302-e37714ee90c6",
+                    "number": 6,
+                    "from": {
+                        "obj_id": "56c5ed80-25e7-592e-ab36-a306c78ac58b",
+                        "description": "is attached to",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional",
+                        "formalizing_attribute_name": "independent"
+                    },
+                    "to": {
+                        "obj_id": "9c75abf3-b77e-56ee-a19c-d812898b5eaa",
+                        "description": "comprises half of a",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional"
+                    }
+                }
+            }
+        },
+        {
+            "Relationship": {
+                "Isa": {
+                    "id": "fa94d196-723c-5230-a234-0973a56edaaf",
+                    "number": 7,
+                    "obj_id": "d1b45eb7-b9fb-5fbc-90a5-f48473675fdb",
+                    "subtypes": [
+                        "696b0652-8c4d-56d9-b4dc-0490cd4b2ea0",
+                        "a549f635-38bd-5016-b79f-b03125fbfc02"
+                    ]
+                }
+            }
+        },
+        {
+            "Relationship": {
+                "Binary": {
+                    "id": "168db240-3f2b-57c6-a44e-24f4853d6e42",
+                    "number": 8,
+                    "from": {
+                        "obj_id": "952d24ad-ce6a-5812-8c6c-33ff9d2b424d",
+                        "description": "has",
+                        "cardinality": "Many",
+                        "conditionality": "Conditional",
+                        "formalizing_attribute_name": "cardinality"
+                    },
+                    "to": {
+                        "obj_id": "d1b45eb7-b9fb-5fbc-90a5-f48473675fdb",
+                        "description": "applies to",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional"
+                    }
+                }
+            }
+        },
+        {
+            "Relationship": {
+                "Binary": {
+                    "id": "cb3430e7-8df8-5def-8c1d-b796939045e4",
+                    "number": 9,
+                    "from": {
+                        "obj_id": "9c75abf3-b77e-56ee-a19c-d812898b5eaa",
+                        "description": "has",
+                        "cardinality": "Many",
+                        "conditionality": "Conditional",
+                        "formalizing_attribute_name": "cardinality"
+                    },
+                    "to": {
+                        "obj_id": "d1b45eb7-b9fb-5fbc-90a5-f48473675fdb",
+                        "description": "applies to",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional"
+                    }
+                }
+            }
+        },
+        {
+            "Relationship": {
+                "Isa": {
+                    "id": "dffa8291-7aec-5b39-98a2-0fd1b06e70fa",
+                    "number": 10,
+                    "obj_id": "438b6783-15d1-5767-af60-900b3738fc9e",
+                    "subtypes": [
+                        "ab790409-b7ca-58d0-bb97-7c2ddd7b786f",
+                        "cbd5902d-d04b-537f-9d6a-547a3b88f9a2"
+                    ]
+                }
+            }
+        },
+        {
+            "Relationship": {
+                "Binary": {
+                    "id": "7049986f-97ff-58c7-a2fa-b137cf7e63cc",
+                    "number": 11,
+                    "from": {
+                        "obj_id": "9c75abf3-b77e-56ee-a19c-d812898b5eaa",
+                        "description": "has",
+                        "cardinality": "Many",
+                        "conditionality": "Conditional",
+                        "formalizing_attribute_name": "conditionality"
+                    },
+                    "to": {
+                        "obj_id": "438b6783-15d1-5767-af60-900b3738fc9e",
+                        "description": "applies to",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional"
+                    }
+                }
+            }
+        },
+        {
+            "Relationship": {
+                "Binary": {
+                    "id": "5959e657-ce91-53ee-934e-10548924d77f",
+                    "number": 12,
+                    "from": {
+                        "obj_id": "952d24ad-ce6a-5812-8c6c-33ff9d2b424d",
+                        "description": "has",
+                        "cardinality": "Many",
+                        "conditionality": "Conditional",
+                        "formalizing_attribute_name": "conditionality"
+                    },
+                    "to": {
+                        "obj_id": "438b6783-15d1-5767-af60-900b3738fc9e",
+                        "description": "applies to",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional"
+                    }
+                }
+            }
+        },
+        {
+            "Relationship": {
+                "Isa": {
+                    "id": "899f47cb-712e-5f5e-9495-e269c392d95c",
+                    "number": 13,
+                    "obj_id": "0cbeeb50-21ce-5e83-9f2e-65d1410d553f",
+                    "subtypes": [
+                        "a9cc5d3e-8431-5302-9296-1fbd789acf73",
+                        "e359fe3a-f5d9-5b45-af88-c5c6a34f08f3"
+                    ]
+                }
+            }
+        },
+        {
+            "Relationship": {
+                "Binary": {
+                    "id": "f2fdeb5b-54df-5391-9334-cce1c2bb5e27",
+                    "number": 15,
+                    "from": {
+                        "obj_id": "e359fe3a-f5d9-5b45-af88-c5c6a34f08f3",
+                        "description": "is an instance of an",
+                        "cardinality": "One",
+                        "conditionality": "Conditional",
+                        "formalizing_attribute_name": "obj_id"
+                    },
+                    "to": {
+                        "obj_id": "7178e7a4-5131-504b-a7b3-c2c0cfedf343",
+                        "description": "may be a",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional"
+                    }
+                }
+            }
+        },
+        {
+            "Relationship": {
+                "Binary": {
+                    "id": "aa31a0f6-8abf-5559-815b-b0e4c9973fcc",
+                    "number": 14,
+                    "from": {
+                        "obj_id": "a9cc5d3e-8431-5302-9296-1fbd789acf73",
+                        "description": "is an instance of an",
+                        "cardinality": "One",
+                        "conditionality": "Conditional",
+                        "formalizing_attribute_name": "obj_id"
+                    },
+                    "to": {
+                        "obj_id": "7178e7a4-5131-504b-a7b3-c2c0cfedf343",
+                        "description": "may be a",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional"
+                    }
+                }
+            }
+        },
+        {
+            "Relationship": {
+                "Binary": {
+                    "id": "1b7f4de0-0976-59a9-9731-041ff8598c2e",
+                    "number": 16,
+                    "from": {
+                        "obj_id": "952d24ad-ce6a-5812-8c6c-33ff9d2b424d",
+                        "description": "is an instance of an",
+                        "cardinality": "One",
+                        "conditionality": "Conditional",
+                        "formalizing_attribute_name": "obj_id"
+                    },
+                    "to": {
+                        "obj_id": "7178e7a4-5131-504b-a7b3-c2c0cfedf343",
+                        "description": "may be a",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional"
+                    }
+                }
+            }
+        },
+        {
+            "Relationship": {
+                "Binary": {
+                    "id": "0a30f5f6-8cf8-583b-9af3-3dfd3f4efe97",
+                    "number": 17,
+                    "from": {
+                        "obj_id": "9c75abf3-b77e-56ee-a19c-d812898b5eaa",
+                        "description": "is an instance of an",
+                        "cardinality": "One",
+                        "conditionality": "Conditional",
+                        "formalizing_attribute_name": "obj_id"
+                    },
+                    "to": {
+                        "obj_id": "7178e7a4-5131-504b-a7b3-c2c0cfedf343",
+                        "description": "may be a",
+                        "cardinality": "One",
+                        "conditionality": "Unconditional"
+                    }
+                }
+            }
+        }
+    ]
+}
