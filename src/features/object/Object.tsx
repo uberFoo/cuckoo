@@ -77,7 +77,9 @@ export function ObjectWidget(props: ObjectProps) {
                 transform={makeTransform(props.x, props.y)}
             >
                 <rect className={styles.objectRect} width={props.width} height={props.height} />
-                <text className={styles.objectName} x={props.width / 2} y={textHeight}>{object!.name}</text>
+                <text className={styles.objectName} x={props.width / 2} y={textHeight}>
+                    {object!.name} &nbsp; ({object!.key_letter})
+                </text>
                 <line className={styles.objectBisectLine} x1={0} y1={textHeight * 1.5} x2={props.width}
                     y2={textHeight * 1.5}
                 />

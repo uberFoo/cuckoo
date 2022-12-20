@@ -11,7 +11,10 @@ import { v5 as uuid } from 'uuid';
 
 import { AttributeStore, Type } from '../../app/store';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { removeAttribute, addAttribute, replaceObject, selectObjectById, objectUpdateDescription } from './objectSlice';
+import {
+    removeAttribute, addAttribute, replaceObject, selectObjectById, objectUpdateDescription,
+    objectUpdateKeyLetter
+} from './objectSlice';
 import { objectChangeId } from '../paper/paperSlice';
 
 function PaperComponent(props: PaperProps) {
@@ -45,6 +48,8 @@ const ObjectEditor = (props: Props) => {
             // @ts-ignore
             objectName: object.name,
             // @ts-ignore
+            objectKeyLetter: object.key_letter,
+            // @ts-ignore
             object_desc: object.description
         },
         onSubmit: (values) => save(values)
@@ -56,11 +61,12 @@ const ObjectEditor = (props: Props) => {
         return;
     }
 
-    let save = (values: { objectName: string, object_desc: string }) => {
+    let save = (values: { objectName: string, object_desc: string, objectKeyLetter: string }) => {
         let dirty = false;
         let id = props.obj_id;
         let name = object?.name;
         let description = object?.description;
+        let key_letter = object?.key_letter;
 
         // @ts-ignore
         if (values.objectName !== name) {
@@ -74,15 +80,26 @@ const ObjectEditor = (props: Props) => {
             dirty = true;
         }
 
+        if (values.objectKeyLetter !== object?.key_letter) {
+            key_letter = values.objectKeyLetter;
+            dirty = true;
+        }
+
         if (dirty) {
-            let new_obj = { ...object, id, name, description };
+            let new_obj = { ...object, id, name, description, key_letter };
 
             // all that work with dirty flags and look what I'm doing.
             if (id !== props.obj_id) {
                 dispatch(objectChangeId({ id, old_id: props.obj_id }));
                 dispatch(replaceObject({ object: new_obj, old_id: props.obj_id }));
             } else {
-                dispatch(objectUpdateDescription({ id, payload: description }));
+
+                if (values.object_desc !== object?.description) {
+                    dispatch(objectUpdateDescription({ id, payload: description }));
+                }
+                if (values.objectKeyLetter !== object?.key_letter) {
+                    dispatch(objectUpdateKeyLetter({ id, payload: key_letter }));
+                }
             }
         }
 
@@ -179,6 +196,9 @@ const ObjectEditor = (props: Props) => {
                         <FormGroup>
                             <TextField autoFocus required id="objectName" label="Object Name"
                                 value={formik.values.objectName} onChange={formik.handleChange}
+                                variant="outlined" />
+                            <TextField autoFocus required id="objectKeyLetter" label="Object Key Letters"
+                                value={formik.values.objectKeyLetter} onChange={formik.handleChange}
                                 variant="outlined" />
                             <TextField autoFocus required id="object_desc" label="Object Description"
                                 value={formik.values.object_desc} onChange={formik.handleChange}

@@ -43,6 +43,7 @@ export interface Dictionary<T> extends DictionaryNum<T> {
 
 export interface ObjectStore {
     id: string,
+    key_letter: string,
     name: string,
     description: string,
     attributes: Dictionary<AttributeStore>
