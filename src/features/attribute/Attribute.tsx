@@ -31,8 +31,8 @@ export function Attribute(props: AttributeProps) {
 
     return (
         <text className={styles.attribute} x={0} y={y} >
-            {bullet + props.name + ':\t'}
-            <tspan className={style}>{props.type}</tspan>
-        </text>
+            {bullet + props.name + ':'}
+            <tspan dx={10} className={style}>{props.type}</tspan>
+        </text >
     )
 }
