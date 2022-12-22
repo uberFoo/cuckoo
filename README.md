@@ -45,6 +45,11 @@ Objects with their top-left corners in the selection box will be selected.
 
 I don't want to go deep here.
 I'd mostly just like to introduce the boxen and lines.
+
+_aside: I've got a book on category that I'll actually be able to understand.
+I wonder if the boxen are categories and the lines functors?
+I have a feeling..._
+
 Think of the boxen as _objects_.
 Or, maybe Classes would be more appropriate today.
 I often use object to mean class, and instance to mean object.
@@ -89,3 +94,10 @@ The meaning is more along the lines of an algebraic type, or Rust enum.
 To create one of these, ⌘ + click + drag from the base class and stop someplace on the paper.
 You'll end up with a little stub of a relationship.
 From there ⌘ + click + drag from a subtype object to the nub.
+
+_aside: I was just thinking about cuckoo, as I stared at it trying to figure out how to represent relationships on objects in ooa_1.
+Anyway, I think I'm building all this shit because cuckoo is a tool that I can use to express how I think about coding.
+Everything that I actually code is based on boxen and lines.
+The code itself is an interesting, but long-winded way to get the computer to do something.
+So in effect I am building myself the ultimate tool with which I can express my thoughts.
+That seems pretty deep._

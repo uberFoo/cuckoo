@@ -42,6 +42,7 @@ export const paperSlice = createSlice({
             paper!.objects[id] = { ...orig!, width, height };
         },
         // Needed to rename an object
+        // TODO: This is broken. Any relationships referencing the old ID break.
         objectChangeId: (state, action) => {
             let { id, old_id } = action.payload;
 
