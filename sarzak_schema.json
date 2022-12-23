@@ -180,11 +180,6 @@
                         "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
                         "name": "id",
                         "type": "Uuid"
-                    },
-                    "2aabbeab-a336-590b-99a4-98b949edeeab": {
-                        "id": "2aabbeab-a336-590b-99a4-98b949edeeab",
-                        "name": "description",
-                        "type": "String"
                     }
                 },
                 "key_letter": "R_DEP"
@@ -200,11 +195,6 @@
                         "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
                         "name": "id",
                         "type": "Uuid"
-                    },
-                    "2aabbeab-a336-590b-99a4-98b949edeeab": {
-                        "id": "2aabbeab-a336-590b-99a4-98b949edeeab",
-                        "name": "description",
-                        "type": "String"
                     },
                     "3ae7ce01-4cb8-54ef-9ae9-fbff57ad68c1": {
                         "id": "3ae7ce01-4cb8-54ef-9ae9-fbff57ad68c1",
@@ -342,8 +332,8 @@
         },
         {
             "Object": {
-                "id": "e359fe3a-f5d9-5b45-af88-c5c6a34f08f3",
-                "name": "SubType",
+                "id": "3abf0e04-6c8c-5e25-9638-43d98738ef87",
+                "name": "Subtype",
                 "description": "The *subtype* in a *supertype-subtype* relationship.",
                 "attributes": {
                     "4717289d-ed9c-5931-94ce-a73a66b88856": {
@@ -609,7 +599,7 @@
                     "obj_id": "0cbeeb50-21ce-5e83-9f2e-65d1410d553f",
                     "subtypes": [
                         "a9cc5d3e-8431-5302-9296-1fbd789acf73",
-                        "e359fe3a-f5d9-5b45-af88-c5c6a34f08f3"
+                        "3abf0e04-6c8c-5e25-9638-43d98738ef87"
                     ]
                 }
             }
@@ -620,7 +610,7 @@
                     "id": "f2fdeb5b-54df-5391-9334-cce1c2bb5e27",
                     "number": 15,
                     "from": {
-                        "obj_id": "e359fe3a-f5d9-5b45-af88-c5c6a34f08f3",
+                        "obj_id": "3abf0e04-6c8c-5e25-9638-43d98738ef87",
                         "description": "is an instance of an",
                         "cardinality": "One",
                         "conditionality": "Conditional",

@@ -29,7 +29,7 @@ fn main() {
                     CustomMenuItem::new("save_model".to_owned(), "Save")
                         .accelerator("Cmd+s".to_owned()),
                 )
-                .add_item(CustomMenuItem::new("import_model".to_owned(), "Import Model").disabled())
+                .add_item(CustomMenuItem::new("open_model".to_owned(), "Open Model").disabled())
                 .add_native_item(MenuItem::Separator)
                 .add_submenu(Submenu::new(
                     "Export",
@@ -55,8 +55,8 @@ fn main() {
 
 pub fn menu_handler(event: WindowMenuEvent<Wry>) {
     match event.menu_item_id() {
-        "import_model" => {
-            let _ = event.window().emit("menu-event", "import-model-event");
+        "open_model" => {
+            let _ = event.window().emit("menu-event", "open-model-event");
         }
         "export_schema" => {
             let _ = event.window().emit("menu-event", "export-schema-event");

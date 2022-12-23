@@ -33,8 +33,8 @@ function App() {
                 case "export-model-event":
                     ExportModel();
                     break;
-                case "import-model-event":
-                    ImportModel();
+                case "open-model-event":
+                    OpenModel();
                     break;
                 case 'save-model-event':
                     SaveModel();
@@ -47,7 +47,7 @@ function App() {
         }
     }, [menuOpen, menuPayload]);
 
-    const ImportModel = async () => {
+    const OpenModel = async () => {
         try {
             let path = await open();
             // @ts-ignore
