@@ -33,6 +33,10 @@ This this file.
 | Paper          | ⌃ + click        | Group Selection     |
 | Paper          | double-click     | Reload Cuckoo       |
 
+Creating an Isa is special. Start in an object and stop dragging on the paper shortly after leaving the object.
+This will create a stub of a relationship.
+To add subtypes, click in the object that's to become a subtype, and drag to the stub.
+
 Group selection is neat.
 It's more of a mode that you get put into when you `⌃ + click + drag` on the paper.
 `⌃ + click + drag` to draw a selection box around a bunch of stuff.
