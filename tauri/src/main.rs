@@ -3,9 +3,7 @@
     windows_subsystem = "windows"
 )]
 
-use tauri::{
-    AboutMetadata, CustomMenuItem, Menu, MenuItem, Submenu, WindowBuilder, WindowMenuEvent, Wry,
-};
+use tauri::{AboutMetadata, CustomMenuItem, Menu, MenuItem, Submenu, WindowMenuEvent, Wry};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -43,6 +41,19 @@ fn main() {
                             "Export Model with History",
                         )),
                 )),
+        ))
+        .add_submenu(Submenu::new(
+            "Edit",
+            Menu::new()
+                .add_native_item(MenuItem::Undo)
+                .add_native_item(MenuItem::Redo)
+                .add_native_item(MenuItem::Separator)
+                .add_native_item(MenuItem::Copy)
+                .add_native_item(MenuItem::Paste),
+        ))
+        .add_submenu(Submenu::new(
+            "Selection",
+            Menu::new().add_native_item(MenuItem::SelectAll),
         ));
 
     tauri::Builder::default()
