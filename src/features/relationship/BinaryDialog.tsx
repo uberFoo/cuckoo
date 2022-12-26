@@ -51,6 +51,7 @@ const BinaryEditor = (props: Props) => {
         onSubmit: (values) => save(values)
     });
 
+    // Why bother with this when I can't check before useFormik? React sucks. 🤬
     if (relationship === undefined) {
         console.error("can't find relationship in the store", props.id);
         return;
@@ -153,7 +154,7 @@ const BinaryEditor = (props: Props) => {
                         </FormGroup>
                         <Divider />
                         <FormGroup>
-                            <FormLabel>Independent/Formalizing/From</FormLabel>
+                            <FormLabel>Referrer/From (Formalizing)</FormLabel>
                             <TextField autoFocus required id="from_desc" label="Description"
                                 value={formik.values.from_desc} onChange={formik.handleChange}
                                 variant="outlined" />
@@ -175,7 +176,7 @@ const BinaryEditor = (props: Props) => {
                         </FormGroup>
                         <Divider />
                         <FormGroup>
-                            <FormLabel>Dependent/To</FormLabel>
+                            <FormLabel>Referent/To</FormLabel>
                             <TextField autoFocus required id="to_desc" label="Description"
                                 value={formik.values.to_desc} onChange={formik.handleChange}
                                 variant="outlined" />
