@@ -35,6 +35,12 @@
     stroke-width: 1.0;
 }
 
+.relLineAssist {
+    fill-opacity: 0;
+    stroke-opacity: 0;
+    stroke-width: 20.0;
+}
+
 .edit.relAttach {
     cursor: move;
 }

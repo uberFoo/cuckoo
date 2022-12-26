@@ -206,7 +206,7 @@ const ObjectEditor = (props: Props) => {
                         </FormGroup>
                         <Divider />
                         <FormGroup>
-                            <FormLabel>Attributes</FormLabel>
+                            <FormLabel sx={{ fontSize: 20 }}>Attributes</FormLabel>
                             <List>
                                 {listItems.map(({ id, name, type }) =>
                                     <ListItemButton key={id} id={id} sx={{ width: '50ch' }}

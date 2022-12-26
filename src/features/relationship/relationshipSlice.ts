@@ -11,12 +11,17 @@ export let relationshipSlice = createSlice({
     reducers: {
         addRelationship: (state, action) => {
             // This needs special handling because of the way serde serializes enums.
+            // Why? I could make better comments. 😡
             let { id, payload } = action.payload;
 
             state.ids.push(id)
             state.entities[id] = payload;
         },
-        removeRelationship: relationshipAdapter.removeOne,
+        removeRelationship: (state, action) => {
+            let { id } = action.payload;
+
+            relationshipAdapter.removeOne(state, id);
+        },
         updateRelationship: (state, action) => {
             let { id, payload } = action.payload;
 
@@ -35,7 +40,7 @@ export let { addRelationship, removeRelationship, updateRelationship, addTargetT
 
 export let {
     selectAll: selectRelationships,
-    selectById: selectRelationshipsById
+    selectById: selectRelationshipById
 } = relationshipAdapter.getSelectors<RootState>((state) => state.present.relationships);
 
 export default relationshipSlice.reducer;

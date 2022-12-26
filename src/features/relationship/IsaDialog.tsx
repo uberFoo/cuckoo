@@ -9,7 +9,7 @@ import { v5 as uuid } from 'uuid';
 
 import { Isa } from '../../app/store';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { addRelationship, removeRelationship, updateRelationship, selectRelationshipsById } from './relationshipSlice';
+import { addRelationship, removeRelationship, updateRelationship, selectRelationshipById } from './relationshipSlice';
 import { relationshipChangeId } from '../paper/paperSlice';
 
 function PaperComponent(props: PaperProps) {
@@ -32,7 +32,7 @@ interface Props {
 const IsaEditor = (props: Props) => {
     let dispatch = useAppDispatch();
 
-    let relationship = useAppSelector((state) => selectRelationshipsById(state, props.id)) as Isa;
+    let relationship = useAppSelector((state) => selectRelationshipById(state, props.id)) as Isa;
 
     // @ts-ignore
     relationship = relationship.Isa;

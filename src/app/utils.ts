@@ -1,6 +1,6 @@
 import React from 'react';
 import { MoveStruct } from '../features/paper/Paper';
-import { Rect, Point, BinaryEnd, PaperStore } from './store';
+import { Rect, Point, GlyphAnchor, PaperStore } from './store';
 
 export function handleObjectResize(move: MoveStruct, event: React.MouseEvent) {
     if (event.movementX === 0 && event.movementY === 0) {
@@ -292,7 +292,7 @@ export function moveGlyph(x: number, y: number, target: SVGGElement, paper: Pape
         } else {
             // @ts-ignore
             let ui = rel_ui.IsaUI;
-            ui.to.forEach((to_ui: BinaryEnd, index: number) => {
+            ui.to.forEach((to_ui: GlyphAnchor, index: number) => {
                 if (to_ui.id === obj_id) {
                     dx = to_ui.x;
                     dy = to_ui.y;
@@ -532,7 +532,7 @@ export function getAnchorOffset(x: number, y: number, dir: string) {
     }
 }
 
-export function makeLine(from: BinaryEnd, to: BinaryEnd) {
+export function makeLine(from: GlyphAnchor, to: GlyphAnchor) {
     let f = getAnchorOffset(from.x, from.y, from.dir);
     let t = getAnchorOffset(to.x, to.y, to.dir);
     return "M " + f![0] + " " + f![1] + " L " + t![0] + " " + t![1];

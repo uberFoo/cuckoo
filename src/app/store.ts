@@ -56,7 +56,8 @@ export interface ObjectUI {
     height: number
 }
 
-export interface BinaryEnd {
+export interface GlyphAnchor {
+    // I _think_ that this is the object to which an arrow is attached.
     id: string,
     dir: 'North' | 'South' | 'East' | 'West',
     x: number,
@@ -64,16 +65,22 @@ export interface BinaryEnd {
     offset: Point
 }
 
-export type RelationshipUI = BinaryUI | IsaUI;
+export type RelationshipUI = BinaryUI | IsaUI | AssociativeUI;
 
 export interface IsaUI {
-    from: BinaryEnd,
-    to: BinaryEnd[]
+    from: GlyphAnchor,
+    to: GlyphAnchor[]
 }
 
 export interface BinaryUI {
-    from: BinaryEnd,
-    to: BinaryEnd
+    from: GlyphAnchor,
+    to: GlyphAnchor
+}
+
+export interface AssociativeUI {
+    from: GlyphAnchor,
+    one: GlyphAnchor,
+    other: GlyphAnchor
 }
 
 export interface AttributeStore {
@@ -129,9 +136,10 @@ export interface Isa {
 export interface Associative {
     id: string,
     number: number,
+    cardinality: Cardinality,
     from: string,
-    one: string,
-    other: string
+    one: Independent | null,
+    other: Independent | null
 }
 
 export type Cardinality = 'One' | 'Many';
@@ -161,7 +169,12 @@ const rootReducer = undoable(combineReducers({
         //
         // Now, to group a bunch of stuff moving, that's different. It's not just changing
         // ids. I need to return something unique that considers the object, and it's
-        // attached relationships.
+        // attached relationships. I think this is in reference to the group move feature.
+        // It's not at all clear how it was realized though. My comments are really bad. 😫
+        // If I had to guess, which I sort of do, I'd say it's in the action.payload.tag.
+        //
+        // Yes, it's the tag. Just set tag to something (consistent across the undo operation)
+        // in the payload. It'll group them by tag.
         switch (action.type) {
             case "attributes/updateObjectReference":
                 return action.payload.id;
@@ -194,10 +207,24 @@ const rootReducer = undoable(combineReducers({
                     return action.payload.tag;
                 return action.payload.new_to.id;
             case "relationship/addRelationship":
+                if (action.payload.tag)
+                    return action.payload.tag;
                 return action.payload.id;
             case "paper/addRelationshipToPaper":
                 return action.payload.id;
             case "paper/relationshipUpdateBinaryRelPhrase":
+                return action.payload.id;
+            case 'relationship/removeRelationship':
+                if (action.payload.tag)
+                    return action.payload.tag;
+                return action.payload.id;
+            case 'paper/removeRelationshipFromPaper':
+                if (action.payload.tag)
+                    return action.payload.tag;
+                return action.payload.id;
+            case 'paper/relationshipChangeId':
+                if (action.payload.tag)
+                    return action.payload.tag;
                 return action.payload.id;
         }
         return null;
