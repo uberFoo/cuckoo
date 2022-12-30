@@ -26,8 +26,10 @@ This this file.
 | Object         | ⌘ + click + drag | New Relationship    |
 | Object         | double-click     | Object Editor       |
 | Object         | ⌥ + click        | Object Editor       |
+| Object         | ⌃ + click        | Delete Object       |
 | Relationship   | double-click     | Relationship Editor |
 | Relationship   | ⌥ + click        | Relationship Editor |
+| Relationship   | ⌃ + click        | Delete Relationship |
 | Paper          | ⌥ + click        | Undo Action         |
 | Paper          | shift + click    | Redo Action         |
 | Paper          | ⌃ + click        | Group Selection     |
