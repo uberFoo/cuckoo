@@ -6,7 +6,7 @@ import storage from 'redux-persist/lib/storage';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import { ObjectWidget } from '../object/Object';
-import { BinaryUI, IsaUI, Isa, Binary, Rect, ObjectUI, RelationshipUI, BinaryEnd } from '../../app/store';
+import { BinaryUI, IsaUI, Isa, Binary, Rect, ObjectUI, RelationshipUI, GlyphAnchor, Associative, AssociativeUI } from '../../app/store';
 import { Relationship } from '../relationship/Relationship';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
@@ -17,6 +17,7 @@ import {
 } from './paperSlice';
 import ObjectEditor from '../object/ObjectDialog';
 import BinaryEditor from '../relationship/BinaryDialog';
+import AssociativeEditor from '../relationship/AssociativeDialog';
 import IsaEditor from '../relationship/IsaDialog';
 import { removeObject, addObject } from '../object/objectSlice';
 import {
@@ -24,7 +25,7 @@ import {
     parseTransform, makeTransform2, get_parent_with_id
 }
     from '../../app/utils';
-import { addRelationship, removeRelationship, addTargetToIsa } from '../relationship/relationshipSlice';
+import { addRelationship, removeRelationship, addTargetToIsa, selectRelationshipById } from '../relationship/relationshipSlice';
 
 import styles from './Paper.module.css';
 
@@ -285,7 +286,7 @@ export function Paper(props: PaperProps) {
                                                 // @ts-ignore
                                                 let isa_ui = ui!.IsaUI;
 
-                                                isa_ui.to.forEach((rel_ui: BinaryEnd, index: number) => {
+                                                isa_ui.to.forEach((rel_ui: GlyphAnchor, index: number) => {
                                                     if (rel_ui.id === obj_id) {
                                                         dispatch(relationshipUpdateIsaTo({
                                                             id, index, new_to: { ...rel_ui, x, y, dir },
@@ -438,7 +439,7 @@ export function Paper(props: PaperProps) {
                     let id = getId(target)?.split(':')[0]!;
 
                     dispatch(removeRelationshipFromPaper({ id }));
-                    dispatch(removeRelationship(id));
+                    dispatch(removeRelationship({ id }));
 
                     // return early -- leave move alone.
                     return;
@@ -514,7 +515,7 @@ export function Paper(props: PaperProps) {
                                 y = props.from.y;
                                 dir = props.from.dir;
                             } else {
-                                props.to.forEach((to_ui: BinaryEnd, index: number) => {
+                                props.to.forEach((to_ui: GlyphAnchor, index: number) => {
                                     if (to_ui.id === obj_id) {
                                         x = to_ui.x;
                                         y = to_ui.y;
@@ -706,7 +707,7 @@ export function Paper(props: PaperProps) {
                                         // @ts-ignore
                                         let isa_ui = ui!.IsaUI;
 
-                                        isa_ui.to.forEach((rel_ui: BinaryEnd, index: number) => {
+                                        isa_ui.to.forEach((rel_ui: GlyphAnchor, index: number) => {
                                             if (rel_ui.id === obj_id) {
                                                 dispatch(relationshipUpdateIsaTo({
                                                     id, index, new_to: { ...rel_ui, x, y, dir }
@@ -833,15 +834,16 @@ export function Paper(props: PaperProps) {
                                     }
                                 });
                                 return;
+
                             } else if (type === 'relGlyph' || type === 'relBoxAssist' ||
                                 type === 'relName') {
-                                // We must be adding a to object to an Isa relationship
+                                // We must be adding a to object to an Isa relationship...
                                 // @ts-ignore
                                 target = get_parent_with_id(target);
                                 let [rel_id, to_obj, ...foo] = getId(target)?.split(':')!;
                                 // @ts-ignore
                                 // let rel_ui = paper_obj!.relationships[rel_id].IsaUI as IsaUI;
-                                let to_end: BinaryEnd = ({
+                                let to_end: GlyphAnchor = ({
                                     id: start_obj,
                                     x: line!.x0,
                                     y: line!.y0,
@@ -868,6 +870,61 @@ export function Paper(props: PaperProps) {
                                         relationship_dialog: true
                                     }
                                 });
+                                return;
+
+                            } else if (type === 'relLineAssist') {
+                                console.log('time to add an ass');
+                                // We need to convert a binary relationship into an associative one.
+                                target = get_parent_with_id(target);
+                                let rel_id = getId(target)?.split(':')![0];
+                                let rel_ui = paper_obj?.relationships[rel_id!];
+
+                                let assoc_ui: AssociativeUI = {
+                                    from: {
+                                        id: start_obj,
+                                        x: line!.x0,
+                                        y: line!.y0,
+                                        offset: {
+                                            x: 20,
+                                            y: 20
+                                        },
+                                        dir: 'East'
+                                        // @ts-ignore
+                                    }, one: rel_ui!.BinaryUI.from, other: rel_ui!.BinaryUI.to
+                                }
+
+                                // let rel = useAppSelector((state) => selectRelationshipsById(state, rel_id!)) as Binary;
+
+                                // I'd really love to copy the values from the existing relationship,
+                                // but alas React sucks.
+                                let assoc: Associative = {
+                                    id: `${rel_id}_assoc`,
+                                    number: 888,
+                                    cardinality: 'One',
+                                    from: start_obj,
+                                    one: null,
+                                    other: null
+                                };
+
+                                dispatch(addRelationship({ id: `${rel_id}_assoc`, payload: { Associative: assoc } }));
+                                dispatch(addRelationshipToPaper({ id: `${rel_id}_assoc`, payload: { AssociativeUI: assoc_ui } }));
+
+                                setMove({
+                                    ...move,
+                                    mouseDown: false,
+                                    meta: false,
+                                    object: {
+                                        ...object,
+                                        line: null
+                                    },
+                                    relationship: {
+                                        ...relationship, id: `${rel_id}_assoc`,
+                                        relationship_type: 'AssociativeUI',
+                                        relationship_dialog: true
+                                    }
+                                });
+                                return;
+
                             } else {
                                 // You must have dragged it to the paper. Create a new Isa.
                                 let relationship_ui: IsaUI = {
@@ -967,7 +1024,7 @@ export function Paper(props: PaperProps) {
                                         id, new_from: { ...isa_ui.from, x, y, dir }
                                     }));
                                 } else if (end === 'to') {
-                                    isa_ui.to.forEach((to_ui: BinaryEnd, index: number) => {
+                                    isa_ui.to.forEach((to_ui: GlyphAnchor, index: number) => {
                                         if (to_ui.id === obj_id) {
                                             dispatch(relationshipUpdateIsaTo({
                                                 id, index, new_to: { ...to_ui, x, y, dir }
@@ -1230,6 +1287,7 @@ export function Paper(props: PaperProps) {
                 break;
             case 'Object':
                 // This brings up the object editor.
+                // Except that it currently does not. See issue #18. Except in FF.
                 setMove({
                     ...move, object: { ...move.object, object_dialog: true }
                 });
@@ -1372,6 +1430,11 @@ export function Paper(props: PaperProps) {
                 {relationship.relationship_dialog && relationship.relationship_type === 'IsaUI' &&
                     // @ts-ignore
                     <IsaEditor id={move.relationship.id} ns={props.domain_ns} done={doneEditing}
+                    />
+                }
+                {relationship.relationship_dialog && relationship.relationship_type === 'AssociativeUI' &&
+                    // @ts-ignore
+                    <AssociativeEditor id={move.relationship.id} ns={props.domain_ns} done={doneEditing}
                     />
                 }
                 <svg id="svg-root" width={paper_obj!.width} height={paper_obj!.height}

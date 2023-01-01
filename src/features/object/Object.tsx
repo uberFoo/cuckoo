@@ -32,11 +32,13 @@ export function ObjectWidget(props: ObjectProps) {
 
     let relationships: Array<RelationshipStore> = useAppSelector((state) => selectRelationships(state));
     relationships.filter(r => {
-        // @ts-ignore
-        if (r.Binary !== undefined) {
+        if (r !== undefined) {
             // @ts-ignore
-            if (r.Binary.from.obj_id === props.id) {
-                return true;
+            if (r.Binary !== undefined) {
+                // @ts-ignore
+                if (r.Binary.from.obj_id === props.id) {
+                    return true;
+                }
             }
         }
 

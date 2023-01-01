@@ -59,7 +59,7 @@ export const paperSlice = createSlice({
             let paper = state.entities[state.ids[0]];
             let orig = paper!.relationships[old_id];
             // @ts-ignore
-            paper!.relationships[id] = { ...orig!, id };
+            paper!.relationships[id] = { ...orig! };
             delete paper!.relationships[old_id];
         },
         relationshipUpdate: (state, action) => {

@@ -9,8 +9,9 @@ import { v5 as uuid } from 'uuid';
 
 import { Binary } from '../../app/store';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { addRelationship, removeRelationship, updateRelationship, selectRelationshipsById } from './relationshipSlice';
+import { addRelationship, removeRelationship, updateRelationship, selectRelationshipById } from './relationshipSlice';
 import { relationshipChangeId } from '../paper/paperSlice';
+import { selectObjectById } from '../object/objectSlice';
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -32,9 +33,12 @@ interface Props {
 const BinaryEditor = (props: Props) => {
     let dispatch = useAppDispatch();
 
-    let relationship = useAppSelector((state) => selectRelationshipsById(state, props.id)) as Binary;
+    let relationship = useAppSelector((state) => selectRelationshipById(state, props.id)) as Binary;
     // @ts-ignore
     relationship = relationship.Binary;
+
+    let from = useAppSelector((state) => selectObjectById(state, relationship.from.obj_id));
+    let to = useAppSelector((state) => selectObjectById(state, relationship.to.obj_id));
 
     const formik = useFormik({
         initialValues: {
@@ -51,6 +55,7 @@ const BinaryEditor = (props: Props) => {
         onSubmit: (values) => save(values)
     });
 
+    // Why bother with this when I can't check before useFormik? React sucks. 🤬
     if (relationship === undefined) {
         console.error("can't find relationship in the store", props.id);
         return;
@@ -76,7 +81,7 @@ const BinaryEditor = (props: Props) => {
             // called buys us here.
             // @ts-ignore
             dispatch(relationshipChangeId({ id: new_id, old_id: id }));
-            dispatch(removeRelationship(id));
+            dispatch(removeRelationship({ id }));
             dispatch(addRelationship({
                 id: new_id,
                 payload: {
@@ -153,7 +158,7 @@ const BinaryEditor = (props: Props) => {
                         </FormGroup>
                         <Divider />
                         <FormGroup>
-                            <FormLabel>Independent/Formalizing/From</FormLabel>
+                            <FormLabel sx={{ fontSize: 20 }}>{from ? `${from.name} (Referrer / Formalizing)` : "Referrer / Formalizing"}</FormLabel>
                             <TextField autoFocus required id="from_desc" label="Description"
                                 value={formik.values.from_desc} onChange={formik.handleChange}
                                 variant="outlined" />
@@ -175,7 +180,7 @@ const BinaryEditor = (props: Props) => {
                         </FormGroup>
                         <Divider />
                         <FormGroup>
-                            <FormLabel>Dependent/To</FormLabel>
+                            <FormLabel sx={{ fontSize: 20 }}>{to ? `${to.name} (Referent)` : "Referent"}</FormLabel>
                             <TextField autoFocus required id="to_desc" label="Description"
                                 value={formik.values.to_desc} onChange={formik.handleChange}
                                 variant="outlined" />

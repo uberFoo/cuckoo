@@ -2,7 +2,7 @@ import React from 'react';
 import { useAppSelector } from '../../app/hooks';
 
 import { selectObjectById } from '../object/objectSlice';
-import { Conditionality, Cardinality, BinaryUI, BinaryEnd, Binary as BinaryStore } from '../../app/store';
+import { Conditionality, Cardinality, BinaryUI, GlyphAnchor, Binary as BinaryStore } from '../../app/store';
 import { makeLine, getRotation } from '../../app/utils';
 
 import styles from './Relationship.module.css';
@@ -74,13 +74,17 @@ export function Binary(props: BinaryProps) {
             <path id={line_id} key={line_id} className={styles.relLine}
                 d={makeLine(ui.from, ui.to)}
             />
+            {/* This makes it possible to create an associated object relationship */}
+            <path id={line_id} className={styles.relLineAssist}
+                d={makeLine(ui.from, ui.to)}
+            />
         </>
     );
 };
 
 // I don't really know the rules, I'm just hand editing positions like this until it looks good.
 // I could just make them draggable...
-let getRelPosition = (from: BinaryEnd, to: BinaryEnd) => {
+let getRelPosition = (from: GlyphAnchor, to: GlyphAnchor) => {
     let x = (from.x + to.x) / 2;
     let y = (from.y + to.y) / 2;
 
