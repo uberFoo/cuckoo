@@ -10,8 +10,6 @@ export let relationshipSlice = createSlice({
     initialState,
     reducers: {
         addRelationship: (state, action) => {
-            // This needs special handling because of the way serde serializes enums.
-            // Why? I could make better comments. 😡
             let { id, payload } = action.payload;
 
             state.ids.push(id)
