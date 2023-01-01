@@ -8,7 +8,10 @@ import paperReducer from '../features/paper/paperSlice';
 import objectReducer from '../features/object/objectSlice';
 import relationshipReducer from '../features/relationship/relationshipSlice';
 
-import model from '../../sarzak_ooa_model.json';
+// import model from '../../blank_model.json';
+import model from '/Users/uberfoo/projects/sarzak/nut/models/cat_dog.json';
+// import model from '/Users/uberfoo/projects/sarzak/nut/models/drawing.json';
+// import model from '/Users/uberfoo/projects/sarzak/nut/models/sarzak.json';
 
 export interface PaperStore {
     id: string,
