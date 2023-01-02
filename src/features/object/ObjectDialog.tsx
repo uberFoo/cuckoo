@@ -13,7 +13,7 @@ import { AttributeStore, Type } from '../../app/store';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import {
     removeAttribute, addAttribute, replaceObject, selectObjectById, objectUpdateDescription,
-    objectUpdateKeyLetter
+    objectUpdateKeyLetter, rename
 } from './objectSlice';
 import { objectChangeId } from '../paper/paperSlice';
 
@@ -70,7 +70,9 @@ const ObjectEditor = (props: Props) => {
 
         // @ts-ignore
         if (values.objectName !== name) {
-            id = uuid(values.objectName, props.ns);
+            // Total hack going on here to change the name without breaking things..
+            // Check out issue #16, for details.
+            // id = uuid(values.objectName, props.ns);
             name = values.objectName;
             dirty = true;
         }
@@ -93,7 +95,10 @@ const ObjectEditor = (props: Props) => {
                 dispatch(objectChangeId({ id, old_id: props.obj_id }));
                 dispatch(replaceObject({ object: new_obj, old_id: props.obj_id }));
             } else {
-
+                // More of the hack from above, issue #16.
+                if (values.objectName !== object?.name) {
+                    dispatch(rename({ id, name }));
+                }
                 if (values.object_desc !== object?.description) {
                     dispatch(objectUpdateDescription({ id, payload: description }));
                 }
