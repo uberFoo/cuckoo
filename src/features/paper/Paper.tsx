@@ -889,11 +889,11 @@ export function Paper(props: PaperProps) {
                                 // the info above. We can't get to the rel number because we can't call
                                 // out to Redux in this scope. We try to pick it up in the editor dialog.
                                 let assoc_ui: AssociativeUI = {
-                                    middle: {
+                                    from: {
                                         x: line!.x0,
                                         y: line!.y0
                                     },
-                                    from: {
+                                    middle: {
                                         id: start_obj,
                                         x: line!.x0,
                                         y: line!.y0,

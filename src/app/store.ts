@@ -120,6 +120,7 @@ export interface GlyphAnchor {
     offset: Point
 }
 
+// Somehow I don't think this does what I think it does.
 export type RelationshipUI = BinaryUI | IsaUI | AssociativeUI;
 
 export interface IsaUI {
@@ -133,8 +134,8 @@ export interface BinaryUI {
 }
 
 export interface AssociativeUI {
-    from: GlyphAnchor,
-    middle: Point,
+    middle: GlyphAnchor,
+    from: Point,
     one: GlyphAnchor,
     other: GlyphAnchor
 }

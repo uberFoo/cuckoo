@@ -63,14 +63,14 @@ export function Associative(props: AssociativeProps) {
         return (<></>);
     }
 
-    let id_from = `_${assoc.id}:${fromObj!.id}:assoc:${ui.from.dir}:from`;
+    let id_from = `_${assoc.id}:${fromObj!.id}:assoc:${ui.middle.dir}:from`;
     let id_one = `_${assoc.id}:${oneObj!.id}:assoc:${ui.one.dir}:from`;
     let id_other = `_${assoc.id}:${otherObj!.id}:assoc:${ui.other.dir}:to`;
     let line_assoc_id = `_${assoc.id}:${id_from}`;
     let line_binary_id = `_${assoc.id}:${id_one}:${id_other}`;
     let name_id = `_${assoc.id}:name`;
 
-    let from_rotation = getRotation(ui.from.dir);
+    let middle_rotation = getRotation(ui.middle.dir);
     let one_rotation = getRotation(ui.one.dir);
     let other_rotation = getRotation(ui.other.dir);
 
@@ -80,7 +80,6 @@ export function Associative(props: AssociativeProps) {
     // @ts-ignore
     let other_card = getGlyph(props.rel.other?.cardinality);
 
-    let from_cond = getConditionality(props.rel.from.conditionality, ui.from.dir);
     // @ts-ignore
     let one_cond = getConditionality(props.rel.one?.conditionality, ui.one.dir);
     // @ts-ignore
@@ -99,14 +98,13 @@ export function Associative(props: AssociativeProps) {
         <>
             {/* From g */}
             <g id={id_from} key={id_from} className={styles.relAnchor}
-                transform={"translate(" + ui.from.x + "," + ui.from.y + ")" +
-                    "rotate(" + from_rotation + ")"}
+                transform={"translate(" + ui.middle.x + "," + ui.middle.y + ")" +
+                    "rotate(" + middle_rotation + ")"}
             >
                 {/* This makes the arrows easier to drag. */}
                 <rect className={styles.relBoxAssist} x={0} y={-25} width={50} height={50} />
                 <path className={styles.relGlyph}
                     d={from_card} />
-                {from_cond}
             </g>
             {/* One g */}
             <g id={id_one} key={id_one} className={styles.relAnchor}
@@ -136,7 +134,7 @@ export function Associative(props: AssociativeProps) {
                 y={rel_num_offset.y}>{"R" + assoc.number}</text>
             {/* The from line. */}
             <path id={line_assoc_id} key={line_assoc_id} className={styles.relLine}
-                d={makeLineToPoint(ui.from, ui.middle)}
+                d={makeLineToPoint(ui.middle, ui.from)}
             />
             {/* The one-other line. */}
             <path id={line_binary_id} key={line_binary_id} className={styles.relLine}

@@ -146,6 +146,7 @@ export function handleObjectMove(paper_obj: PaperStore, move: MoveStruct, event:
                         // @ts-ignore
                         r = r!.BinaryUI;
 
+                        // @ts-ignore
                         let from_id = r!.from.id;
                         // @ts-ignore
                         let to_id = r!.to.id;
@@ -154,6 +155,7 @@ export function handleObjectMove(paper_obj: PaperStore, move: MoveStruct, event:
                         // We call makeGlyph with the x, y coordinates from the other end of the
                         // relationship.
                         if (from_id === obj_id) {
+                            // @ts-ignore
                             let dir = r!.from.dir;
                             // @ts-ignore
                             let glyph = document.getElementById(
@@ -186,9 +188,11 @@ export function handleObjectMove(paper_obj: PaperStore, move: MoveStruct, event:
                     case 'IsaUI': {
                         // @ts-ignore
                         r = r!.IsaUI;
+                        // @ts-ignore
                         let from_id = r!.from.id;
 
                         if (from_id === obj_id) {
+                            // @ts-ignore
                             let dir = r!.from.dir;
 
                             // @ts-ignore
