@@ -8,8 +8,8 @@ import { ErrorBoundary } from 'react-error-boundary';
 import storage from 'redux-persist/lib/storage';
 import reportWebVitals from './reportWebVitals';
 import CircularProgress from '@mui/material/CircularProgress';
-
-import { store, persistor } from './app/store';
+import { open } from '@tauri-apps/api/dialog';
+import { store, persistor, load_store } from './app/store';
 import App from './App';
 
 import './index.css';
@@ -38,7 +38,7 @@ function ErrorFallback({ error }: any) {
         <div role="alert">
             <p>Something went wrong:</p>
             <pre style={{ color: 'red' }}>{error.message}</pre>
-            {/* This doesn't do anything. :-( */}
+            {/* This doesn't do anything. 😢 */}
             <pre style={{ color: 'purple' }}>{error}</pre>
             <p>Click the button to clear the model, and reload from last save.</p>
             <button onClick={reset}>Hard Reset</button>

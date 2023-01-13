@@ -5,7 +5,7 @@ import { selectObjectById } from '../object/objectSlice';
 import { selectRelationshipById, removeRelationship, updateRelationship } from '../relationship/relationshipSlice';
 import { removeRelationshipFromPaper } from '../paper/paperSlice';
 import { Conditionality, Cardinality, AssociativeUI, GlyphAnchor, Associative as AssociativeStore, Binary } from '../../app/store';
-import { makeLine, getRotation } from '../../app/utils';
+import { makeLine, makeLineToPoint, getRotation } from '../../app/utils';
 
 import styles from './Relationship.module.css';
 import { realpath } from 'fs/promises';
@@ -34,7 +34,7 @@ export function Associative(props: AssociativeProps) {
 
     if (extra === 'assoc' && relationship.one === null && binary) {
         // This is brand new, and we want to transfer as much as we can from the original relationship.
-        relationship = { ...relationship, one: binary.from, other: { ...binary.to, formalizing_attribute_name: '' } };
+        relationship = { ...relationship, one: binary.from, other: { ...binary.to } };
 
         relationship.number = binary.number;
 
@@ -51,11 +51,11 @@ export function Associative(props: AssociativeProps) {
     // @ts-ignore
     let ui = props.ui;
 
-    let fromObj = useAppSelector((state) => selectObjectById(state, assoc.from));
+    let fromObj = useAppSelector((state) => selectObjectById(state, assoc.from.obj_id));
     // @ts-ignore
-    let oneObj = useAppSelector((state) => selectObjectById(state, assoc.one?.obj_id));
+    let oneObj = useAppSelector((state) => selectObjectById(state, assoc.one.obj_id));
     // @ts-ignore
-    let otherObj = useAppSelector((state) => selectObjectById(state, assoc.other?.obj_id));
+    let otherObj = useAppSelector((state) => selectObjectById(state, assoc.other.obj_id));
 
     if (oneObj === undefined || otherObj === undefined) {
         // The only explanation is that this get's called before the dialog, which copies
@@ -74,12 +74,13 @@ export function Associative(props: AssociativeProps) {
     let one_rotation = getRotation(ui.one.dir);
     let other_rotation = getRotation(ui.other.dir);
 
-    let from_card = getGlyph(props.rel.cardinality);
+    let from_card = getGlyph(props.rel.from.cardinality);
     // @ts-ignore
     let one_card = getGlyph(props.rel.one?.cardinality);
     // @ts-ignore
     let other_card = getGlyph(props.rel.other?.cardinality);
 
+    let from_cond = getConditionality(props.rel.from.conditionality, ui.from.dir);
     // @ts-ignore
     let one_cond = getConditionality(props.rel.one?.conditionality, ui.one.dir);
     // @ts-ignore
@@ -97,6 +98,17 @@ export function Associative(props: AssociativeProps) {
     return (
         <>
             {/* From g */}
+            <g id={id_from} key={id_from} className={styles.relAnchor}
+                transform={"translate(" + ui.from.x + "," + ui.from.y + ")" +
+                    "rotate(" + from_rotation + ")"}
+            >
+                {/* This makes the arrows easier to drag. */}
+                <rect className={styles.relBoxAssist} x={0} y={-25} width={50} height={50} />
+                <path className={styles.relGlyph}
+                    d={from_card} />
+                {from_cond}
+            </g>
+            {/* One g */}
             <g id={id_one} key={id_one} className={styles.relAnchor}
                 transform={"translate(" + ui.one.x + "," + ui.one.y + ")" +
                     "rotate(" + one_rotation + ")"}
@@ -122,7 +134,11 @@ export function Associative(props: AssociativeProps) {
             {/* The relationship number */}
             <text id={name_id} className={styles.relName} x={rel_num_offset.x}
                 y={rel_num_offset.y}>{"R" + assoc.number}</text>
-            {/* The line. */}
+            {/* The from line. */}
+            <path id={line_assoc_id} key={line_assoc_id} className={styles.relLine}
+                d={makeLineToPoint(ui.from, ui.middle)}
+            />
+            {/* The one-other line. */}
             <path id={line_binary_id} key={line_binary_id} className={styles.relLine}
                 d={makeLine(ui.one, ui.other)}
             />

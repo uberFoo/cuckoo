@@ -610,7 +610,13 @@ export function Paper(props: PaperProps) {
 
                                 dispatch(addObject({
                                     id: "fubar", key_letter: "NO", name: "New Object",
-                                    description: "", attributes: {}
+                                    description: "", attributes: {
+                                        "4717289d-ed9c-5931-94ce-a73a66b88856": {
+                                            "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
+                                            "name": "id",
+                                            "type": "Uuid"
+                                        },
+                                    }
                                 }));
                                 dispatch(addObjectToPaper(obj_ui));
                             }
@@ -879,7 +885,14 @@ export function Paper(props: PaperProps) {
                                 let rel_id = getId(target)?.split(':')![0];
                                 let rel_ui = paper_obj?.relationships[rel_id!];
 
+                                // I can snatch the BinaryUI info for one and other because  we grabbed
+                                // the info above. We can't get to the rel number because we can't call
+                                // out to Redux in this scope. We try to pick it up in the editor dialog.
                                 let assoc_ui: AssociativeUI = {
+                                    middle: {
+                                        x: line!.x0,
+                                        y: line!.y0
+                                    },
                                     from: {
                                         id: start_obj,
                                         x: line!.x0,
@@ -893,15 +906,23 @@ export function Paper(props: PaperProps) {
                                     }, one: rel_ui!.BinaryUI.from, other: rel_ui!.BinaryUI.to
                                 }
 
+                                // This does not work
                                 // let rel = useAppSelector((state) => selectRelationshipsById(state, rel_id!)) as Binary;
 
                                 // I'd really love to copy the values from the existing relationship,
                                 // but alas React sucks.
+
+                                // I stole the rel_id from the BinaryUI id.
                                 let assoc: Associative = {
                                     id: `${rel_id}_assoc`,
                                     number: 888,
-                                    cardinality: 'One',
-                                    from: start_obj,
+                                    from: {
+                                        obj_id: start_obj,
+                                        cardinality: 'One',
+                                        conditionality: 'Unconditional',
+                                        one_formalizing_attribute_name: '',
+                                        other_formalizing_attribute_name: ''
+                                    },
                                     one: null,
                                     other: null
                                 };
@@ -986,6 +1007,8 @@ export function Paper(props: PaperProps) {
                 }
                     break;
 
+                // My god this is long and complicated.
+                // This is the mouse up handler, btw.
                 case 'Relationship': {
                     let { relationship, target } = move;
                     let { x, y, obj_id, dir, id, end, relationship_type, relationship_dialog }

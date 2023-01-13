@@ -2,6 +2,9 @@
     all(not(debug_assertions), target_os = "windows"),
     windows_subsystem = "windows"
 )]
+use std::{env::set_current_dir, path::PathBuf};
+
+use clap::{command, value_parser, Arg};
 
 use tauri::{AboutMetadata, CustomMenuItem, Menu, MenuItem, Submenu, WindowMenuEvent, Wry};
 
@@ -12,6 +15,21 @@ fn greet(name: &str) -> String {
 }
 
 fn main() {
+    let args = command!()
+        .arg(
+            Arg::new("working_directory")
+                .required(false)
+                .help("set working directory")
+                .value_parser(value_parser!(PathBuf)),
+        )
+        .get_matches();
+
+    // This isn't going to help me. I can't open files, so I need the debug
+    // build to change the code. Sigh.
+    if let Some(cwd) = args.get_one::<PathBuf>("working_directory") {
+        set_current_dir(cwd).unwrap();
+    }
+
     let menu = Menu::new()
         .add_submenu(Submenu::new(
             "Cuckoo",
@@ -48,6 +66,7 @@ fn main() {
                 .add_native_item(MenuItem::Undo)
                 .add_native_item(MenuItem::Redo)
                 .add_native_item(MenuItem::Separator)
+                .add_native_item(MenuItem::Cut)
                 .add_native_item(MenuItem::Copy)
                 .add_native_item(MenuItem::Paste),
         ))

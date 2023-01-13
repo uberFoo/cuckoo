@@ -8,10 +8,62 @@ import paperReducer from '../features/paper/paperSlice';
 import objectReducer from '../features/object/objectSlice';
 import relationshipReducer from '../features/relationship/relationshipSlice';
 
-// import model from '../../blank_model.json';
-import model from '/Users/uberfoo/projects/sarzak/nut/models/cat_dog.json';
+// import model from '/Users/uberfoo/projects/sarzak/nut/models/blank.json';
+// import model from '/Users/uberfoo/projects/sarzak/nut/models/cat_dog.json';
 // import model from '/Users/uberfoo/projects/sarzak/nut/models/drawing.json';
-// import model from '/Users/uberfoo/projects/sarzak/nut/models/sarzak.json';
+// import model from '/Users/uberfoo/projects/sarzak/nut/models/drawing_2.json';
+// import model from '/Users/uberfoo/projects/sarzak/nut/crates/sarzak/models/sarzak.json';
+import model from '/Users/uberfoo/projects/sarzak/nut/crates/sarzak/models/drawing.json';
+// import model from '/Users/uberfoo/projects/sarzak/nut/crates/test_models/models/one_to_one.json';
+// import model from '/Users/uberfoo/projects/sarzak/nut/crates/test_models/models/one_to_many.json';
+// import model from '/Users/uberfoo/projects/sarzak/nut/crates/test_models/models/imported_object.json';
+// import model from '/Users/uberfoo/projects/sarzak/nut/crates/test_models/models/singleton.json';
+// import model from '/Users/uberfoo/projects/sarzak/nut/crates/test_models/models/everything.json';
+// import model from '/Users/uberfoo/projects/sarzak/nut/crates/test_models/models/isa_relationship.json';
+
+import { open } from '@tauri-apps/api/dialog';
+
+export const OpenModel = async () => {
+    try {
+        let path = await open();
+        // @ts-ignore
+        // let content = await readTextFile(path);
+
+        // let state = store.getState();
+        // let new_state = JSON.parse(content);
+        console.log(path);
+        return path;
+
+    } catch (e) {
+        console.error(e);
+    }
+};
+
+// let model = OpenModel();
+
+export const load_store = async () => {
+    try {
+        let model = await open();
+        const store = configureStore({
+            reducer: persistedReducer,
+            // @ts-ignore
+            preloadedState: (model as any) as StateWithHistory<typeof model>,
+            // @ts-ignore
+            middleware: (getDefaultMiddleware) =>
+                getDefaultMiddleware({
+                    serializableCheck: {
+                        // @ts-ignore
+                        ignoreActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
+                    }
+                }).concat(logger),
+            devTools: true
+        });
+
+        return store;
+    } catch (e) {
+        console.error(e);
+    }
+};
 
 export interface PaperStore {
     id: string,
@@ -82,6 +134,7 @@ export interface BinaryUI {
 
 export interface AssociativeUI {
     from: GlyphAnchor,
+    middle: Point,
     one: GlyphAnchor,
     other: GlyphAnchor
 }
@@ -139,10 +192,17 @@ export interface Isa {
 export interface Associative {
     id: string,
     number: number,
+    from: AssociativeReferrer,
+    one: Dependent | null,
+    other: Dependent | null
+}
+
+export interface AssociativeReferrer {
+    obj_id: string,
     cardinality: Cardinality,
-    from: string,
-    one: Independent | null,
-    other: Independent | null
+    conditionality: Conditionality,
+    one_formalizing_attribute_name: string,
+    other_formalizing_attribute_name: string
 }
 
 export type Cardinality = 'One' | 'Many';

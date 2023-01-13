@@ -72,7 +72,10 @@ const ObjectEditor = (props: Props) => {
         if (values.objectName !== name) {
             // Total hack going on here to change the name without breaking things..
             // Check out issue #16, for details.
-            // id = uuid(values.objectName, props.ns);
+            // This breaks new object creation. 😡
+            if (id === "fubar") {
+                id = uuid(values.objectName, props.ns);
+            }
             name = values.objectName;
             dirty = true;
         }
