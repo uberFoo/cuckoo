@@ -538,6 +538,11 @@ export function makeLine(from: GlyphAnchor, to: GlyphAnchor) {
     return "M " + f![0] + " " + f![1] + " L " + t![0] + " " + t![1];
 }
 
+export function makeLineToPoint(from: GlyphAnchor, to: Point) {
+    let f = getAnchorOffset(from.x, from.y, from.dir);
+    return "M " + f![0] + " " + f![1] + " L " + to.x + " " + to.y;
+}
+
 export function intersection(from1: Point, to1: Point, from2: Point, to2: Point): Point | undefined {
     const dX: number = to1.x - from1.x;
     const dY: number = to1.y - from1.y;

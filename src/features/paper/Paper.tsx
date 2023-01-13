@@ -889,6 +889,10 @@ export function Paper(props: PaperProps) {
                                 // the info above. We can't get to the rel number because we can't call
                                 // out to Redux in this scope. We try to pick it up in the editor dialog.
                                 let assoc_ui: AssociativeUI = {
+                                    middle: {
+                                        x: line!.x0,
+                                        y: line!.y0
+                                    },
                                     from: {
                                         id: start_obj,
                                         x: line!.x0,
@@ -912,8 +916,13 @@ export function Paper(props: PaperProps) {
                                 let assoc: Associative = {
                                     id: `${rel_id}_assoc`,
                                     number: 888,
-                                    cardinality: 'One',
-                                    from: start_obj,
+                                    from: {
+                                        obj_id: start_obj,
+                                        cardinality: 'One',
+                                        conditionality: 'Unconditional',
+                                        one_formalizing_attribute_name: '',
+                                        other_formalizing_attribute_name: ''
+                                    },
                                     one: null,
                                     other: null
                                 };
@@ -998,6 +1007,8 @@ export function Paper(props: PaperProps) {
                 }
                     break;
 
+                // My god this is long and complicated.
+                // This is the mouse up handler, btw.
                 case 'Relationship': {
                     let { relationship, target } = move;
                     let { x, y, obj_id, dir, id, end, relationship_type, relationship_dialog }

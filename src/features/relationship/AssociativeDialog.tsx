@@ -36,29 +36,34 @@ const AssociativeEditor = (props: Props) => {
 
     let relationship = useAppSelector((state) => selectRelationshipById(state, props.id)) as Associative;
 
-    // let [bin_id, extra] = props.id.split('_');
-    // let binary = useAppSelector((state) => selectRelationshipById(state, bin_id)) as Binary;
+    // This is created in Paper.tsx. It's the binary_id_assoc, my special tag
+    let [bin_id, extra] = props.id.split('_');
+    let binary = useAppSelector((state) => selectRelationshipById(state, bin_id)) as Binary;
 
     if (relationship)
         // @ts-ignore
         relationship = relationship.Associative;
 
-    // if (binary)
-    //     // @ts-ignore
-    //     binary = binary.Binary;
+    if (binary)
+        // @ts-ignore
+        binary = binary.Binary;
 
-    // let copied = false;
+    let copied = false;
+    debugger;
+    // Here's my special tag. We know that binary exists. I can't do anything about it though.
+    // And maybe I don't need to. I can just update the relationship each time through.
+    if (extra === 'assoc') {
+        copied = true;
+        // This is brand new, and we want to transfer as much as we can from the original, binary, relationship.
+        relationship = { ...relationship, one: binary.from, other: { ...binary.to } };
 
-    // if (extra === 'assoc') {
-    //     copied = true;
-    //     // This is brand new, and we want to transfer as much as we can from the original relationship.
-    //     relationship = { ...relationship, one: binary.from, other: { ...binary.to, formalizing_attribute_name: '' } };
+        relationship.id = binary.id;
+        relationship.number = binary.number;
+    }
 
-    //     // let new_id = uuid(`${relationship.from}::${relationship.one!.obj_id}::${relationship.other!.obj_id}`,
-    //     // props.ns);
-    //     // relationship.id = new_id;
-    //     relationship.number = binary.number;
-    // }
+    // Maybe this get's caught upstream if bin_id isn't set.
+    dispatch(removeRelationship({ bin_id, tag: 'uberFoo' }));
+    dispatch(updateRelationship({ id: relationship.id, payload: { Associative: relationship } }));
 
     // @ts-ignore
     let one = useAppSelector((state) => selectObjectById(state, relationship.one ? relationship.one.obj_id : null));
@@ -68,15 +73,15 @@ const AssociativeEditor = (props: Props) => {
     const formik = useFormik({
         initialValues: {
             rel_num: relationship.number,
-            card: relationship.cardinality,
+            card: relationship.from.cardinality,
             one_desc: relationship.one?.description,
             one_card: relationship.one?.cardinality,
             one_cond: relationship.one?.conditionality,
-            one_attr: relationship.one?.formalizing_attribute_name,
+            one_attr: relationship.from.one_formalizing_attribute_name,
             other_desc: relationship.other?.description,
             other_card: relationship.other?.cardinality,
             other_cond: relationship.other?.conditionality,
-            other_attr: relationship.other?.formalizing_attribute_name,
+            other_attr: relationship.from.other_formalizing_attribute_name,
         },
         onSubmit: (values) => save(values)
     });
@@ -104,6 +109,7 @@ const AssociativeEditor = (props: Props) => {
         other_cond?: string,
         other_attr?: string,
     }) => {
+        debugger;
         let id = relationship.id;
 
         // if (copied || values.rel_num !== relationship.number) {
@@ -119,6 +125,7 @@ const AssociativeEditor = (props: Props) => {
             //     dispatch(removeRelationshipFromPaper({ id: bin_id, tag: 'uberFoo' }));
 
             // } else {
+            // This is for Paper
             dispatch(relationshipChangeId({ id: new_id, old_id: id, tag: 'uberFoo' }));
             // }
 
@@ -157,7 +164,7 @@ const AssociativeEditor = (props: Props) => {
             dispatch(updateRelationship({
                 id,
                 payload: {
-                    Binary: {
+                    Associative: {
                         id,
                         number: Number(values.rel_num),
                         cardinality: values.card,

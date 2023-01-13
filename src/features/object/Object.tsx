@@ -39,6 +39,12 @@ export function ObjectWidget(props: ObjectProps) {
                 if (r.Binary.from.obj_id === props.id) {
                     return true;
                 }
+                // @ts-ignore
+            } else if (r.Associative !== undefined) {
+                // @ts-ignore
+                if (r.Associative.from.obj_id === props.id) {
+                    return true;
+                }
             }
         }
 
@@ -57,10 +63,36 @@ export function ObjectWidget(props: ObjectProps) {
                 // @ts-ignore
                 type: `&${obj.name} (R${r.Binary.number})`
             };
+            // @ts-ignore
+        } else if (r.Associative !== undefined) {
+            // @ts-ignore
+            let one_obj = objects.filter(o => o.id === r.Associative.one.obj_id)[0];
+
+            // @ts-ignore
+            let other_obj = objects.filter(o => o.id === r.Associative.other.obj_id)[0];
+
+            return [
+                {
+                    // @ts-ignore
+                    name: r.Associative.from.one_formalizing_attribute_name,
+                    // @ts-ignore
+                    id: r.Associative.one.obj_id, is_ref: true,
+                    // @ts-ignore
+                    type: `&${one_obj.name} (R${r.Associative.number})`
+                },
+                {
+                    // @ts-ignore
+                    name: r.Associative.from.other_formalizing_attribute_name,
+                    // @ts-ignore
+                    id: r.Associative.other.obj_id, is_ref: true,
+                    // @ts-ignore
+                    type: `&${other_obj.name} (R${r.Associative.number})`
+                }
+            ];
         }
         return null;
         // @ts-ignore
-    }).filter(r => r !== null).forEach(r => attributeInstances[r.id] = r);;
+    }).flat().filter(r => r !== null).forEach(r => attributeInstances[r.id] = r);
 
     let attributeElements: Array<JSX.Element> = Object.keys(attributeInstances)
         .map((id, i) => {

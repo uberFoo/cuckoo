@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react';
 import { Paper } from './features/paper/Paper';
 import { selectPaperSingleton } from './features/paper/paperSlice';
 import { useAppSelector } from './app/hooks';
-import { store } from './app/store';
+import { store, OpenModel } from './app/store';
 
 import './App.css';
 
@@ -47,19 +47,7 @@ function App() {
         }
     }, [menuOpen, menuPayload]);
 
-    const OpenModel = async () => {
-        try {
-            let path = await open();
-            // @ts-ignore
-            let content = await readTextFile(path);
-
-            let state = store.getState();
-            let new_state = JSON.parse(content);
-
-        } catch (e) {
-            console.error(e);
-        }
-    };
+    const OpenModel = async () => OpenModel;
 
     const ExportSchema = async () => {
         let state = store.getState();

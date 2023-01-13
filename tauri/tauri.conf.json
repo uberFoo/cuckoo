@@ -58,10 +58,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 1200,
+        "height": 1800,
         "resizable": true,
         "title": "Cuckoo",
-        "width": 1600
+        "width": 3000
       }
     ]
   }
