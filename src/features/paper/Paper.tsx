@@ -610,13 +610,7 @@ export function Paper(props: PaperProps) {
 
                                 dispatch(addObject({
                                     id: "fubar", key_letter: "NO", name: "New Object",
-                                    description: "", attributes: {
-                                        "4717289d-ed9c-5931-94ce-a73a66b88856": {
-                                            "id": "4717289d-ed9c-5931-94ce-a73a66b88856",
-                                            "name": "id",
-                                            "type": "Uuid"
-                                        },
-                                    }
+                                    description: "", attributes: {}
                                 }));
                                 dispatch(addObjectToPaper(obj_ui));
                             }
@@ -917,11 +911,12 @@ export function Paper(props: PaperProps) {
                                     id: `${rel_id}_assoc`,
                                     number: 888,
                                     from: {
+                                        id: "bob",
                                         obj_id: start_obj,
                                         cardinality: 'One',
                                         conditionality: 'Unconditional',
-                                        one_formalizing_attribute_name: '',
-                                        other_formalizing_attribute_name: ''
+                                        one_referential_attribute: '',
+                                        other_referential_attribute: ''
                                     },
                                     one: null,
                                     other: null

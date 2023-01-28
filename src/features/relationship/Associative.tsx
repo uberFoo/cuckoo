@@ -64,8 +64,8 @@ export function Associative(props: AssociativeProps) {
     }
 
     let id_from = `_${assoc.id}:${fromObj!.id}:assoc:${ui.middle.dir}:from`;
-    let id_one = `_${assoc.id}:${oneObj!.id}:assoc:${ui.one.dir}:from`;
-    let id_other = `_${assoc.id}:${otherObj!.id}:assoc:${ui.other.dir}:to`;
+    let id_one = `_${assoc.id}:${oneObj!.id}:assoc:${ui.one.dir}:one`;
+    let id_other = `_${assoc.id}:${otherObj!.id}:assoc:${ui.other.dir}:other`;
     let line_assoc_id = `_${assoc.id}:${id_from}`;
     let line_binary_id = `_${assoc.id}:${id_one}:${id_other}`;
     let name_id = `_${assoc.id}:name`;
@@ -89,7 +89,7 @@ export function Associative(props: AssociativeProps) {
     let one_phrase = makeRelPhrase(`_${props.id}:from`, props.rel.one?.description, ui.one.x,
         ui.one.y, ui.one.offset);
     // @ts-ignore
-    let other_phrase = makeRelPhrase(`_${props.id}:to`, props.rel.to?.description, ui.other.x, ui.other.y,
+    let other_phrase = makeRelPhrase(`_${props.id}:to`, props.rel.other?.description, ui.other.x, ui.other.y,
         ui.other.offset);
 
     let rel_num_offset = getRelPosition(ui.one, ui.other);

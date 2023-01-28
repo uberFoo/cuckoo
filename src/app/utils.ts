@@ -185,6 +185,68 @@ export function handleObjectMove(paper_obj: PaperStore, move: MoveStruct, event:
                         }
                     }
                         break;
+                    case 'AssociativeUI': {
+                        // @ts-ignore
+                        r = r!.AssociativeUI;
+
+                        // @ts-ignore
+                        let from_id = r!.from.id;
+                        // @ts-ignore
+                        let one_id = r!.one.id;
+                        // @ts-ignore
+                        let other_id = r!.other.id;
+
+                        // id is the Object.id
+                        // We call makeGlyph with the x, y coordinates from the other end of the
+                        // relationship.
+                        if (one_id === obj_id) {
+                            // @ts-ignore
+                            let dir = r!.one.dir;
+                            // @ts-ignore
+                            let glyph = document.getElementById(
+                                `_${r_id}:${one_id}:assoc:${dir}:one`) as SVGGElement;
+                            // @ts-ignore
+                            let x0 = r!.one.x;
+                            // @ts-ignore
+                            let y0 = r!.one.y;
+
+                            moveGlyph(x, y, glyph, paper_obj!, {
+                                x0: x0, y0: y0, x1: x + width, y1: y + height
+                            });
+                            rels.push({ target: glyph, x: x0, y: y0, type: 'associative' });
+                        } else if (other_id === obj_id) {
+                            // @ts-ignore
+                            let dir = r!.other.dir;
+                            // @ts-ignore
+                            let glyph = document.getElementById(
+                                `_${r_id}:${other_id}:assoc:${dir}:other`) as SVGGElement;
+                            // @ts-ignore
+                            let x0 = r!.other.x;
+                            // @ts-ignore
+                            let y0 = r!.other.y;
+
+                            moveGlyph(x, y, glyph, paper_obj!, {
+                                x0: x0, y0: y0, x1: x + width, y1: y + height
+                            });
+                            rels.push({ target: glyph, x: x0, y: y0, type: 'associative' });
+                        } else if (from_id === obj_id) {
+                            // // @ts-ignore
+                            // let dir = r!.from.dir;
+                            // // @ts-ignore
+                            // let glyph = document.getElementById(
+                            //     `_${r_id}:${from_id}:assoc:${dir}:from`) as SVGGElement;
+                            // // @ts-ignore
+                            // let x0 = r!.from.x;
+                            // // @ts-ignore
+                            // let y0 = r!.from.y;
+
+                            // moveGlyph(x, y, glyph, paper_obj!, {
+                            //     x0: x0, y0: y0, x1: x + width, y1: y + height
+                            // });
+                            // rels.push({ target: glyph, x: x0, y: y0, type: 'associative' });
+                        }
+                    }
+                        break;
                     case 'IsaUI': {
                         // @ts-ignore
                         r = r!.IsaUI;

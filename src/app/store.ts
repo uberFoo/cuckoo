@@ -8,18 +8,23 @@ import paperReducer from '../features/paper/paperSlice';
 import objectReducer from '../features/object/objectSlice';
 import relationshipReducer from '../features/relationship/relationshipSlice';
 
-// import model from '/Users/uberfoo/projects/sarzak/nut/models/blank.json';
+// import model from '/Users/uberfoo/projects/sarzak/grace/tests/mdd/models/everything.json';
+
 // import model from '/Users/uberfoo/projects/sarzak/nut/models/cat_dog.json';
-// import model from '/Users/uberfoo/projects/sarzak/nut/models/drawing.json';
-// import model from '/Users/uberfoo/projects/sarzak/nut/models/drawing_2.json';
-// import model from '/Users/uberfoo/projects/sarzak/nut/crates/sarzak/models/sarzak.json';
-import model from '/Users/uberfoo/projects/sarzak/nut/crates/sarzak/models/drawing.json';
+// import model from '/Users/uberfoo/projects/sarzak/nut/models/drawing_orig.json';
+
+// import model from '/Users/uberfoo/tmp/foo/models/bar.json';
+
+import model from '/Users/uberfoo/projects/sarzak/sarzak/models/sarzak.json';
+// import model from '/Users/uberfoo/projects/sarzak/sarzak/models/drawing.json';
+
 // import model from '/Users/uberfoo/projects/sarzak/nut/crates/test_models/models/one_to_one.json';
 // import model from '/Users/uberfoo/projects/sarzak/nut/crates/test_models/models/one_to_many.json';
 // import model from '/Users/uberfoo/projects/sarzak/nut/crates/test_models/models/imported_object.json';
 // import model from '/Users/uberfoo/projects/sarzak/nut/crates/test_models/models/singleton.json';
 // import model from '/Users/uberfoo/projects/sarzak/nut/crates/test_models/models/everything.json';
 // import model from '/Users/uberfoo/projects/sarzak/nut/crates/test_models/models/isa_relationship.json';
+// import model from '/Users/uberfoo/projects/sarzak/nut/crates/test_models/models/associative.json';
 
 import { open } from '@tauri-apps/api/dialog';
 
@@ -199,11 +204,12 @@ export interface Associative {
 }
 
 export interface AssociativeReferrer {
+    id: string,
     obj_id: string,
     cardinality: Cardinality,
     conditionality: Conditionality,
-    one_formalizing_attribute_name: string,
-    other_formalizing_attribute_name: string
+    one_referential_attribute: string,
+    other_referential_attribute: string
 }
 
 export type Cardinality = 'One' | 'Many';

@@ -77,11 +77,11 @@ const AssociativeEditor = (props: Props) => {
             one_desc: relationship.one?.description,
             one_card: relationship.one?.cardinality,
             one_cond: relationship.one?.conditionality,
-            one_attr: relationship.from.one_formalizing_attribute_name,
+            one_attr: relationship.from.one_referential_attribute,
             other_desc: relationship.other?.description,
             other_card: relationship.other?.cardinality,
             other_cond: relationship.other?.conditionality,
-            other_attr: relationship.from.other_formalizing_attribute_name,
+            other_attr: relationship.from.other_referential_attribute,
         },
         onSubmit: (values) => save(values)
     });

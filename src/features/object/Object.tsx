@@ -74,7 +74,7 @@ export function ObjectWidget(props: ObjectProps) {
             return [
                 {
                     // @ts-ignore
-                    name: r.Associative.from.one_formalizing_attribute_name,
+                    name: r.Associative.from.one_referential_attribute,
                     // @ts-ignore
                     id: r.Associative.one.obj_id, is_ref: true,
                     // @ts-ignore
@@ -82,7 +82,7 @@ export function ObjectWidget(props: ObjectProps) {
                 },
                 {
                     // @ts-ignore
-                    name: r.Associative.from.other_formalizing_attribute_name,
+                    name: r.Associative.from.other_referential_attribute,
                     // @ts-ignore
                     id: r.Associative.other.obj_id, is_ref: true,
                     // @ts-ignore
