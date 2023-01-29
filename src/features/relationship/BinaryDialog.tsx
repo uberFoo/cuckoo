@@ -159,30 +159,11 @@ const BinaryEditor = (props: Props) => {
                         <Divider />
                         <FormGroup>
                             <FormLabel sx={{ fontSize: 20 }}>{from ? `${from.name} (Referrer / Formalizing)` : "Referrer / Formalizing"}</FormLabel>
-                            <TextField autoFocus required id="from_desc" label="Description"
-                                value={formik.values.from_desc} onChange={formik.handleChange}
+                            <TextField autoFocus required id="to_desc" label="Description"
+                                value={formik.values.to_desc} onChange={formik.handleChange}
                                 variant="outlined" />
                             <TextField autoFocus required id="from_attr" label="Formalizing Attribute"
                                 value={formik.values.from_attr} onChange={formik.handleChange}
-                                variant="outlined" />
-                            <FormLabel>Cardinality</FormLabel>
-                            <RadioGroup row id="from_card" name="from_card" value={formik.values.from_card}
-                                onChange={formik.handleChange}>
-                                <FormControlLabel value='One' control={<Radio />} label='One' />
-                                <FormControlLabel value='Many' control={<Radio />} label='Many' />
-                            </RadioGroup>
-                            <FormLabel>Conditionality</FormLabel>
-                            <RadioGroup row id="from_cond" name="from_cond" value={formik.values.from_cond}
-                                onChange={formik.handleChange}>
-                                <FormControlLabel value='Unconditional' control={<Radio />} label='Unconditional' />
-                                <FormControlLabel value='Conditional' control={<Radio />} label='Conditional' />
-                            </RadioGroup>
-                        </FormGroup>
-                        <Divider />
-                        <FormGroup>
-                            <FormLabel sx={{ fontSize: 20 }}>{to ? `${to.name} (Referent)` : "Referent"}</FormLabel>
-                            <TextField autoFocus required id="to_desc" label="Description"
-                                value={formik.values.to_desc} onChange={formik.handleChange}
                                 variant="outlined" />
                             <FormLabel>Cardinality</FormLabel>
                             <RadioGroup row id="to_card" name="to_card" value={formik.values.to_card}
@@ -192,6 +173,25 @@ const BinaryEditor = (props: Props) => {
                             </RadioGroup>
                             <FormLabel>Conditionality</FormLabel>
                             <RadioGroup row id="to_cond" name="to_cond" value={formik.values.to_cond}
+                                onChange={formik.handleChange}>
+                                <FormControlLabel value='Unconditional' control={<Radio />} label='Unconditional' />
+                                <FormControlLabel value='Conditional' control={<Radio />} label='Conditional' />
+                            </RadioGroup>
+                        </FormGroup>
+                        <Divider />
+                        <FormGroup>
+                            <FormLabel sx={{ fontSize: 20 }}>{to ? `${to.name} (Referent)` : "Referent"}</FormLabel>
+                            <TextField autoFocus required id="from_desc" label="Description"
+                                value={formik.values.from_desc} onChange={formik.handleChange}
+                                variant="outlined" />
+                            <FormLabel>Cardinality</FormLabel>
+                            <RadioGroup row id="from_card" name="from_card" value={formik.values.from_card}
+                                onChange={formik.handleChange}>
+                                <FormControlLabel value='One' control={<Radio />} label='One' />
+                                <FormControlLabel value='Many' control={<Radio />} label='Many' />
+                            </RadioGroup>
+                            <FormLabel>Conditionality</FormLabel>
+                            <RadioGroup row id="from_cond" name="from_cond" value={formik.values.from_cond}
                                 onChange={formik.handleChange}>
                                 <FormControlLabel value='Unconditional' control={<Radio />} label='Unconditional' />
                                 <FormControlLabel value='Conditional' control={<Radio />} label='Conditional' />
