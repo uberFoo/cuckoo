@@ -52,7 +52,7 @@ Objects with their top-left corners in the selection box will be selected.
 I don't want to go deep here.
 I'd mostly just like to introduce the boxen and lines.
 
-_aside: I've got a book on category that I'll actually be able to understand.
+_aside: I've got a book on category theory that I'll actually be able to understand.
 I wonder if the boxen are categories and the lines functors?
 I have a feeling..._
 
@@ -62,7 +62,7 @@ I often use object to mean class, and instance to mean object.
 Deal wih it.
 Objects have _attributes_, which are just data.
 They have names and types.
-_Every object has an attribute called `id` that has type `Uuid`._
+_Every object has an attribute called `id` that has type `Uuid` ._
 This is not enforced by the tool -- it's up to you, the modeler.
 Sorry.
 Deal with it.
@@ -73,18 +73,18 @@ A double ended arrow means "many".
 A single ended arrow means "one".
 These are the _cardinality_ of the relationship.
 
-For example, relationship `R1` between `Object` and `Attribute` is saying that an `Object` has many `Attributes`.
+For example, relationship `R1` between `Object` and `Attribute` is saying that an `Object` has many `Attributes` .
 That's not quite true.
-There's a little `c` next to the double ended arrow going to `Attribute`.
+There's a little `c` next to the double ended arrow going to `Attribute` .
 That letter means that the relationship is _conditional_ on the `Attribute` side.
-This means that an `Object` has _zero_ **or** _more_ `Attributes`.
+This means that an `Object` has _zero_ **or** _more_ `Attributes` .
 
 Finally we need to talk about relationship phrases.
 These things are descriptive and meant to be read a certain way.
 I always get lost, and waffle back and forth on the correct way.
 But here is cannon.
 The phrase adjacent to the object is meant to be _read_ after naming the object.
-For example, `Attribute` "lives in an" `Object`, is the correct way to read `R1` going from `Attribute` to `Object`.
+For example, `Attribute` "lives in an" `Object` , is the correct way to read `R1` going from `Attribute` to `Object` .
 
 There are three types of relationship, and only two are currently implemented.
 _Binary_ relationships have an object on either end.
