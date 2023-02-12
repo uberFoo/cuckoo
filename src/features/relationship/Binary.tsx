@@ -32,13 +32,16 @@ export function Binary(props: BinaryProps) {
     let from_card = getGlyph(props.rel.from.cardinality);
     let to_card = getGlyph(props.rel.to.cardinality);
 
-    let from_cond = getConditionality(props.rel.from.conditionality, ui.from.dir);
-    let to_cond = getConditionality(props.rel.to.conditionality, ui.to.dir);
+    // Fucking relationships. This is confusing. When we render the relationship we put
+    // the phrase, and conditionality on the __opposite__ side to where we connect the
+    // glyph.
+    let from_cond = getConditionality(props.rel.from.conditionality, ui.to.dir);
+    let to_cond = getConditionality(props.rel.to.conditionality, ui.from.dir);
 
-    let from_phrase = makeRelPhrase(`_${props.id}:from`, props.rel.from.description, ui.from.x,
-        ui.from.y, ui.from.offset);
-    let to_phrase = makeRelPhrase(`_${props.id}:to`, props.rel.to.description, ui.to.x, ui.to.y,
-        ui.to.offset);
+    let from_phrase = makeRelPhrase(`_${props.id}:from`, props.rel.from.description, ui.to.x,
+        ui.to.y, ui.to.offset);
+    let to_phrase = makeRelPhrase(`_${props.id}:to`, props.rel.to.description, ui.from.x, ui.from.y,
+        ui.from.offset);
 
     let rel_num_offset = getRelPosition(ui.from, ui.to);
 
@@ -53,9 +56,9 @@ export function Binary(props: BinaryProps) {
                 <rect className={styles.relBoxAssist} x={0} y={-25} width={50} height={50} />
                 <path className={styles.relGlyph}
                     d={from_card} />
-                {from_cond}
+                {to_cond}
             </g>
-            {from_phrase}
+            {to_phrase}
             {/* The 'to' g */}
             <g id={id_to} key={id_to} className={styles.relAnchor}
                 transform={"translate(" + ui.to.x + "," + ui.to.y + ")" +
@@ -64,9 +67,9 @@ export function Binary(props: BinaryProps) {
                 {/* This makes the arrows easier to drag. */}
                 <rect className={styles.relBoxAssist} x={0} y={-25} width={50} height={50} />
                 <path className={styles.relGlyph} d={to_card} />
-                {to_cond}
+                {from_cond}
             </g>
-            {to_phrase}
+            {from_phrase}
             {/* The relationship number */}
             <text id={name_id} className={styles.relName} x={rel_num_offset.x}
                 y={rel_num_offset.y}>{"R" + binary.number}</text>
