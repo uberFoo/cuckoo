@@ -109,7 +109,7 @@ export const paperSlice = createSlice({
             let paper = state.entities[state.ids[0]];
             let ui = paper!.relationships[id];
 
-            if (end === 'from') {
+            if (end === 'to') {
                 // @ts-ignore
                 let from = ui!.BinaryUI.from;
                 // @ts-ignore
