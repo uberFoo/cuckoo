@@ -80,17 +80,18 @@ export function Associative(props: AssociativeProps) {
     // @ts-ignore
     let other_card = getGlyph(props.rel.other?.cardinality);
 
+    // Relationship phrases and conditionality draw on the other side...
     // @ts-ignore
-    let one_cond = getConditionality(props.rel.one?.conditionality, ui.one.dir);
+    let one_cond = getConditionality(props.rel.one?.conditionality, ui.other.dir);
     // @ts-ignore
-    let other_cond = getConditionality(props.rel.other?.conditionality, ui.other.dir);
+    let other_cond = getConditionality(props.rel.other?.conditionality, ui.one.dir);
 
     // @ts-ignore
-    let one_phrase = makeRelPhrase(`_${props.id}:from`, props.rel.one?.description, ui.one.x,
-        ui.one.y, ui.one.offset);
+    let one_phrase = makeRelPhrase(`_${props.id}:from`, props.rel.one?.description, ui.other.x,
+        ui.other.y, ui.other.offset);
     // @ts-ignore
-    let other_phrase = makeRelPhrase(`_${props.id}:to`, props.rel.other?.description, ui.other.x, ui.other.y,
-        ui.other.offset);
+    let other_phrase = makeRelPhrase(`_${props.id}:to`, props.rel.other?.description, ui.one.x, ui.one.y,
+        ui.one.offset);
 
     let rel_num_offset = getRelPosition(ui.one, ui.other);
 
@@ -115,9 +116,9 @@ export function Associative(props: AssociativeProps) {
                 <rect className={styles.relBoxAssist} x={0} y={-25} width={50} height={50} />
                 <path className={styles.relGlyph}
                     d={one_card} />
-                {one_cond}
+                {other_cond}
             </g>
-            {one_phrase}
+            {other_phrase}
             {/* The 'to' g */}
             <g id={id_other} key={id_other} className={styles.relAnchor}
                 transform={"translate(" + ui.other.x + "," + ui.other.y + ")" +
@@ -126,9 +127,9 @@ export function Associative(props: AssociativeProps) {
                 {/* This makes the arrows easier to drag. */}
                 <rect className={styles.relBoxAssist} x={0} y={-25} width={50} height={50} />
                 <path className={styles.relGlyph} d={other_card} />
-                {other_cond}
+                {one_cond}
             </g>
-            {other_phrase}
+            {one_phrase}
             {/* The relationship number */}
             <text id={name_id} className={styles.relName} x={rel_num_offset.x}
                 y={rel_num_offset.y}>{"R" + assoc.number}</text>
