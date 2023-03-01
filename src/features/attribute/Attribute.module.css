@@ -1,4 +1,5 @@
 .attribute {
+    fill: #8ecae6;
     cursor: pointer;
     pointer-events: none;
     font-size: 14px;
@@ -6,6 +7,7 @@
 }
 
 .attributeType {
+    fill: #8ecae6;
     cursor: pointer;
     pointer-events: none;
     font-size: 14px;
@@ -14,6 +16,7 @@
 }
 
 .referentialAttributeType {
+    fill: #8ecae6;
     cursor: pointer;
     pointer-events: none;
     font-size: 14px;

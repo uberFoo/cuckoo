@@ -1399,15 +1399,15 @@ export function Paper(props: PaperProps) {
 
     // This is for the background. There's an SVG thing that can do a fill given a swatch that I
     // should look into.
-    let x_lines = [];
-    for (let i = 0; i < paper_obj!.height + 1; i += defaultGridSize) {
-        x_lines.push(<line x1={0} y1={i} x2={paper_obj!.width} y2={i} />);
-    }
+    // let x_lines = [];
+    // for (let i = 0; i < paper_obj!.height + 1; i += defaultGridSize) {
+    //     x_lines.push(<line x1={0} y1={i} x2={paper_obj!.width} y2={i} />);
+    // }
 
-    let y_lines = [];
-    for (let i = 0; i < paper_obj!.width + 1; i += defaultGridSize) {
-        y_lines.push(<line x1={i} y1={0} x2={i} y2={paper_obj!.height} />);
-    }
+    // let y_lines = [];
+    // for (let i = 0; i < paper_obj!.width + 1; i += defaultGridSize) {
+    //     y_lines.push(<line x1={i} y1={0} x2={i} y2={paper_obj!.height} />);
+    // }
 
     let doneEditing = () => {
         if (move.object.object_dialog) {
@@ -1470,19 +1470,19 @@ export function Paper(props: PaperProps) {
                             defaultScale + ")"}
                         onMouseDown={onMouseDownHandler} onMouseUp={onMouseUpHandler}
                         onMouseMove={onMouseMoveHandler} onMouseLeave={onMouseUpHandler}
-                        onContextMenu={e => e.preventDefault()}
+                        onContextMenu={e => e.preventDefault()} // This allows ctrl-click, needed for group select.
                         onDoubleClick={doubleClickHandler}
                     // onContextMenu={contextMenuHandler}
                     >
                         <rect id="background" width={paper_obj!.width} height={paper_obj!.height}
                             className={styles.paperBase}
                         />
-                        <g className={styles.axis}>
+                        {/* <g className={styles.axis}>
                             {x_lines}
                         </g>
                         <g className={styles.axis}>
                             {y_lines}
-                        </g>
+                        </g> */}
                         <g id="canvas">
                             {move.paper.new_object !== null && newObject}
                             {line &&

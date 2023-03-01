@@ -1,5 +1,6 @@
 .objectRect {
-    fill: #FFFDE0;
+    /* fill: #FFFDE0; */
+    fill: #8118ec;
     stroke: black;
     stroke-width: 1;
     pointer-events: all;
@@ -17,11 +18,13 @@
 
 .objectBisectLine {
     stroke: black;
+    /* stroke: #8ecae6; */
     stroke-width: 1;
     pointer-events: none;
 }
 
 .objectName {
+    fill: #8ecae6;
     text-anchor: middle;
     cursor: pointer;
     pointer-events: none;

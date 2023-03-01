@@ -76,9 +76,9 @@ export function Associative(props: AssociativeProps) {
 
     let from_card = getGlyph(props.rel.from.cardinality);
     // @ts-ignore
-    let one_card = getGlyph(props.rel.one?.cardinality);
+    let one_card = getGlyph(props.rel.other?.cardinality);
     // @ts-ignore
-    let other_card = getGlyph(props.rel.other?.cardinality);
+    let other_card = getGlyph(props.rel.one?.cardinality);
 
     // Relationship phrases and conditionality draw on the other side...
     // @ts-ignore

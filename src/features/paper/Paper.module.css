@@ -1,5 +1,6 @@
 .paperBase {
-    fill: #F5FBD5;
+    /* fill: #F5FBD5; */
+    /* fill: #023047; */
     pointer-events: all;
 }
 
@@ -23,6 +24,6 @@
 
 .antLine {
     fill: none;
-    stroke: #000;
+    stroke: #8ecae6;
     stroke-dasharray: 2.5, 2.5;
 }

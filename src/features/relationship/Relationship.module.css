@@ -1,5 +1,6 @@
 .relationship {
-    stroke: black;
+    /* stroke: black; */
+    stroke: #8ecae6;
     stroke-width: 1;
     pointer-events: all;
 }
@@ -18,11 +19,13 @@
 }
 
 .relPhrase {
+    fill: #8ecae6;
     stroke: none;
     cursor: move;
 }
 
 .relName {
+    fill: #8ecae6;
     font-size: 20px;
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
     stroke: none;
@@ -31,7 +34,8 @@
 
 .relLine {
     fill: none;
-    stroke: black;
+    stroke: #8ecae6;
+    /* stroke: black; */
     stroke-width: 1.0;
 }
 
