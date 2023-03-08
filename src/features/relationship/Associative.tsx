@@ -4,8 +4,8 @@ import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { selectObjectById } from '../object/objectSlice';
 import { selectRelationshipById, removeRelationship, updateRelationship } from '../relationship/relationshipSlice';
 import { removeRelationshipFromPaper } from '../paper/paperSlice';
-import { Conditionality, Cardinality, AssociativeUI, GlyphAnchor, Associative as AssociativeStore, Binary } from '../../app/store';
-import { makeLine, makeLineToPoint, getRotation } from '../../app/utils';
+import { Conditionality, Cardinality, AssociativeUI, GlyphAnchor, Associative as AssociativeStore, Binary, Point } from '../../app/store';
+import { makeLine, makeLineToPoint, getRotation, find_intersection } from '../../app/utils';
 
 import styles from './Relationship.module.css';
 import { realpath } from 'fs/promises';
@@ -95,6 +95,8 @@ export function Associative(props: AssociativeProps) {
 
     let rel_num_offset = getRelPosition(ui.one, ui.other);
 
+    let intersection = findIntersection(ui.middle, { x: ui.one.x, y: ui.one.y }, { x: ui.other.x, y: ui.other.y });
+
     return (
         <>
             {/* From g */}
@@ -135,7 +137,7 @@ export function Associative(props: AssociativeProps) {
                 y={rel_num_offset.y}>{"R" + assoc.number}</text>
             {/* The from line. */}
             <path id={line_assoc_id} key={line_assoc_id} className={styles.relLine}
-                d={makeLineToPoint(ui.middle, ui.from)}
+                d={makeLineToPoint(ui.middle, intersection!)}
             />
             {/* The one-other line. */}
             <path id={line_binary_id} key={line_binary_id} className={styles.relLine}
@@ -148,6 +150,32 @@ export function Associative(props: AssociativeProps) {
         </>
     );
 };
+
+let findIntersection = (from: GlyphAnchor, a: Point, b: Point) => {
+    let dir = from.dir;
+    switch (dir) {
+        case 'North': {
+            let from0 = { x: from.x, y: from.y };
+            let from1 = { x: from.x, y: from.y - 5000 };
+            return find_intersection(from0, from1, a, b);
+        }
+        case 'South': {
+            let from0 = { x: from.x, y: from.y };
+            let from1 = { x: from.x, y: from.y + 5000 };
+            return find_intersection(from0, from1, a, b);
+        }
+        case 'East': {
+            let from0 = { x: from.x, y: from.y };
+            let from1 = { x: from.x + 5000, y: from.y };
+            return find_intersection(from0, a, from1, b);
+        }
+        case 'West': {
+            let from0 = { x: from.x, y: from.y };
+            let from1 = { x: from.x - 5000, y: from.y };
+            return find_intersection(from0, a, from1, b);
+        }
+    }
+}
 
 // I don't really know the rules, I'm just hand editing positions like this until it looks good.
 // I could just make them draggable...

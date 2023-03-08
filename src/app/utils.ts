@@ -230,20 +230,20 @@ export function handleObjectMove(paper_obj: PaperStore, move: MoveStruct, event:
                             });
                             rels.push({ target: glyph, x: x0, y: y0, type: 'associative' });
                         } else if (from_id === obj_id) {
-                            // // @ts-ignore
-                            // let dir = r!.from.dir;
-                            // // @ts-ignore
-                            // let glyph = document.getElementById(
-                            //     `_${r_id}:${from_id}:assoc:${dir}:from`) as SVGGElement;
-                            // // @ts-ignore
-                            // let x0 = r!.from.x;
-                            // // @ts-ignore
-                            // let y0 = r!.from.y;
+                            // @ts-ignore
+                            let dir = r!.from.dir;
+                            // @ts-ignore
+                            let glyph = document.getElementById(
+                                `_${r_id}:${from_id}:assoc:${dir}:from`) as SVGGElement;
+                            // @ts-ignore
+                            let x0 = r!.from.x;
+                            // @ts-ignore
+                            let y0 = r!.from.y;
 
-                            // moveGlyph(x, y, glyph, paper_obj!, {
-                            //     x0: x0, y0: y0, x1: x + width, y1: y + height
-                            // });
-                            // rels.push({ target: glyph, x: x0, y: y0, type: 'associative' });
+                            moveGlyph(x, y, glyph, paper_obj!, {
+                                x0: x0, y0: y0, x1: x + width, y1: y + height
+                            });
+                            rels.push({ target: glyph, x: x0, y: y0, type: 'associative' });
                         }
                     }
                         break;
@@ -365,6 +365,23 @@ export function moveGlyph(x: number, y: number, target: SVGGElement, paper: Pape
                 }
             });
         }
+    } else if (box && type === 'AssociativeUI') {
+        if (end === 'one') {
+            // @ts-ignore
+            dx = rel_ui.AssociativeUI.one.x;
+            // @ts-ignore
+            dy = rel_ui.AssociativeUI.one.y;
+        } else if (end === 'other') {
+            // @ts-ignore
+            dx = rel_ui.AssociativeUI.other.x;
+            // @ts-ignore
+            dy = rel_ui.AssociativeUI.other.y;
+        } else {
+            // @ts-ignore
+            dx = rel_ui.AssociativeUI.middle.x;
+            // @ts-ignore
+            dy = rel_ui.AssociativeUI.middle.y;
+        }
     }
 
     // Find the point on the target boundary that minimizes the distance to (x, y).
@@ -458,6 +475,34 @@ export function moveGlyph(x: number, y: number, target: SVGGElement, paper: Pape
                 } else {
                     // @ts-ignore
                     let other = rel_ui.BinaryUI.from;
+                    // @ts-ignore
+                    d = makeLine(other, { x, y, dir, id: '' });
+                }
+
+                child.setAttribute('d', d);
+            }
+        }
+    } else if (type === 'AssociativeUI') {
+        let grandParent = target.parentNode;
+        let kids = grandParent!.children;
+        for (let i = 0; i < kids.length; i++) {
+            let child = kids[i];
+            if (child instanceof SVGPathElement) {
+                let d = '';
+                if (end === "one") {
+                    // @ts-ignore
+                    let other = rel_ui.AssociativeUI.other;
+                    // @ts-ignore
+                    d = makeLine({ x, y, dir, id: '' }, other);
+
+                } else if (end === "other") {
+                    // @ts-ignore
+                    let other = rel_ui.AssociativeUI.one;
+                    // @ts-ignore
+                    d = makeLine(other, { x, y, dir, id: '' });
+                } else {
+                    // @ts-ignore
+                    let other = rel_ui.AssociativeUI.middle;
                     // @ts-ignore
                     d = makeLine(other, { x, y, dir, id: '' });
                 }
@@ -609,7 +654,7 @@ export function makeLineToPoint(from: GlyphAnchor, to: Point) {
     return "M " + f![0] + " " + f![1] + " L " + to.x + " " + to.y;
 }
 
-export function intersection(from1: Point, to1: Point, from2: Point, to2: Point): Point | undefined {
+export function find_intersection(from1: Point, to1: Point, from2: Point, to2: Point): Point | undefined {
     const dX: number = to1.x - from1.x;
     const dY: number = to1.y - from1.y;
 

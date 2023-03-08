@@ -88,6 +88,36 @@ export const paperSlice = createSlice({
             // @ts-ignore
             paper!.relationships[id] = { ...ui!, BinaryUI: { ...bui, to } };
         },
+        relationshipUpdateAssocOne: (state, action) => {
+            let { id, one } = action.payload;
+
+            let paper = state.entities[state.ids[0]];
+            let ui = paper!.relationships[id];
+            // @ts-ignore
+            let aui = ui!.AssociativeUI;
+            // @ts-ignore
+            paper!.relationships[id] = { ...ui!, AssociativeUI: { ...aui!, one } };
+        },
+        relationshipUpdateAssocOther: (state, action) => {
+            let { id, other } = action.payload;
+
+            let paper = state.entities[state.ids[0]];
+            let ui = paper!.relationships[id];
+            // @ts-ignore
+            let aui = ui!.AssociativeUI;
+            // @ts-ignore
+            paper!.relationships[id] = { ...ui!, AssociativeUI: { ...aui, other } };
+        },
+        relationshipUpdateAssocMiddle: (state, action) => {
+            let { id, middle } = action.payload;
+
+            let paper = state.entities[state.ids[0]];
+            let ui = paper!.relationships[id];
+            // @ts-ignore
+            let aui = ui!.AssociativeUI;
+            // @ts-ignore
+            paper!.relationships[id] = { ...ui!, AssociativeUI: { ...aui, middle } };
+        },
         relationshipUpdateIsaFrom: (state, action) => {
             let { id, new_from } = action.payload;
 
@@ -127,6 +157,30 @@ export const paperSlice = createSlice({
                 };
             }
         },
+        relationshipUpdateAssocRelPhrase: (state, action) => {
+            let { id, end, offset } = action.payload;
+
+            let paper = state.entities[state.ids[0]];
+            let ui = paper!.relationships[id];
+
+            if (end === 'one') {
+                // @ts-ignore
+                let other = ui!.AssociativeUI.other;
+                // @ts-ignore
+                paper!.relationships[id].AssociativeUI.other = {
+                    ...other,
+                    offset: { x: offset.x + other.offset.x, y: offset.y + other.offset.y }
+                };
+            } else {
+                // @ts-ignore
+                let one = ui!.AssociativeUI.one;
+                // @ts-ignore
+                paper!.relationships[id].AssociativeUI.one = {
+                    ...one,
+                    offset: { x: offset.x + one.offset.x, y: offset.y + one.offset.y }
+                };
+            }
+        },
         addRelationshipToPaper: (state, action) => {
             let { id, payload } = action.payload;
 
@@ -153,7 +207,8 @@ export const { addPaper, addObjectToPaper, objectMoveTo, objectResizeBy, objectC
     relationshipUpdate, removeObjectFromPaper, relationshipUpdateBinaryFrom, savePaperOffset,
     relationshipUpdateBinaryTo, relationshipUpdateIsaFrom, relationshipUpdateIsaTo,
     relationshipUpdateBinaryRelPhrase, addRelationshipToPaper, removeRelationshipFromPaper,
-    relationshipChangeId, relationshipAddTargetToIsa }
+    relationshipUpdateAssocOne, relationshipUpdateAssocOther, relationshipUpdateAssocMiddle,
+    relationshipUpdateAssocRelPhrase, relationshipChangeId, relationshipAddTargetToIsa }
     = paperSlice.actions;
 
 export let {

@@ -13,7 +13,8 @@ import {
     addObjectToPaper, selectPaperSingleton, objectResizeBy, objectMoveTo,
     relationshipUpdateBinaryFrom, relationshipUpdateBinaryTo, removeObjectFromPaper,
     relationshipUpdateIsaFrom, relationshipUpdateIsaTo, savePaperOffset,
-    relationshipUpdateBinaryRelPhrase, addRelationshipToPaper, removeRelationshipFromPaper, relationshipAddTargetToIsa
+    relationshipUpdateBinaryRelPhrase, addRelationshipToPaper, removeRelationshipFromPaper, relationshipAddTargetToIsa,
+    relationshipUpdateAssocOne, relationshipUpdateAssocOther, relationshipUpdateAssocMiddle, relationshipUpdateAssocRelPhrase,
 } from './paperSlice';
 import ObjectEditor from '../object/ObjectDialog';
 import BinaryEditor from '../relationship/BinaryDialog';
@@ -25,7 +26,7 @@ import {
     parseTransform, makeTransform2, get_parent_with_id
 }
     from '../../app/utils';
-import { addRelationship, removeRelationship, addTargetToIsa, selectRelationshipById } from '../relationship/relationshipSlice';
+import { addRelationship, removeRelationship, addTargetToIsa } from '../relationship/relationshipSlice';
 
 import styles from './Paper.module.css';
 
@@ -494,7 +495,7 @@ export function Paper(props: PaperProps) {
                     let ui = paper_obj!.relationships[id] as RelationshipUI;
 
                     switch (Object.keys(ui)[0]) {
-                        case 'BinaryUI':
+                        case 'BinaryUI': {
                             // @ts-ignore
                             let props = ui.BinaryUI as BinaryUI;
                             if (end === 'from') {
@@ -506,6 +507,25 @@ export function Paper(props: PaperProps) {
                                 y = props.to.y;
                                 dir = props.to.dir;
                             }
+                        }
+                            break;
+                        case 'AssociativeUI': {
+                            // @ts-ignore
+                            let props = ui.AssociativeUI as AssociativeUI;
+                            if (end === 'one') {
+                                x = props.one.x;
+                                y = props.one.y;
+                                dir = props.one.dir;
+                            } else if (end === 'other') {
+                                x = props.other.x;
+                                y = props.other.y;
+                                dir = props.other.dir;
+                            } else {
+                                x = props.middle.x;
+                                y = props.middle.y;
+                                dir = props.middle.dir;
+                            }
+                        }
                             break;
                         case 'IsaUI': {
                             // @ts-ignore
@@ -1010,59 +1030,94 @@ export function Paper(props: PaperProps) {
                         = relationship;
 
                     // These, among others, aren't defined when a relPhrase is dragged.
-                    if (dir !== null && obj_id !== undefined) {
+                    if (obj_id !== undefined) {
                         let ui = paper_obj?.relationships[id];
 
-                        switch (Object.keys(ui!)[0]) {
-                            case 'BinaryUI':
-                                if (end === 'from') {
+                        if (dir !== null) {
+                            switch (Object.keys(ui!)[0]) {
+                                case 'BinaryUI':
+                                    if (end === 'from') {
+                                        // @ts-ignore
+                                        let from = ui!.BinaryUI.from;
+                                        dispatch(relationshipUpdateBinaryFrom({
+                                            id,
+                                            from: { ...from, id: obj_id, x, y, dir }
+                                        }));
+                                    } else if (end === 'to') {
+                                        // @ts-ignore
+                                        let to = ui!.BinaryUI.to;
+                                        dispatch(relationshipUpdateBinaryTo({
+                                            id,
+                                            to: { ...to, id: obj_id, x, y, dir }
+                                        }));
+                                    } else {
+                                        console.error('unknown end', end);
+                                    }
+                                    break;
+                                case 'AssociativeUI':
+                                    if (end === 'one') {
+                                        // @ts-ignore
+                                        let one = ui!.AssociativeUI.one;
+                                        dispatch(relationshipUpdateAssocOne({
+                                            id,
+                                            one: { ...one, id: obj_id, x, y, dir }
+                                        }));
+                                    } else if (end === 'other') {
+                                        // @ts-ignore
+                                        let other = ui!.AssociativeUI.other;
+                                        dispatch(relationshipUpdateAssocOther({
+                                            id,
+                                            other: { ...other, id: obj_id, x, y, dir }
+                                        }));
+                                    } else if (end === 'from') {
+                                        // @ts-ignore
+                                        let middle = ui!.AssociativeUI.middle;
+                                        dispatch(relationshipUpdateAssocMiddle({
+                                            id,
+                                            middle: { ...middle, id: obj_id, x, y, dir }
+                                        }));
+                                    } else {
+                                        console.error('unknown end', end);
+                                    }
+                                    break;
+                                case 'IsaUI': {
                                     // @ts-ignore
-                                    let from = ui!.BinaryUI.from;
-                                    dispatch(relationshipUpdateBinaryFrom({
-                                        id,
-                                        from: { ...from, id: obj_id, x, y, dir }
-                                    }));
-                                } else if (end === 'to') {
-                                    // @ts-ignore
-                                    let to = ui!.BinaryUI.to;
-                                    dispatch(relationshipUpdateBinaryTo({
-                                        id,
-                                        to: { ...to, id: obj_id, x, y, dir }
-                                    }));
-                                } else {
-                                    console.error('unknown end', end);
-                                }
-                                break;
-                            case 'IsaUI': {
-                                // @ts-ignore
-                                let isa_ui = ui.IsaUI;
+                                    let isa_ui = ui.IsaUI;
 
-                                if (end === 'from') {
-                                    dispatch(relationshipUpdateIsaFrom({
-                                        id, new_from: { ...isa_ui.from, x, y, dir }
-                                    }));
-                                } else if (end === 'to') {
-                                    isa_ui.to.forEach((to_ui: GlyphAnchor, index: number) => {
-                                        if (to_ui.id === obj_id) {
-                                            dispatch(relationshipUpdateIsaTo({
-                                                id, index, new_to: { ...to_ui, x, y, dir }
-                                            }))
-                                        }
-                                    })
-                                } else {
-                                    console.error('unknown end', end);
+                                    if (end === 'from') {
+                                        dispatch(relationshipUpdateIsaFrom({
+                                            id, new_from: { ...isa_ui.from, x, y, dir }
+                                        }));
+                                    } else if (end === 'to') {
+                                        isa_ui.to.forEach((to_ui: GlyphAnchor, index: number) => {
+                                            if (to_ui.id === obj_id) {
+                                                dispatch(relationshipUpdateIsaTo({
+                                                    id, index, new_to: { ...to_ui, x, y, dir }
+                                                }))
+                                            }
+                                        })
+                                    } else {
+                                        console.error('unknown end', end);
+                                    }
                                 }
+                                    break;
+
+                                default:
+                                    console.error('unknown relationship ui', ui!);
+                                    break
                             }
-                                break;
-
-                            default:
-                                console.error('unknown relationship ui', ui!);
-                                break
+                        } else if (target!.node!.className.baseVal.split('_')[1] === 'relPhrase') {
+                            // Assume rel phrase drag
+                            let { dx, dy } = relationship;
+                            switch (Object.keys(ui!)[0]) {
+                                case 'BinaryUI':
+                                    dispatch(relationshipUpdateBinaryRelPhrase({ id, end, offset: { x: dx, y: dy } }));
+                                    break;
+                                case 'AssociativeUI':
+                                    dispatch(relationshipUpdateAssocRelPhrase({ id, end, offset: { x: dx, y: dy } }));
+                                    break;
+                            }
                         }
-                    } else if (target!.node!.className.baseVal.split('_')[1] === 'relPhrase') {
-                        // Assume rel phrase drag
-                        let { dx, dy } = relationship;
-                        dispatch(relationshipUpdateBinaryRelPhrase({ id, end, offset: { x: dx, y: dy } }));
                     }
 
                     setMove({

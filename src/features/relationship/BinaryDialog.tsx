@@ -166,7 +166,7 @@ const BinaryEditor = (props: Props) => {
                                 value={formik.values.from_attr} onChange={formik.handleChange}
                                 variant="outlined" />
                             <FormLabel>Cardinality</FormLabel>
-                            <RadioGroup row id="from_card" name="from_card" value={formik.values.from_card}
+                            <RadioGroup row id="to_card" name="to_card" value={formik.values.to_card}
                                 onChange={formik.handleChange}>
                                 <FormControlLabel value='One' control={<Radio />} label='One' />
                                 <FormControlLabel value='Many' control={<Radio />} label='Many' />
@@ -185,7 +185,7 @@ const BinaryEditor = (props: Props) => {
                                 value={formik.values.to_desc} onChange={formik.handleChange}
                                 variant="outlined" />
                             <FormLabel>Cardinality</FormLabel>
-                            <RadioGroup row id="to_card" name="to_card" value={formik.values.to_card}
+                            <RadioGroup row id="from_card" name="from_card" value={formik.values.from_card}
                                 onChange={formik.handleChange}>
                                 <FormControlLabel value='One' control={<Radio />} label='One' />
                                 <FormControlLabel value='Many' control={<Radio />} label='Many' />
