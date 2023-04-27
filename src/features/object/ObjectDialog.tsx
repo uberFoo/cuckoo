@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import Draggable from 'react-draggable';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import { v5 as uuid } from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 import { AttributeStore, Type } from '../../app/store';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
@@ -54,7 +54,7 @@ const ObjectEditor = (props: Props) => {
         },
         onSubmit: (values) => save(values)
     });
-    let [attrType, setAttrType] = React.useState('');
+    let [attrType, setAttrType] = React.useState('Uuid');
 
     if (object === undefined) {
         console.error("can't find object in the store", props.obj_id);
@@ -74,7 +74,7 @@ const ObjectEditor = (props: Props) => {
             // Check out issue #16, for details.
             // This breaks new object creation. 😡
             if (id === "fubar") {
-                id = uuid(values.objectName, props.ns);
+                id = uuid();
             }
             name = values.objectName;
             dirty = true;
@@ -160,7 +160,7 @@ const ObjectEditor = (props: Props) => {
     let handleAddAttr = () => {
         let element = document.getElementById('attributeName') as HTMLInputElement;
         let name = element!.value;
-        let id = uuid(`${props.obj_id}::${name}`, props.ns);
+        let id = uuid();
         let attr: AttributeStore = {
             id,
             name,

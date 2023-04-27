@@ -5,7 +5,7 @@ import {
     Divider, RadioGroup, Radio, FormControlLabel, PaperProps, Paper, Box
 } from '@mui/material';
 import Draggable from 'react-draggable';
-import { v5 as uuid } from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 import { Binary } from '../../app/store';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
@@ -73,8 +73,7 @@ const BinaryEditor = (props: Props) => {
     }) => {
         let id = relationship.id;
         if (values.rel_num !== relationship.number) {
-            let new_id = uuid(`${relationship.from.obj_id}::${relationship.to.obj_id}::${values.rel_num}`,
-                props.ns);
+            let new_id = uuid();
 
             // Not much to do but nuke the old one. I could check each value against what's in redux,
             // but is there really any point? I don't know what exactly slice syntax, or whatever it's

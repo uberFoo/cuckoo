@@ -4,6 +4,8 @@ import { Menu, MenuItem } from '@mui/material';
 import { ActionCreators as UndoActionCreators } from 'redux-undo';
 import storage from 'redux-persist/lib/storage';
 import { ErrorBoundary } from 'react-error-boundary';
+import { v4 as uuid } from 'uuid';
+
 
 import { ObjectWidget } from '../object/Object';
 import { BinaryUI, IsaUI, Isa, Binary, Rect, ObjectUI, RelationshipUI, GlyphAnchor, Associative, AssociativeUI } from '../../app/store';
@@ -628,9 +630,18 @@ export function Paper(props: PaperProps) {
 
                                 new_obj = true;
 
+                                let id = uuid();
+
                                 dispatch(addObject({
                                     id: "fubar", key_letter: "NO", name: "New Object",
-                                    description: "", attributes: {}
+                                    description: "",
+                                    attributes: {
+                                        // id: {
+                                        //     "id": id,
+                                        //     "name": "id",
+                                        //     "type": "Uuid",
+                                        // },
+                                    }
                                 }));
                                 dispatch(addObjectToPaper(obj_ui));
                             }
@@ -887,7 +898,7 @@ export function Paper(props: PaperProps) {
                                     relationship: {
                                         ...relationship, id: 'foo',
                                         relationship_type: 'IsaUI',
-                                        relationship_dialog: true
+                                        relationship_dialog: false
                                     }
                                 });
                                 return;
@@ -1454,15 +1465,15 @@ export function Paper(props: PaperProps) {
 
     // This is for the background. There's an SVG thing that can do a fill given a swatch that I
     // should look into.
-    // let x_lines = [];
-    // for (let i = 0; i < paper_obj!.height + 1; i += defaultGridSize) {
-    //     x_lines.push(<line x1={0} y1={i} x2={paper_obj!.width} y2={i} />);
-    // }
+    let x_lines = [];
+    for (let i = 0; i < paper_obj!.height + 1; i += defaultGridSize) {
+        x_lines.push(<line x1={0} y1={i} x2={paper_obj!.width} y2={i} />);
+    }
 
-    // let y_lines = [];
-    // for (let i = 0; i < paper_obj!.width + 1; i += defaultGridSize) {
-    //     y_lines.push(<line x1={i} y1={0} x2={i} y2={paper_obj!.height} />);
-    // }
+    let y_lines = [];
+    for (let i = 0; i < paper_obj!.width + 1; i += defaultGridSize) {
+        y_lines.push(<line x1={i} y1={0} x2={i} y2={paper_obj!.height} />);
+    }
 
     let doneEditing = () => {
         if (move.object.object_dialog) {
@@ -1511,6 +1522,7 @@ export function Paper(props: PaperProps) {
                     />
                 }
                 <svg id="svg-root" width={paper_obj!.width} height={paper_obj!.height}
+                    // <svg id="svg-root" width={paper_obj!.width} height={paper_obj!.height} viewBox="0 0 8000 8000"
                     xmlns='http://www.w3.org/2000/svg'
                 >
 
@@ -1532,12 +1544,12 @@ export function Paper(props: PaperProps) {
                         <rect id="background" width={paper_obj!.width} height={paper_obj!.height}
                             className={styles.paperBase}
                         />
-                        {/* <g className={styles.axis}>
+                        <g className={styles.axis}>
                             {x_lines}
                         </g>
                         <g className={styles.axis}>
                             {y_lines}
-                        </g> */}
+                        </g>
                         <g id="canvas">
                             {move.paper.new_object !== null && newObject}
                             {line &&

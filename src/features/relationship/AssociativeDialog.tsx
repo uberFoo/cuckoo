@@ -5,7 +5,7 @@ import {
     Divider, RadioGroup, Radio, FormControlLabel, PaperProps, Paper, Box
 } from '@mui/material';
 import Draggable from 'react-draggable';
-import { v5 as uuid } from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 import { Associative, Binary } from '../../app/store';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
@@ -114,8 +114,7 @@ const AssociativeEditor = (props: Props) => {
 
         // if (copied || values.rel_num !== relationship.number) {
         if (values.rel_num !== relationship.number) {
-            let new_id = uuid(`${relationship.from}::${relationship.one!.obj_id}::${relationship.other!.obj_id}`,
-                props.ns);
+            let new_id = uuid();
 
             // if (copied) {
             //     let bin_id = id.split('_')[0];

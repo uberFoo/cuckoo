@@ -5,7 +5,7 @@ import {
     FormControl, PaperProps, Paper
 } from '@mui/material';
 import Draggable from 'react-draggable';
-import { v5 as uuid } from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 import { Isa } from '../../app/store';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
@@ -55,8 +55,7 @@ const IsaEditor = (props: Props) => {
     }) => {
         let id = relationship.id;
         if (values.rel_num !== relationship.number) {
-            let new_id = uuid(`${relationship.obj_id}::${values.rel_num}`,
-                props.ns);
+            let new_id = uuid();
 
             // Not much to do but nuke the old one. I could check each value against what's in redux,
             // but is there really any point? I don't know what exactly slice syntax, or whatever it's
@@ -105,8 +104,8 @@ const IsaEditor = (props: Props) => {
                         </FormGroup>
                     </DialogContent >
                     <DialogActions>
-                        <Button onClick={cancel}>Cancel</Button>
-                        <Button onClick={handleSubmit}>Save</Button>
+                        <Button variant={"outlined"} onClick={cancel}>Cancel</Button>
+                        <Button variant={"outlined"} onClick={handleSubmit}>Save</Button>
                     </DialogActions>
                 </FormControl>
             </Dialog>

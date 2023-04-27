@@ -96,6 +96,9 @@ export function Associative(props: AssociativeProps) {
     let rel_num_offset = getRelPosition(ui.one, ui.other);
 
     let intersection = findIntersection(ui.middle, { x: ui.one.x, y: ui.one.y }, { x: ui.other.x, y: ui.other.y });
+    if (intersection === undefined) {
+        intersection = { x: 0, y: 0 };
+    }
 
     return (
         <>
@@ -137,7 +140,7 @@ export function Associative(props: AssociativeProps) {
                 y={rel_num_offset.y}>{"R" + assoc.number}</text>
             {/* The from line. */}
             <path id={line_assoc_id} key={line_assoc_id} className={styles.relLine}
-                d={makeLineToPoint(ui.middle, intersection!)}
+                d={makeLineToPoint(ui.middle, intersection)}
             />
             {/* The one-other line. */}
             <path id={line_binary_id} key={line_binary_id} className={styles.relLine}
@@ -156,23 +159,23 @@ let findIntersection = (from: GlyphAnchor, a: Point, b: Point) => {
     switch (dir) {
         case 'North': {
             let from0 = { x: from.x, y: from.y };
-            let from1 = { x: from.x, y: from.y - 5000 };
+            let from1 = { x: from.x, y: from.y - 1500 };
             return find_intersection(from0, from1, a, b);
         }
         case 'South': {
             let from0 = { x: from.x, y: from.y };
-            let from1 = { x: from.x, y: from.y + 5000 };
+            let from1 = { x: from.x, y: from.y + 1500 };
             return find_intersection(from0, from1, a, b);
         }
         case 'East': {
             let from0 = { x: from.x, y: from.y };
-            let from1 = { x: from.x + 5000, y: from.y };
-            return find_intersection(from0, a, from1, b);
+            let from1 = { x: from.x + 1500, y: from.y };
+            return find_intersection(from0, from1, a, b);
         }
         case 'West': {
             let from0 = { x: from.x, y: from.y };
-            let from1 = { x: from.x - 5000, y: from.y };
-            return find_intersection(from0, a, from1, b);
+            let from1 = { x: from.x - 1500, y: from.y };
+            return find_intersection(from0, from1, a, b);
         }
     }
 }

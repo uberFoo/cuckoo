@@ -9,14 +9,24 @@ import objectReducer from '../features/object/objectSlice';
 import relationshipReducer from '../features/relationship/relationshipSlice';
 
 // import model from '/Users/uberfoo/projects/sarzak/grace/tests/mdd/models/everything.json';
+// import model from '/Users/uberfoo/projects/sarzak/grace/tests/mdd/models/one_to_one.json';
+// import model from '/Users/uberfoo/projects/sarzak/grace/tests/mdd/models/one_to_many.json';
+// import model from '/Users/uberfoo/projects/sarzak/grace/tests/mdd/models/isa.json';
+// import model from '/Users/uberfoo/projects/sarzak/grace/tests/mdd/models/associative.json';
+// import model from '/Users/uberfoo/projects/sarzak/grace/tests/mdd/models/imported_object.json';
+// import model from '/Users/uberfoo/projects/sarzak/grace/tests/mdd/models/external.json';
 
 // import model from '/Users/uberfoo/projects/sarzak/nut/models/cat_dog.json';
 // import model from '/Users/uberfoo/projects/sarzak/nut/models/drawing_orig.json';
 
 // import model from '/Users/uberfoo/tmp/foo/models/bar.json';
 
-import model from '/Users/uberfoo/projects/sarzak/sarzak/models/sarzak.json';
+// import model from '/Users/uberfoo/projects/sarzak/sarzak/models/woog.json';
+// import model from '/Users/uberfoo/projects/sarzak/sarzak/models/woog-advanced.json';
+import model from '/Users/uberfoo/projects/sarzak/sarzak/models/lu_dog.json';
+// import model from '/Users/uberfoo/projects/sarzak/sarzak/models/sarzak.json';
 // import model from '/Users/uberfoo/projects/sarzak/sarzak/models/drawing.json';
+// import model from '/Users/uberfoo/projects/sarzak/sarzak/models/merlin.json';
 
 // import model from '/Users/uberfoo/projects/sarzak/nut/crates/test_models/models/one_to_one.json';
 // import model from '/Users/uberfoo/projects/sarzak/nut/crates/test_models/models/one_to_many.json';

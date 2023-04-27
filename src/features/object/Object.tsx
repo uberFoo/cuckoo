@@ -50,6 +50,8 @@ export function ObjectWidget(props: ObjectProps) {
 
         return false;
     }).map(r => {
+        // Thsy removes the referrential attributes.
+        return null;
         // @ts-ignore
         if (r.Binary !== undefined) {
             // @ts-ignore
@@ -95,6 +97,10 @@ export function ObjectWidget(props: ObjectProps) {
     }).flat().filter(r => r !== null).forEach(r => attributeInstances[r.id] = r);
 
     let attributeElements: Array<JSX.Element> = Object.keys(attributeInstances)
+        .filter((id, _) => {
+            let a = attributeInstances[id];
+            return a!.name !== 'id';
+        })
         .map((id, i) => {
             let a = attributeInstances[id];
 
@@ -112,7 +118,8 @@ export function ObjectWidget(props: ObjectProps) {
             >
                 <rect className={styles.objectRect} width={props.width} height={props.height} />
                 <text className={styles.objectName} x={props.width / 2} y={textHeight}>
-                    {object!.name} &nbsp; ({object!.key_letter})
+                    {/* {object!.name} &nbsp; ({object!.key_letter}) */}
+                    {object!.name}
                 </text>
                 <line className={styles.objectBisectLine} x1={0} y1={textHeight * 1.5} x2={props.width}
                     y2={textHeight * 1.5}

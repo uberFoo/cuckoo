@@ -58,7 +58,7 @@ export function Binary(props: BinaryProps) {
                     d={from_card} />
                 {to_cond}
             </g>
-            {to_phrase}
+            {/* {to_phrase} */}
             {/* The 'to' g */}
             <g id={id_to} key={id_to} className={styles.relAnchor}
                 transform={"translate(" + ui.to.x + "," + ui.to.y + ")" +
@@ -69,7 +69,7 @@ export function Binary(props: BinaryProps) {
                 <path className={styles.relGlyph} d={to_card} />
                 {from_cond}
             </g>
-            {from_phrase}
+            {/* {from_phrase} */}
             {/* The relationship number */}
             <text id={name_id} className={styles.relName} x={rel_num_offset.x}
                 y={rel_num_offset.y}>{"R" + binary.number}</text>
