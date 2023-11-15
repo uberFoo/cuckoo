@@ -21,9 +21,11 @@ import relationshipReducer from '../features/relationship/relationshipSlice';
 
 // import model from '/Users/uberfoo/tmp/foo/models/bar.json';
 
+import model from '../../models/lu_dog.json';
+
 // import model from '/Users/uberfoo/projects/sarzak/sarzak/models/woog.json';
 // import model from '/Users/uberfoo/projects/sarzak/sarzak/models/woog-advanced.json';
-import model from '/Users/uberfoo/projects/sarzak/sarzak/models/lu_dog.json';
+// import model from '/Users/uberfoo/projects/sarzak/sarzak/models/lu_dog.json';
 // import model from '/Users/uberfoo/projects/sarzak/sarzak/models/sarzak.json';
 // import model from '/Users/uberfoo/projects/sarzak/sarzak/models/drawing.json';
 // import model from '/Users/uberfoo/projects/sarzak/sarzak/models/merlin.json';

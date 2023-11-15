@@ -11,6 +11,22 @@ It's strictly for me to develop an implementation of recursive design, RD.
 RD is something else from SM, but they never really got it all figured out and published.
 So again, I'm making it up.
 
+## Building
+
+Apparently lock files don't work the way you'd think in node, so you'll need to run this command to initialize the node deps:
+
+```console
+npm install --legacy-peer-deps
+```
+
+And then:
+
+``console
+cargo tauri dev
+```
+
+This clearly presupposes that you have tauri installed.
+
 ## Controls
 
 The controls are anything but simple.
@@ -18,7 +34,6 @@ I didn't want to deal with a keyboard handler, so it's all mouse.
 Luckily mouse events have key modifiers.
 We make extensive use of those.
 It's so bad I've forgotten what they are after just a few weeks.
-This this file.
 
 | Click Location | Modifier         | Effect              |
 | -------------- | ---------------- | ------------------- |
